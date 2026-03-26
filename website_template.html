@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyPlanningGuide — Know Your Planning Chances Before You Spend a Penny</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#FFFFFF;
+  --bg-subtle:#F7F9F7;
+  --bg-alt:#F0F4F1;
+  --surface:#FFFFFF;
+  --border:#E2E8E3;
+  --border-mid:#C8D4CA;
+  --text-primary:#0A0F0C;
+  --text-secondary:#4A5C50;
+  --text-muted:#8FA896;
+  --accent:#0B4D2C;
+  --accent-mid:#126B3A;
+  --accent-bright:#18A056;
+  --accent-light:#EBF5EF;
+  --accent-glow:rgba(24,160,86,0.12);
+  --gold:#C49A3C;
+  --font:'Outfit',system-ui,sans-serif;
+  --r:6px;
+  --r-md:10px;
+  --r-lg:16px;
+  --shadow-sm:0 1px 4px rgba(0,0,0,0.06);
+  --shadow-md:0 4px 20px rgba(0,0,0,0.08);
+  --shadow-lg:0 16px 48px rgba(0,0,0,0.12);
+  --dot-color:rgba(11,77,44,0.07);
+}
+
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* DOT PATTERN */
+.dot-bg{background-image:radial-gradient(var(--dot-color) 1px,transparent 1px);background-size:24px 24px}
+.dot-bg-lg{background-image:radial-gradient(var(--dot-color) 1.5px,transparent 1.5px);background-size:32px 32px}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  background:rgba(255,255,255,0.85);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);height:58px;
+  display:flex;align-items:center;
+}
+.nav-inner{max-width:1180px;margin:0 auto;padding:0 28px;width:100%;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.logo-mark{
+  width:30px;height:30px;background:var(--accent);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.nav-wordmark{font-size:16px;font-weight:700;color:var(--text-primary);letter-spacing:-0.02em}
+.nav-links{display:flex;align-items:center;gap:28px;list-style:none}
+.nav-links a{font-size:14px;font-weight:400;color:var(--text-secondary);text-decoration:none;transition:color .15s}
+.nav-links a:hover{color:var(--text-primary)}
+.nav-actions{display:flex;align-items:center;gap:10px}
+.btn-ghost{font-family:var(--font);font-size:14px;font-weight:400;color:var(--text-secondary);background:none;border:none;cursor:pointer;padding:7px 14px;border-radius:var(--r);transition:color .15s,background .15s;text-decoration:none}
+.btn-ghost:hover{color:var(--text-primary);background:var(--bg-alt)}
+.btn-cta{
+  font-family:var(--font);font-size:14px;font-weight:600;color:#fff;
+  background:linear-gradient(135deg,var(--accent-mid) 0%,var(--accent-bright) 100%);
+  border:none;cursor:pointer;padding:9px 20px;border-radius:var(--r);
+  transition:opacity .15s,transform .1s;text-decoration:none;
+  display:inline-flex;align-items:center;gap:6px;letter-spacing:-0.01em;
+  box-shadow:0 2px 8px rgba(18,107,58,0.35);
+}
+.btn-cta:hover{opacity:.92}
+.btn-cta:active{transform:scale(.98)}
+
+/* ── HERO ── */
+.hero-wrap{
+  position:relative;overflow:hidden;
+  background:var(--bg);padding-top:58px;
+}
+.hero-gradient{
+  position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 70% 60% at 65% 40%, rgba(24,160,86,0.09) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 50% at 20% 80%, rgba(11,77,44,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 80% 10%, rgba(196,154,60,0.05) 0%, transparent 60%);
+}
+.hero-dot{
+  position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(rgba(11,77,44,0.055) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+.hero{
+  position:relative;z-index:1;
+  max-width:1180px;margin:0 auto;padding:88px 28px 80px;
+  display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;
+  min-height:calc(100vh - 58px);
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--accent-mid);background:var(--accent-light);
+  border:1px solid rgba(24,160,86,0.25);padding:5px 13px;border-radius:20px;margin-bottom:24px;
+}
+.badge-dot{width:6px;height:6px;background:var(--accent-bright);border-radius:50%;animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero-headline{
+  font-size:clamp(40px,5.5vw,64px);font-weight:800;line-height:1.04;
+  letter-spacing:-0.035em;color:var(--text-primary);margin-bottom:18px;
+}
+.hero-headline .hl{
+  background:linear-gradient(135deg,var(--accent-mid),var(--accent-bright));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{font-size:17px;font-weight:400;color:var(--text-secondary);line-height:1.6;margin-bottom:36px;max-width:440px}
+.hero-input-wrap{
+  display:flex;max-width:460px;
+  background:var(--surface);border:1.5px solid var(--border-mid);
+  border-radius:var(--r-md);overflow:hidden;box-shadow:var(--shadow-md);
+  transition:border-color .2s,box-shadow .2s;
+}
+.hero-input-wrap:focus-within{border-color:var(--accent-bright);box-shadow:0 0 0 4px var(--accent-glow),var(--shadow-md)}
+.hero-input-wrap input{
+  flex:1;font-family:var(--font);font-size:14.5px;font-weight:400;
+  color:var(--text-primary);background:none;border:none;outline:none;padding:14px 18px;
+}
+.hero-input-wrap input::placeholder{color:var(--text-muted)}
+.hero-input-wrap button{
+  font-family:var(--font);font-size:14px;font-weight:600;color:#fff;
+  background:linear-gradient(135deg,var(--accent-mid),var(--accent-bright));
+  border:none;padding:0 22px;cursor:pointer;white-space:nowrap;
+  transition:opacity .15s;display:flex;align-items:center;gap:7px;
+  letter-spacing:-0.01em;
+}
+.hero-input-wrap button:hover{opacity:.9}
+.hero-note{margin-top:12px;font-size:12.5px;color:var(--text-muted);display:flex;align-items:center;gap:5px}
+.hero-stats{display:flex;gap:36px;margin-top:44px;padding-top:32px;border-top:1px solid var(--border)}
+.stat-val{font-size:26px;font-weight:800;color:var(--text-primary);letter-spacing:-0.03em;line-height:1}
+.stat-lbl{font-size:12px;color:var(--text-muted);margin-top:3px;font-weight:400}
+
+/* ── HERO VISUAL ── */
+.hero-visual{position:relative;padding:40px 32px 32px 32px}
+
+.report-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-lg);box-shadow:var(--shadow-lg);overflow:hidden;
+  position:relative;z-index:2;
+}
+.rc-header{background:var(--accent);padding:18px 22px;display:flex;align-items:flex-start;justify-content:space-between}
+.rc-addr{font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px}
+.rc-title{font-size:17px;font-weight:700;color:#fff;letter-spacing:-.02em}
+.rc-badge{
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);
+  border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;
+  color:rgba(255,255,255,.9);letter-spacing:.06em;text-transform:uppercase;
+}
+.rc-body{padding:22px}
+.rc-score-row{display:flex;align-items:baseline;gap:12px;margin-bottom:8px}
+.rc-score-num{font-size:44px;font-weight:800;color:#18A056;letter-spacing:-.04em;line-height:1}
+.rc-score-lbl{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em}
+.rc-bar{height:5px;background:var(--bg-alt);border-radius:3px;overflow:hidden;margin-bottom:22px}
+.rc-bar-fill{height:100%;width:74%;background:linear-gradient(90deg,#18A056,#4FCA84);border-radius:3px;animation:grow 1.6s ease-out .4s both}
+@keyframes grow{from{width:0}to{width:74%}}
+.rc-rows{display:flex;flex-direction:column;gap:0}
+.rc-row{
+  display:grid;grid-template-columns:18px 1fr auto;gap:10px;
+  align-items:center;padding:9px 10px;border-radius:6px;transition:background .15s;font-size:13px;
+}
+.rc-row:hover{background:var(--bg-subtle)}
+.rc-dot{width:8px;height:8px;border-radius:50%}
+.d-g{background:#18A056}.d-y{background:#C49A3C}.d-r{background:#D94040}
+.rc-name{color:var(--text-secondary);font-weight:400}
+.rc-tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;letter-spacing:.02em}
+.t-pass{background:#EDFAF3;color:#0F7040}.t-warn{background:#FEF7E6;color:#8A6010}.t-fail{background:#FDECEA;color:#991818}
+.rc-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.rc-footer-txt{font-size:11.5px;color:var(--text-muted)}
+.rc-footer-link{font-size:12px;font-weight:600;color:var(--accent-bright);text-decoration:none;display:flex;align-items:center;gap:4px}
+
+/* Floating chips */
+.chip{
+  position:absolute;background:var(--surface);
+  border:1px solid var(--border);border-radius:10px;
+  padding:10px 14px;box-shadow:var(--shadow-md);
+  font-size:12.5px;display:flex;align-items:center;gap:9px;z-index:10;
+}
+.chip-icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ci-green{background:var(--accent-light)}
+.ci-gold{background:#FEF7E6}
+.chip-title{font-size:12.5px;font-weight:600;color:var(--text-primary)}
+.chip-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.chip-a{top:4px;right:4px;animation:fc 5s ease-in-out infinite}
+.chip-b{bottom:16px;left:-4px;animation:fc 5.5s ease-in-out .8s infinite}
+@keyframes fc{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.card-float{animation:cf 6s ease-in-out infinite}
+@keyframes cf{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+
+/* ── LOGOS ── */
+.logos{
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  background:var(--bg-subtle);padding:18px 28px;
+}
+.logos-inner{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:32px}
+.logos-lbl{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);white-space:nowrap;flex-shrink:0}
+.logos-div{width:1px;height:18px;background:var(--border);flex-shrink:0}
+.logos-row{display:flex;align-items:center;gap:36px;overflow:hidden}
+.logo-item{font-size:13px;font-weight:600;color:var(--text-muted);opacity:.6;white-space:nowrap;letter-spacing:-.01em}
+
+/* ── SECTION COMMON ── */
+.section{max-width:1180px;margin:0 auto;padding:92px 28px}
+.sec-label{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-bright);margin-bottom:14px}
+.sec-h{font-size:clamp(30px,4vw,44px);font-weight:800;letter-spacing:-.035em;color:var(--text-primary);line-height:1.1;margin-bottom:14px}
+.sec-sub{font-size:15.5px;font-weight:400;color:var(--text-secondary);line-height:1.65;max-width:520px}
+.sec-head{margin-bottom:56px}
+
+/* ── HOW IT WORKS ── */
+.how-wrap{background:var(--bg-subtle);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.step{background:var(--surface);padding:36px 32px}
+.step-num{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:22px;display:flex;align-items:center;gap:10px}
+.step-num::after{content:'';flex:1;height:1px;background:var(--border)}
+.step-icon-wrap{
+  width:44px;height:44px;background:var(--accent-light);
+  border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;margin-bottom:18px;
+}
+.step-title{font-size:19px;font-weight:700;color:var(--text-primary);letter-spacing:-.02em;margin-bottom:10px}
+.step-desc{font-size:13.5px;font-weight:400;color:var(--text-secondary);line-height:1.65}
+
+/* ── FEATURE SECTION ── */
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.feat-visual{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-md);
+}
+.fv-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.tl-row{display:flex;gap:5px}
+.tl{width:10px;height:10px;border-radius:50%}
+.tl-r{background:#FF5F57}.tl-y{background:#FFBD2E}.tl-g{background:#28CA41}
+.fv-url{flex:1;background:var(--bg-subtle);border-radius:4px;padding:4px 12px;font-size:11.5px;color:var(--text-muted);font-family:'SF Mono','Fira Code',monospace}
+.ct-table{padding:16px}
+.ct-head{display:grid;grid-template-columns:20px 1fr 88px 72px;gap:10px;padding:6px 10px;font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted)}
+.ct-row{display:grid;grid-template-columns:20px 1fr 88px 72px;gap:10px;align-items:center;padding:9px 10px;border-radius:6px;font-size:13px;transition:background .15s}
+.ct-row:hover{background:var(--bg-subtle)}
+.ct-emoji{font-size:13px;text-align:center}
+.ct-name{color:var(--text-secondary)}
+.ct-val{font-size:11.5px;color:var(--text-muted)}
+.ct-tag{font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;text-align:center;letter-spacing:.02em}
+.t-g{background:#EDFAF3;color:#0F7040}
+.t-y{background:#FEF7E6;color:#8A6010}
+.t-b{background:var(--accent-light);color:var(--accent-mid)}
+.feat-list{list-style:none;display:flex;flex-direction:column;gap:18px}
+.fi{display:flex;gap:13px;align-items:flex-start}
+.fi-icon{width:28px;height:28px;background:var(--accent-light);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.fi-title{font-size:14.5px;font-weight:600;color:var(--text-primary);margin-bottom:3px;letter-spacing:-.01em}
+.fi-desc{font-size:13.5px;color:var(--text-secondary);line-height:1.55}
+
+/* ── PROFESSIONALS ── */
+.pro-wrap{background:var(--accent);position:relative;overflow:hidden}
+.pro-gradient{
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 60% 70% at 75% 50%, rgba(255,255,255,0.05) 0%, transparent 70%),
+             radial-gradient(ellipse 40% 40% at 10% 20%, rgba(255,255,255,0.04) 0%, transparent 50%);
+}
+.pro-dots{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.06) 1.5px,transparent 1.5px);
+  background-size:28px 28px;
+}
+.pro-inner{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:80px 28px;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.pro-lbl{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:14px}
+.pro-h{font-size:clamp(30px,4vw,44px);font-weight:800;letter-spacing:-.035em;color:#fff;line-height:1.1;margin-bottom:18px}
+.pro-sub{font-size:15px;color:rgba(255,255,255,.6);line-height:1.65;margin-bottom:32px}
+.pro-feats{list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:32px}
+.pfi{display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,.8)}
+.pfi-check{width:18px;height:18px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.btn-white{font-family:var(--font);font-size:14px;font-weight:600;color:var(--accent);background:#fff;border:none;cursor:pointer;padding:12px 24px;border-radius:var(--r);transition:opacity .15s;text-decoration:none;display:inline-flex;align-items:center;gap:7px;letter-spacing:-.01em}
+.btn-white:hover{opacity:.9}
+.pro-metrics{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pm-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:var(--r-md);padding:22px}
+.pm-val{font-size:34px;font-weight:800;color:#fff;letter-spacing:-.04em;line-height:1;margin-bottom:5px}
+.pm-lbl{font-size:12.5px;color:rgba(255,255,255,.45);line-height:1.45}
+
+/* ── TESTIMONIALS ── */
+.tes-wrap{background:var(--bg-subtle);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.tes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.tes-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:26px;transition:box-shadow .2s,border-color .2s}
+.tes-card:hover{box-shadow:var(--shadow-md);border-color:var(--border-mid)}
+.tes-stars{display:flex;gap:3px;margin-bottom:14px}
+.star{color:var(--gold);font-size:13px}
+.tes-quote{font-size:14.5px;font-weight:400;color:var(--text-primary);line-height:1.65;margin-bottom:20px}
+.tes-author{display:flex;align-items:center;gap:11px}
+.t-avatar{width:36px;height:36px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.t-name{font-size:13.5px;font-weight:600;color:var(--text-primary)}
+.t-role{font-size:12px;color:var(--text-muted);margin-top:1px}
+
+/* ── PRICING ── */
+.price-toggle{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:48px}
+.toggle-lbl{font-size:14px;font-weight:500;color:var(--text-secondary)}
+.toggle-track{
+  width:46px;height:25px;background:var(--border-mid);border-radius:25px;
+  position:relative;cursor:pointer;transition:background .2s;
+}
+.toggle-track.on{background:var(--accent-bright)}
+.toggle-thumb{
+  position:absolute;top:3px;left:3px;width:19px;height:19px;
+  background:#fff;border-radius:50%;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2);
+}
+.toggle-track.on .toggle-thumb{left:24px}
+.badge-save{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:var(--accent-light);color:var(--accent-mid);border-radius:20px;padding:3px 9px}
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.price-card{background:var(--surface);padding:36px 30px;display:flex;flex-direction:column;position:relative}
+.price-card-feat{background:var(--accent)}
+.price-tier{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:18px}
+.price-card-feat .price-tier{color:rgba(255,255,255,.5)}
+.price-amount{font-size:48px;font-weight:800;color:var(--text-primary);letter-spacing:-.04em;line-height:1}
+.price-card-feat .price-amount{color:#fff}
+.price-cur{font-size:24px;vertical-align:super;font-weight:600}
+.price-per{font-size:13px;color:var(--text-muted);margin-bottom:16px}
+.price-card-feat .price-per{color:rgba(255,255,255,.45)}
+.price-desc{font-size:13.5px;color:var(--text-secondary);line-height:1.55;margin-bottom:28px;flex:0}
+.price-card-feat .price-desc{color:rgba(255,255,255,.6)}
+.price-feats{list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:30px;flex:1}
+.pf-row{display:flex;align-items:flex-start;gap:9px;font-size:13.5px;color:var(--text-secondary)}
+.price-card-feat .pf-row{color:rgba(255,255,255,.75)}
+.pf-chk{width:16px;height:16px;background:var(--accent-light);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.price-card-feat .pf-chk{background:rgba(255,255,255,.2)}
+.pop-tag{position:absolute;top:18px;right:18px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff}
+.btn-price-main{font-family:var(--font);font-size:14px;font-weight:600;color:#fff;background:linear-gradient(135deg,var(--accent-mid),var(--accent-bright));border:none;cursor:pointer;padding:12px 20px;border-radius:var(--r);text-align:center;text-decoration:none;display:block;box-shadow:0 2px 8px rgba(18,107,58,.3);transition:opacity .15s}
+.btn-price-main:hover{opacity:.9}
+.btn-price-outline{font-family:var(--font);font-size:14px;font-weight:500;color:var(--text-primary);background:none;border:1.5px solid var(--border-mid);cursor:pointer;padding:12px 20px;border-radius:var(--r);text-align:center;text-decoration:none;display:block;transition:background .15s}
+.btn-price-outline:hover{background:var(--bg-subtle)}
+.btn-price-white{font-family:var(--font);font-size:14px;font-weight:600;color:var(--accent);background:#fff;border:none;cursor:pointer;padding:12px 20px;border-radius:var(--r);text-align:center;text-decoration:none;display:block;transition:opacity .15s}
+.btn-price-white:hover{opacity:.9}
+
+/* B2B */
+.b2b-wrap{margin-top:72px}
+.b2b-tag-row{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+.b2b-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary);background:var(--bg-alt);border:1px solid var(--border);padding:5px 12px;border-radius:20px}
+.b2b-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.b2b-card{background:var(--surface);padding:30px;display:flex;flex-direction:column}
+.b2b-card-mid{background:var(--bg-subtle);border-left:2.5px solid var(--accent-bright)}
+.b2b-plan{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px}
+.b2b-amt{font-size:40px;font-weight:800;color:var(--text-primary);letter-spacing:-.04em;line-height:1}
+.b2b-per{font-size:13px;color:var(--text-muted);margin-bottom:5px}
+.b2b-yr{font-size:12px;color:var(--text-muted);margin-bottom:16px}
+.b2b-div{height:1px;background:var(--border);margin:14px 0}
+.b2b-feats{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:24px;flex:1}
+.b2b-feat{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary)}
+
+/* ── BLOG ── */
+.blog-wrap{background:var(--surface);border-top:1px solid var(--border)}
+.blog-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:36px}
+.btn-outline-sm{font-family:var(--font);font-size:13.5px;font-weight:500;color:var(--accent-mid);background:none;border:1.5px solid var(--border-mid);cursor:pointer;padding:8px 18px;border-radius:var(--r);transition:background .15s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn-outline-sm:hover{background:var(--bg-subtle)}
+.blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.blog-card{border-top:2px solid var(--border);padding-top:22px;text-decoration:none;display:block;transition:border-color .2s}
+.blog-card:hover{border-color:var(--accent-bright)}
+.blog-cat{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-bright);margin-bottom:9px}
+.blog-title{font-size:18px;font-weight:700;color:var(--text-primary);line-height:1.3;margin-bottom:9px;letter-spacing:-.02em}
+.blog-exc{font-size:13.5px;color:var(--text-secondary);line-height:1.6;margin-bottom:14px}
+.blog-meta{font-size:12px;color:var(--text-muted)}
+
+/* ── CTA ── */
+.cta-wrap{
+  position:relative;overflow:hidden;
+  background:var(--bg-subtle);border-top:1px solid var(--border);
+}
+.cta-dots{position:absolute;inset:0;background-image:radial-gradient(var(--dot-color) 1px,transparent 1px);background-size:24px 24px;pointer-events:none}
+.cta-inner{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:80px 28px;display:flex;align-items:center;justify-content:space-between;gap:40px}
+.cta-h{font-size:clamp(26px,3.5vw,40px);font-weight:800;color:var(--text-primary);letter-spacing:-.035em;line-height:1.1;max-width:500px}
+.cta-h span{background:linear-gradient(135deg,var(--accent-mid),var(--accent-bright));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.cta-acts{display:flex;gap:12px;flex-shrink:0}
+.btn-cta-lg{font-family:var(--font);font-size:15px;font-weight:600;color:#fff;background:linear-gradient(135deg,var(--accent-mid),var(--accent-bright));border:none;cursor:pointer;padding:13px 28px;border-radius:var(--r);transition:opacity .15s,transform .1s;text-decoration:none;display:inline-flex;align-items:center;gap:7px;letter-spacing:-.01em;box-shadow:0 3px 12px rgba(18,107,58,.35)}
+.btn-cta-lg:hover{opacity:.9}
+.btn-cta-lg:active{transform:scale(.98)}
+.btn-ghost-lg{font-family:var(--font);font-size:15px;font-weight:500;color:var(--text-secondary);background:none;border:1.5px solid var(--border-mid);cursor:pointer;padding:13px 28px;border-radius:var(--r);transition:background .15s;text-decoration:none;display:inline-flex;align-items:center;gap:7px}
+.btn-ghost-lg:hover{background:var(--bg-alt)}
+
+/* ── FOOTER ── */
+footer{background:var(--text-primary);padding:60px 28px 36px}
+.footer-inner{max-width:1180px;margin:0 auto}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;padding-bottom:44px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:28px}
+.footer-brand{font-size:17px;font-weight:700;color:#fff;margin-bottom:10px;letter-spacing:-.02em}
+.footer-brand-desc{font-size:13px;color:rgba(255,255,255,.38);line-height:1.65;max-width:240px;margin-bottom:22px}
+.footer-col-h{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:14px}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:10px}
+.footer-links a{font-size:13.5px;color:rgba(255,255,255,.5);text-decoration:none;transition:color .15s;font-weight:400}
+.footer-links a:hover{color:rgba(255,255,255,.9)}
+.footer-bottom{display:flex;align-items:center;justify-content:space-between}
+.footer-copy{font-size:12px;color:rgba(255,255,255,.25)}
+.footer-legal{display:flex;gap:22px}
+.footer-legal a{font-size:12px;color:rgba(255,255,255,.25);text-decoration:none;transition:color .15s}
+.footer-legal a:hover{color:rgba(255,255,255,.6)}
+
+/* ── FADE IN ── */
+.fi-anim{opacity:0;transform:translateY(18px);animation:fia .6s ease-out forwards}
+@keyframes fia{to{opacity:1;transform:translateY(0)}}
+.d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.25s}.d4{animation-delay:.35s}
+
+/* ── RESPONSIVE ── */
+@media(max-width:920px){
+  .hero{grid-template-columns:1fr;gap:40px;padding:80px 24px 60px;min-height:auto}
+  .hero-visual{display:none}
+  .feat-grid,.pro-inner{grid-template-columns:1fr}
+  .steps,.price-grid,.b2b-grid,.tes-grid,.blog-grid{grid-template-columns:1fr}
+  .cta-inner{flex-direction:column;align-items:flex-start}
+  .footer-top{grid-template-columns:1fr 1fr}
+  .nav-links{display:none}
+  .blog-header{flex-direction:column;align-items:flex-start;gap:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <div class="logo-mark">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8L8 3L13 8" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5 13V8.5L8 5.5L11 8.5V13" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="nav-wordmark">MyPlanningGuide</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#how-it-works">How it works</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="/blog">Guides</a></li>
+      <li><a href="#professionals">For professionals</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="/login" class="btn-ghost">Sign in</a>
+      <a href="/check" class="btn-cta">
+        Check my address
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6H9.5M7 3L9.5 6L7 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero-wrap">
+  <div class="hero-gradient"></div>
+  <div class="hero-dot"></div>
+  <div class="hero">
+    <div>
+      <div class="hero-badge fi-anim">
+        <span class="badge-dot"></span>
+        AI-powered planning guidance
+      </div>
+      <h1 class="hero-headline fi-anim d1">
+        Know your planning<br>chances <span class="hl">before you<br>spend a penny</span>
+      </h1>
+      <p class="hero-sub fi-anim d2">Instant planning constraint reports for any UK address. Check conservation areas, permitted development rights, flood zones, and more — in under 60 seconds.</p>
+      <div class="hero-input-wrap fi-anim d3">
+        <input type="text" placeholder="Enter your address or postcode…" id="hero-input">
+        <button onclick="handleCheck()">
+          Check now
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5H10.5M7.5 3.5L10.5 6.5L7.5 9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <p class="hero-note fi-anim d4">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1a5.5 5.5 0 100 11A5.5 5.5 0 006.5 1zm0 3v3.5m0 2h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Free basic check. No account required. Full report from £19.
+      </p>
+      <div class="hero-stats fi-anim d4">
+        <div><div class="stat-val">12,400+</div><div class="stat-lbl">Reports generated</div></div>
+        <div><div class="stat-val">98%</div><div class="stat-lbl">Data accuracy</div></div>
+        <div><div class="stat-val">340+</div><div class="stat-lbl">Architects on Pro</div></div>
+      </div>
+    </div>
+
+    <!-- REPORT CARD -->
+    <div class="hero-visual">
+      <!-- Chips OUTSIDE card, positioned relative to the visual container -->
+      <div class="chip chip-a">
+        <div class="chip-icon ci-green">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6.5L4.5 9L10 3" stroke="#126B3A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div class="chip-title">Report ready</div>
+          <div class="chip-sub">Just now</div>
+        </div>
+      </div>
+      <div class="chip chip-b">
+        <div class="chip-icon ci-gold">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1.5l1.2 3.6H11L8.1 7.5l1.1 3.4L6 8.7l-3.2 2.2 1.1-3.4L1 5.1h3.8L6 1.5z" stroke="#C49A3C" stroke-width="1.1" fill="none"/></svg>
+        </div>
+        <div>
+          <div class="chip-title">74% approval likelihood</div>
+          <div class="chip-sub">Above area average</div>
+        </div>
+      </div>
+
+      <div class="report-card card-float">
+        <div class="rc-header">
+          <div>
+            <div class="rc-addr">14 Elm Grove, London SE5 8RB</div>
+            <div class="rc-title">Planning Constraints Report</div>
+          </div>
+          <div class="rc-badge">Live</div>
+        </div>
+        <div class="rc-body">
+          <div class="rc-score-row">
+            <div class="rc-score-num">74%</div>
+            <div class="rc-score-lbl">Approval<br>likelihood</div>
+          </div>
+          <div class="rc-bar"><div class="rc-bar-fill"></div></div>
+          <div class="rc-rows">
+            <div class="rc-row"><div class="rc-dot d-g"></div><span class="rc-name">Conservation area</span><span class="rc-tag t-pass">None</span></div>
+            <div class="rc-row"><div class="rc-dot d-g"></div><span class="rc-name">Listed building</span><span class="rc-tag t-pass">Clear</span></div>
+            <div class="rc-row"><div class="rc-dot d-y"></div><span class="rc-name">Article 4 direction</span><span class="rc-tag t-warn">Review</span></div>
+            <div class="rc-row"><div class="rc-dot d-g"></div><span class="rc-name">Flood zone</span><span class="rc-tag t-pass">Zone 1</span></div>
+            <div class="rc-row"><div class="rc-dot d-g"></div><span class="rc-name">Tree pres. order</span><span class="rc-tag t-pass">None</span></div>
+          </div>
+        </div>
+        <div class="rc-footer">
+          <span class="rc-footer-txt">MyPlanningGuide</span>
+          <a href="#" class="rc-footer-link">Full report <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGOS -->
+<div class="logos">
+  <div class="logos-inner">
+    <span class="logos-lbl">Trusted by</span>
+    <div class="logos-div"></div>
+    <div class="logos-row">
+      <span class="logo-item">Apex Architecture</span>
+      <span class="logo-item">Redfield Planning</span>
+      <span class="logo-item">Urban Form Studio</span>
+      <span class="logo-item">Meridian Developments</span>
+      <span class="logo-item">Cornerstone Surveyors</span>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="how-wrap dot-bg" id="how-it-works">
+  <div class="section">
+    <div class="sec-head" style="text-align:center;max-width:560px;margin-left:auto;margin-right:auto;">
+      <div class="sec-label">How it works</div>
+      <h2 class="sec-h">From address to answer in 60 seconds</h2>
+      <p class="sec-sub" style="margin:0 auto">We check 8 planning constraint categories against live government data — no waiting, no phone calls.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-icon-wrap">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 11a3 3 0 100-6 3 3 0 000 6z" stroke="#126B3A" stroke-width="1.5"/><path d="M10 2C6.686 2 4 4.686 4 8c0 5.25 6 10 6 10s6-4.75 6-10c0-3.314-2.686-6-6-6z" stroke="#126B3A" stroke-width="1.5"/></svg>
+        </div>
+        <div class="step-title">Enter your address</div>
+        <p class="step-desc">Type any UK address or postcode. We pinpoint the exact property using Ordnance Survey data and identify your local planning authority instantly.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-icon-wrap">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#126B3A" stroke-width="1.5"/><path d="M10 7v3l2 2" stroke="#126B3A" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="step-title">We check 8 constraints</div>
+        <p class="step-desc">Our AI cross-references planning.data.gov.uk, your LPA's local plan, and live appeal decisions to build a complete constraint picture in seconds.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-icon-wrap">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 10l3 3 5-5" stroke="#126B3A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="14" height="14" rx="2" stroke="#126B3A" stroke-width="1.5"/></svg>
+        </div>
+        <div class="step-title">Get your full report</div>
+        <p class="step-desc">Receive a structured PDF with your approval likelihood score, constraint breakdown, next steps, and policy references — ready to share with your architect.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURE -->
+<div id="features">
+  <div class="section">
+    <div class="feat-grid">
+      <div class="feat-visual">
+        <div class="fv-header">
+          <div class="tl-row"><div class="tl tl-r"></div><div class="tl tl-y"></div><div class="tl tl-g"></div></div>
+          <div class="fv-url">myplanningguide.co.uk/report/SE5-8RB</div>
+        </div>
+        <div class="ct-table">
+          <div class="ct-head"><div></div><div>Constraint</div><div>Detail</div><div>Status</div></div>
+          <div class="ct-row"><div class="ct-emoji">🌿</div><div class="ct-name">Conservation Area</div><div class="ct-val">None nearby</div><div class="ct-tag t-g">Clear</div></div>
+          <div class="ct-row"><div class="ct-emoji">🏛️</div><div class="ct-name">Listed Building</div><div class="ct-val">Not listed</div><div class="ct-tag t-g">Clear</div></div>
+          <div class="ct-row"><div class="ct-emoji">📋</div><div class="ct-name">Article 4 Direction</div><div class="ct-val">Partial (Class E)</div><div class="ct-tag t-y">Review</div></div>
+          <div class="ct-row"><div class="ct-emoji">💧</div><div class="ct-name">Flood Zone</div><div class="ct-val">Zone 1 — Low</div><div class="ct-tag t-g">Low risk</div></div>
+          <div class="ct-row"><div class="ct-emoji">🌳</div><div class="ct-name">Tree Pres. Order</div><div class="ct-val">None</div><div class="ct-tag t-g">Clear</div></div>
+          <div class="ct-row"><div class="ct-emoji">🟢</div><div class="ct-name">Green Belt</div><div class="ct-val">Not applicable</div><div class="ct-tag t-g">Clear</div></div>
+          <div class="ct-row"><div class="ct-emoji">🏔️</div><div class="ct-name">AONB / Nat. Park</div><div class="ct-val">Outside boundary</div><div class="ct-tag t-g">Clear</div></div>
+          <div class="ct-row"><div class="ct-emoji">📍</div><div class="ct-name">Permitted Dev. Rights</div><div class="ct-val">Full rights</div><div class="ct-tag t-b">Active</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="sec-label">Planning constraint checker</div>
+        <h2 class="sec-h">Eight checks.<br>Instant results.</h2>
+        <p class="sec-sub" style="margin-bottom:32px">We cross-reference every major planning constraint category using live data from government planning portals — the same sources your council uses.</p>
+        <ul class="feat-list">
+          <li class="fi">
+            <div class="fi-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#126B3A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div><div class="fi-title">Live government data</div><div class="fi-desc">Pulled directly from planning.data.gov.uk and OS Data Hub — updated in real time, not cached guesswork.</div></div>
+          </li>
+          <li class="fi">
+            <div class="fi-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#126B3A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div><div class="fi-title">Approval likelihood score</div><div class="fi-desc">AI-generated score based on constraints, local precedent, and recent appeal decisions in your LPA area.</div></div>
+          </li>
+          <li class="fi">
+            <div class="fi-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#126B3A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div><div class="fi-title">Shareable PDF report</div><div class="fi-desc">Download and share with your architect or planning consultant. Unique link for easy collaboration.</div></div>
+          </li>
+          <li class="fi">
+            <div class="fi-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#126B3A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div><div class="fi-title">Clear next steps</div><div class="fi-desc">Jargon-free recommendations — from pre-app enquiries to permitted development certificates.</div></div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONIALS -->
+<div class="tes-wrap dot-bg-lg">
+  <div class="section">
+    <div class="sec-head" style="text-align:center;max-width:500px;margin-left:auto;margin-right:auto;">
+      <div class="sec-label">Trusted by thousands</div>
+      <h2 class="sec-h">What our users say</h2>
+    </div>
+    <div class="tes-grid">
+      <div class="tes-card">
+        <div class="tes-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+        <p class="tes-quote">"Saved me £400 in pre-application fees before I even knew if the project was viable. Found out about an Article 4 direction that would have caused issues — checked in two minutes."</p>
+        <div class="tes-author"><div class="t-avatar">S</div><div><div class="t-name">Sarah M.</div><div class="t-role">Homeowner, South London</div></div></div>
+      </div>
+      <div class="tes-card">
+        <div class="tes-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+        <p class="tes-quote">"I run preliminary site assessments for every project. This cuts my constraint research from 45 minutes to under two. The Pro tier pays for itself on the first project of the month."</p>
+        <div class="tes-author"><div class="t-avatar">J</div><div><div class="t-name">James T.</div><div class="t-role">Architect, Manchester</div></div></div>
+      </div>
+      <div class="tes-card">
+        <div class="tes-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+        <p class="tes-quote">"The planning statement generator is the standout feature. First draft in 10 minutes, accurately citing our LPA's local plan. Quality is better than I expected at this price point."</p>
+        <div class="tes-author"><div class="t-avatar">R</div><div><div class="t-name">Rebecca H.</div><div class="t-role">Planning Consultant, Bristol</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFESSIONALS -->
+<div class="pro-wrap" id="professionals">
+  <div class="pro-gradient"></div>
+  <div class="pro-dots"></div>
+  <div class="pro-inner">
+    <div>
+      <div class="pro-lbl">For professionals</div>
+      <h2 class="pro-h">Built for architects,<br>agents & developers</h2>
+      <p class="pro-sub">Run unlimited constraint checks, generate planning statement drafts, and manage all your sites from one dashboard. Everything your team needs, at a fraction of the cost of manual research.</p>
+      <ul class="pro-feats">
+        <li class="pfi"><div class="pfi-check"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5 3.5-4" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Unlimited constraint checks across all your sites</li>
+        <li class="pfi"><div class="pfi-check"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5 3.5-4" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>AI planning statement generator citing your LPA's policies</li>
+        <li class="pfi"><div class="pfi-check"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5 3.5-4" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Team seats and white-label report branding (Agency plan)</li>
+        <li class="pfi"><div class="pfi-check"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5 3.5-4" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>API access for integration into your own workflow</li>
+        <li class="pfi"><div class="pfi-check"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5 3.5-4" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Matched lead referrals from homeowners in your area</li>
+      </ul>
+      <a href="#professional-pricing" class="btn-white">View professional plans <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5H10.5M7 3L10.5 6.5L7 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+    <div class="pro-metrics">
+      <div class="pm-card"><div class="pm-val">45 min</div><div class="pm-lbl">Saved per site assessment</div></div>
+      <div class="pm-card"><div class="pm-val">340+</div><div class="pm-lbl">Architects & agents on Pro</div></div>
+      <div class="pm-card"><div class="pm-val">8</div><div class="pm-lbl">Constraint categories checked</div></div>
+      <div class="pm-card"><div class="pm-val">£0</div><div class="pm-lbl">Setup cost. Cancel anytime.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING -->
+<div id="pricing">
+  <div class="section">
+    <div class="sec-head" style="text-align:center;max-width:540px;margin-left:auto;margin-right:auto;">
+      <div class="sec-label">Pricing</div>
+      <h2 class="sec-h">Simple, transparent pricing</h2>
+      <p class="sec-sub" style="margin:0 auto">No hidden fees. No subscription required for homeowners. Start free and pay only when you need the full report.</p>
+    </div>
+
+    <div class="price-grid">
+      <!-- Free -->
+      <div class="price-card">
+        <div class="price-tier">Free</div>
+        <div class="price-amount">£0</div>
+        <div class="price-per">No account needed</div>
+        <p class="price-desc">Run a basic constraint check on any UK address and see whether major constraints exist.</p>
+        <ul class="price-feats">
+          <li class="pf-row"><div class="pf-chk"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="#126B3A" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Basic constraint check (5 categories)</li>
+          <li class="pf-row"><div class="pf-chk"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="#126B3A" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Pass / flag / fail overview</li>
+          <li class="pf-row"><div class="pf-chk"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="#126B3A" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Permitted development indicator</li>
+          <li class="pf-row"><div class="pf-chk"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="#126B3A" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>No PDF export</li>
+        </ul>
+        <a href="/check" class="btn-price-outline">Run free check</a>
+      </div>
+
+      <!-- Featured -->
+      <div class="price-card price-card-feat">
+        <div class="pop-tag">Most popular</div>
+        <div class="price-tier">Full Report</div>
+        <div class="price-amount"><span class="price-cur">£</span>19</div>
+        <div class="price-per">One-off, per report</div>
+        <p class="price-desc">Full constraint analysis, approval likelihood score, and next steps. Everything before speaking to an architect.</p>
+        <ul class="price-feats">
+          <li class="pf-row"><div class="pf-chk"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>All 8 constraint categories</li>
+          <li class="pf-row"><div class="pf-chk"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Approval likelihood score</li>
+          <li class="pf-row"><div class="pf-chk"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Shareable PDF report + unique link</li>
+          <li class="pf-row"><div class="pf-chk"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Next steps & recommended actions</li>
+          <li class="pf-row"><div class="pf-chk"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Local planning policy summary</li>
+        </ul>
+        <a href="/check" class="btn-price-white">Get full report</a>
+      </div>
+
+      <!-- Bundle -->
+      <div class="price-card">
+        <div class="price-tier">Report + Statement</div>
+        <div class="price-amount"><span class="price-cur">£</span>49</div>
+        <div class="price-per">One-off bundle — save £9</div>
+        <p class="price-desc">Full constraints report plus an AI-generated planning statement draft, citing your LPA's local plan.</p>
+        <ul class="price-feats">
+          <li class="pf-row"><div class="pf-chk"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="#126B3A" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Everything in Full Report</li>
+          <li class="pf-row"><div class="pf-chk"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="#126B3A" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>AI planning statement draft</li>
+          <li class="pf-row"><div class="pf-chk"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="#126B3A" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Cites your LPA's local plan policies</li>
+          <li class="pf-row"><div class="pf-chk"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="#126B3A" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Editable Word document output</li>
+          <li class="pf-row"><div class="pf-chk"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="#126B3A" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Professional-grade starting draft</li>
+        </ul>
+        <a href="/check" class="btn-price-main">Get bundle</a>
+      </div>
+    </div>
+
+    <!-- B2B -->
+    <div class="b2b-wrap" id="professional-pricing">
+      <div class="b2b-tag-row">
+        <span class="b2b-tag">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x="1" y="4" width="9" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3.5 4V3a2 2 0 014 0v1" stroke="currentColor" stroke-width="1.2"/></svg>
+          Professional subscriptions
+        </span>
+        <span style="font-size:13px;color:var(--text-muted)">For architects, planning agents, and developers</span>
+      </div>
+      <div class="b2b-grid">
+        <div class="b2b-card">
+          <div class="b2b-plan">Starter</div>
+          <div class="b2b-amt">£29</div>
+          <div class="b2b-per">/month</div>
+          <div class="b2b-yr">or £290/year — 2 months free</div>
+          <div class="b2b-div"></div>
+          <ul class="b2b-feats">
+            <li class="b2b-feat"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="#126B3A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>20 constraint checks / month</li>
+            <li class="b2b-feat"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="#126B3A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>5 planning statement drafts / month</li>
+            <li class="b2b-feat"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="#126B3A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>PDF export & shareable links</li>
+            <li class="b2b-feat"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="#126B3A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>1 user seat</li>
+          </ul>
+          <a href="/signup?plan=starter" class="btn-price-outline">Start free trial</a>
+        </div>
+        <div class="b2b-card b2b-card-mid">
+          <div class="b2b-plan">Pro</div>
+          <div class="b2b-amt">£79</div>
+          <div class="b2b-per">/month</div>
+          <div class="b2b-yr">or £790/year — 2 months free</div>
+          <div class="b2b-div"></div>
+          <ul class="b2b-feats">
+            <li class="b2b-feat"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="#126B3A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Unlimited constraint checks</li>
+            <li class="b2b-feat"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="#126B3A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Unlimited planning statement drafts</li>
+            <li class="b2b-feat"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="#126B3A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Priority support</li>
+            <li class="b2b-feat"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="#126B3A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Matched homeowner lead referrals</li>
+          </ul>
+          <a href="/signup?plan=pro" class="btn-price-main">Start free trial</a>
+        </div>
+        <div class="b2b-card">
+          <div class="b2b-plan">Agency</div>
+          <div class="b2b-amt">£199</div>
+          <div class="b2b-per">/month</div>
+          <div class="b2b-yr">or £1,990/year — 2 months free</div>
+          <div class="b2b-div"></div>
+          <ul class="b2b-feats">
+            <li class="b2b-feat"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="#126B3A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Everything in Pro</li>
+            <li class="b2b-feat"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="#126B3A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>5 team seats</li>
+            <li class="b2b-feat"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="#126B3A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>White-label report branding</li>
+            <li class="b2b-feat"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="#126B3A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>API access + priority leads</li>
+          </ul>
+          <a href="/contact?plan=agency" class="btn-price-outline">Contact us</a>
+        </div>
+      </div>
+      <p style="margin-top:16px;font-size:12.5px;color:var(--text-muted);text-align:center">All professional plans include a 14-day free trial. No credit card required to start.</p>
+    </div>
+  </div>
+</div>
+
+<!-- BLOG -->
+<div class="blog-wrap">
+  <div class="section">
+    <div class="blog-header">
+      <div>
+        <div class="sec-label">Planning guides</div>
+        <h2 class="sec-h" style="margin-bottom:0">Free guides from planning experts</h2>
+      </div>
+      <a href="/blog" class="btn-outline-sm">All guides <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6H9.5M6.5 3L9.5 6L6.5 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+    <div class="blog-grid">
+      <a href="/blog/planning-permission-rear-extension" class="blog-card">
+        <div class="blog-cat">Extensions</div>
+        <div class="blog-title">Do I Need Planning Permission for a Rear Extension?</div>
+        <div class="blog-exc">Permitted development rules, size limits, and when you'll need a full application — explained in plain English.</div>
+        <div class="blog-meta">5 min read · John Smith, MRTPI</div>
+      </a>
+      <a href="/blog/planning-constraints-explained" class="blog-card">
+        <div class="blog-cat">Constraints</div>
+        <div class="blog-title">How to Check Planning Constraints on Any UK Property</div>
+        <div class="blog-exc">Conservation areas, Article 4 directions, flood zones — what they mean and how to check before you start.</div>
+        <div class="blog-meta">7 min read · John Smith, MRTPI</div>
+      </a>
+      <a href="/blog/what-is-a-planning-statement" class="blog-card">
+        <div class="blog-cat">Applications</div>
+        <div class="blog-title">What is a Planning Statement and Do You Need One?</div>
+        <div class="blog-exc">When it's required, what it should include, and how AI is making them accessible to everyone.</div>
+        <div class="blog-meta">6 min read · John Smith, MRTPI</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-wrap">
+  <div class="cta-dots"></div>
+  <div class="cta-inner">
+    <h2 class="cta-h">Start with your address.<br><span>Know in 60 seconds.</span></h2>
+    <div class="cta-acts">
+      <a href="/check" class="btn-cta-lg">
+        Check my address free
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7H11.5M8 4L11.5 7L8 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="#pricing" class="btn-ghost-lg">View pricing</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">MyPlanningGuide</div>
+        <p class="footer-brand-desc">AI-powered planning guidance for homeowners, architects, and developers across the UK.</p>
+        <div style="display:flex;gap:14px">
+          <a href="#" style="color:rgba(255,255,255,.3);font-size:12.5px;text-decoration:none;transition:color .15s" onmouseover="this.style.color='rgba(255,255,255,.7)'" onmouseout="this.style.color='rgba(255,255,255,.3)'">Twitter / X</a>
+          <a href="#" style="color:rgba(255,255,255,.3);font-size:12.5px;text-decoration:none;transition:color .15s" onmouseover="this.style.color='rgba(255,255,255,.7)'" onmouseout="this.style.color='rgba(255,255,255,.3)'">LinkedIn</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-h">Product</div>
+        <ul class="footer-links">
+          <li><a href="/check">Constraint checker</a></li>
+          <li><a href="/statement">Statement generator</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="/dashboard">Dashboard</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-h">Resources</div>
+        <ul class="footer-links">
+          <li><a href="/blog">Planning guides</a></li>
+          <li><a href="/blog/planning-constraints-explained">Constraints explained</a></li>
+          <li><a href="/blog/what-is-a-planning-statement">Planning statements</a></li>
+          <li><a href="/newsletter">Newsletter</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-h">Company</div>
+        <ul class="footer-links">
+          <li><a href="/about">About</a></li>
+          <li><a href="/contact">Contact</a></li>
+          <li><a href="/professionals">For professionals</a></li>
+          <li><a href="/api">API</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2025 MyPlanningGuide Ltd. All rights reserved.</span>
+      <div class="footer-legal">
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+        <a href="/cookies">Cookies</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+function handleCheck(){
+  const v=document.getElementById('hero-input').value.trim();
+  if(v){window.location.href='/check?address='+encodeURIComponent(v)}
+  else{
+    const w=document.querySelector('.hero-input-wrap');
+    w.style.borderColor='#D94040';
+    document.getElementById('hero-input').focus();
+    setTimeout(()=>w.style.borderColor='',1600);
+  }
+}
+document.getElementById('hero-input').addEventListener('keydown',e=>{if(e.key==='Enter')handleCheck()});
+
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(el=>{
+    if(el.isIntersecting){
+      el.target.style.opacity='1';
+      el.target.style.transform='translateY(0)';
+    }
+  });
+},{threshold:.12});
+
+document.querySelectorAll('.step,.tes-card,.blog-card,.price-card,.b2b-card,.pm-card').forEach(el=>{
+  el.style.opacity='0';
+  el.style.transform='translateY(22px)';
+  el.style.transition='opacity .55s ease, transform .55s ease';
+  obs.observe(el);
+});
+</script>
+</body>
+</html>
