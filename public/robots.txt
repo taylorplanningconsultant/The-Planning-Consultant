@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://myplanningguide.co.uk
+
+# Sitemaps
+Sitemap: https://myplanningguide.co.uk/sitemap.xml

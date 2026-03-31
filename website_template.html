@@ -435,7 +435,7 @@ footer{background:var(--text-primary);padding:60px 28px 36px}
     <div class="nav-actions">
       <a href="/login" class="btn-ghost">Sign in</a>
       <a href="/check" class="btn-cta">
-        Check my address
+        Check my postcode
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6H9.5M7 3L9.5 6L7 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
     </div>
@@ -455,9 +455,9 @@ footer{background:var(--text-primary);padding:60px 28px 36px}
       <h1 class="hero-headline fi-anim d1">
         Know your planning<br>chances <span class="hl">before you<br>spend a penny</span>
       </h1>
-      <p class="hero-sub fi-anim d2">Instant planning constraint reports for any UK address. Check conservation areas, permitted development rights, flood zones, and more — in under 60 seconds.</p>
+      <p class="hero-sub fi-anim d2">Instant planning constraint reports for any UK postcode. Check conservation areas, permitted development rights, flood zones, and more — in under 60 seconds.</p>
       <div class="hero-input-wrap fi-anim d3">
-        <input type="text" placeholder="Enter your address or postcode…" id="hero-input">
+        <input type="text" placeholder="Enter your postcode…" id="hero-input" autocomplete="postal-code">
         <button onclick="handleCheck()">
           Check now
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5H10.5M7.5 3.5L10.5 6.5L7.5 9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -547,7 +547,7 @@ footer{background:var(--text-primary);padding:60px 28px 36px}
   <div class="section">
     <div class="sec-head" style="text-align:center;max-width:560px;margin-left:auto;margin-right:auto;">
       <div class="sec-label">How it works</div>
-      <h2 class="sec-h">From address to answer in 60 seconds</h2>
+      <h2 class="sec-h">From postcode to answer in 60 seconds</h2>
       <p class="sec-sub" style="margin:0 auto">We check 8 planning constraint categories against live government data — no waiting, no phone calls.</p>
     </div>
     <div class="steps">
@@ -556,8 +556,8 @@ footer{background:var(--text-primary);padding:60px 28px 36px}
         <div class="step-icon-wrap">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 11a3 3 0 100-6 3 3 0 000 6z" stroke="#126B3A" stroke-width="1.5"/><path d="M10 2C6.686 2 4 4.686 4 8c0 5.25 6 10 6 10s6-4.75 6-10c0-3.314-2.686-6-6-6z" stroke="#126B3A" stroke-width="1.5"/></svg>
         </div>
-        <div class="step-title">Enter your address</div>
-        <p class="step-desc">Type any UK address or postcode. We pinpoint the exact property using Ordnance Survey data and identify your local planning authority instantly.</p>
+        <div class="step-title">Enter your postcode</div>
+        <p class="step-desc">Type your UK postcode. We identify your local planning authority and run constraint checks for your area — no full address required.</p>
       </div>
       <div class="step">
         <div class="step-num">02</div>
@@ -835,10 +835,10 @@ footer{background:var(--text-primary);padding:60px 28px 36px}
 <div class="cta-wrap">
   <div class="cta-dots"></div>
   <div class="cta-inner">
-    <h2 class="cta-h">Start with your address.<br><span>Know in 60 seconds.</span></h2>
+    <h2 class="cta-h">Start with your postcode.<br><span>Know in 60 seconds.</span></h2>
     <div class="cta-acts">
       <a href="/check" class="btn-cta-lg">
-        Check my address free
+        Check my postcode free
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7H11.5M8 4L11.5 7L8 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
       <a href="#pricing" class="btn-ghost-lg">View pricing</a>
@@ -900,7 +900,7 @@ footer{background:var(--text-primary);padding:60px 28px 36px}
 <script>
 function handleCheck(){
   const v=document.getElementById('hero-input').value.trim();
-  if(v){window.location.href='/check?address='+encodeURIComponent(v)}
+  if(v){window.location.href='/check?postcode='+encodeURIComponent(v)}
   else{
     const w=document.querySelector('.hero-input-wrap');
     w.style.borderColor='#D94040';
