@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: "https://myplanningguide.co.uk",
+  siteUrl: "https://theplanningconsultant.com",
   generateRobotsTxt: true,
   changefreq: "daily",
   priority: 0.7,

@@ -6,7 +6,10 @@ import { SparkleLoader } from "@/components/ui/SparkleLoader"
 import { Footer } from "@/components/layout/Footer"
 import { Nav } from "@/components/layout/Nav"
 import { STRIPE_PRODUCTS } from "@/lib/stripe/products"
-import type { ConstraintCheckResponse } from "@/types/planning"
+import type {
+  ConstraintCheckResponse,
+  ConstraintResult,
+} from "@/types/planning"
 import { cn } from "@/utils/cn"
 import {
   Check,
@@ -250,7 +253,7 @@ function CheckPageContent() {
           prev
             ? {
                 ...prev,
-                constraints: data.constraints,
+                constraints: data.constraints as ConstraintResult[],
                 score: data.score ?? prev.score,
               }
             : prev,
