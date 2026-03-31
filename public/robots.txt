@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Host
-Host: https://myplanningguide.co.uk
+Host: https://theplanningconsultant.com
 
 # Sitemaps
-Sitemap: https://myplanningguide.co.uk/sitemap.xml
+Sitemap: https://theplanningconsultant.com/sitemap.xml

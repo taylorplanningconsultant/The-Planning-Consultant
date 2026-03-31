@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client"
 import { ArrowLeft, Check, Mail } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { FormEvent, useState } from "react"
@@ -151,9 +152,11 @@ export default function LoginPage() {
               Instant constraint checks, AI-powered reports, and everything you need before you
               apply.
             </p>
-            <img
+            <Image
               src="/illustrations/report.svg"
               alt="Planning report illustration"
+              width={320}
+              height={280}
               className="mt-8 h-auto w-full max-w-xs opacity-90"
             />
 

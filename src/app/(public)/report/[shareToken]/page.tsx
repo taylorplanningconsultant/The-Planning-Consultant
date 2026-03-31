@@ -7,6 +7,7 @@ import { Nav } from "@/components/layout/Nav"
 import { createClient } from "@/lib/supabase/server"
 import type { Tables } from "@/types/database"
 import type { ConstraintResult } from "@/types/planning"
+import Image from "next/image"
 import { Sparkles } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import { z } from "zod"
@@ -133,9 +134,11 @@ export default async function SharedReportPage({
               </div>
             </div>
             <div className="hidden md:block">
-              <img
+              <Image
                 src="/illustrations/report.svg"
                 alt=""
+                width={320}
+                height={280}
                 className="mx-auto h-auto w-full max-w-xs opacity-80"
               />
             </div>
@@ -257,9 +260,11 @@ export default async function SharedReportPage({
         <section className="bg-brand-dark dot-bg dot-bg-on-dark py-10">
           <div className="mx-auto grid max-w-5xl grid-cols-1 items-stretch gap-6 px-6 md:grid-cols-2">
             <div className="flex flex-col rounded-2xl border border-white/20 bg-white/10 p-6">
-              <img
+              <Image
                 src="/illustrations/undraw_agreement_ftet.svg"
                 alt=""
+                width={200}
+                height={112}
                 className="mb-4 h-28 w-auto opacity-90"
               />
               <p className="mb-2 text-xs uppercase tracking-widest text-white/50">
@@ -281,9 +286,11 @@ export default async function SharedReportPage({
             </div>
 
             <div className="flex flex-col rounded-2xl border border-white/20 bg-white/10 p-6">
-              <img
+              <Image
                 src="/illustrations/experts.svg"
                 alt=""
+                width={200}
+                height={112}
                 className="mb-4 h-28 w-auto opacity-90"
               />
               <p className="mb-2 text-xs uppercase tracking-widest text-white/50">

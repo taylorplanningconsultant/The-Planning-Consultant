@@ -2,7 +2,7 @@
 
 import { Lock } from "lucide-react"
 import { cn } from "@/utils/cn"
-import { useEffect, useState } from "react"
+import { useSyncExternalStore } from "react"
 
 export type ScoreGaugeProps = {
   score: number
@@ -24,15 +24,20 @@ function ringTextClass(score: number): string {
   return "fill-danger"
 }
 
+function useHydrated(): boolean {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  )
+}
+
 export function ScoreGauge({ score, blurred = false }: ScoreGaugeProps) {
   const clamped = Math.min(100, Math.max(0, score))
   const strokeColour = ringColour(clamped)
   const textFillClass = ringTextClass(clamped)
 
-  const [ready, setReady] = useState(false)
-  useEffect(() => {
-    setReady(true)
-  }, [])
+  const ready = useHydrated()
 
   const offset =
     CIRCUMFERENCE - (ready ? clamped / 100 : 0) * CIRCUMFERENCE

@@ -21,8 +21,9 @@ import {
   Shield,
   ShieldCheck,
 } from "lucide-react"
-import { Suspense, useEffect, useState } from "react"
+import Image from "next/image"
 import { useSearchParams } from "next/navigation"
+import { Suspense, useEffect, useState } from "react"
 
 const inputClassName =
   "w-full rounded-lg border border-border bg-background px-4 py-3 text-foreground placeholder:text-muted-brand focus:border-transparent focus:outline-none focus:ring-2 focus:ring-accent"
@@ -351,10 +352,12 @@ function CheckPageContent() {
                 </p>
               </div>
               <div className="hidden text-center md:block">
-                <img
+                <Image
                   src="/illustrations/house_searching.svg"
                   alt=""
-                  className="h-auto w-full max-w-xs opacity-90"
+                  width={320}
+                  height={280}
+                  className="mx-auto h-auto w-full max-w-xs opacity-90"
                 />
               </div>
             </div>
@@ -387,11 +390,15 @@ function CheckPageContent() {
               placeholder="Start typing your postcode…"
               inputMode="text"
               spellCheck={false}
+              role="combobox"
               aria-expanded={showSuggestions && suggestions.length > 0}
+              aria-controls="check-postcode-suggestions"
+              aria-autocomplete="list"
               aria-haspopup="listbox"
             />
             {showSuggestions && suggestions.length > 0 ? (
               <div
+                id="check-postcode-suggestions"
                 className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-lg border border-border bg-background shadow-lg"
                 role="listbox"
               >
@@ -442,9 +449,11 @@ function CheckPageContent() {
         {isLoading ? (
           <section className="w-full bg-background py-16">
             <div className="mx-auto max-w-5xl px-6 md:px-8">
-              <img
+              <Image
                 src="/illustrations/analysis.svg"
                 alt=""
+                width={160}
+                height={160}
                 className="mx-auto mb-8 h-auto w-40 opacity-60"
               />
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -495,9 +504,11 @@ function CheckPageContent() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="bg-secondary border border-border rounded-2xl p-6 flex flex-col items-start gap-4">
-                  <img
+                  <Image
                     src="/illustrations/checklist.svg"
                     alt=""
+                    width={200}
+                    height={160}
                     className="h-32 w-auto object-contain"
                   />
                   <h3 className="text-lg font-bold text-foreground">
@@ -511,9 +522,11 @@ function CheckPageContent() {
                   </p>
                 </div>
                 <div className="bg-secondary border border-border rounded-2xl p-6 flex flex-col items-start gap-4">
-                  <img
+                  <Image
                     src="/illustrations/analysis.svg"
                     alt=""
+                    width={200}
+                    height={160}
                     className="h-32 w-auto object-contain"
                   />
                   <h3 className="text-lg font-bold text-foreground">
@@ -526,9 +539,11 @@ function CheckPageContent() {
                   </p>
                 </div>
                 <div className="bg-secondary border border-border rounded-2xl p-6 flex flex-col items-start gap-4">
-                  <img
+                  <Image
                     src="/illustrations/report.svg"
                     alt=""
+                    width={200}
+                    height={160}
                     className="h-32 w-auto object-contain"
                   />
                   <h3 className="text-lg font-bold text-foreground">
@@ -640,9 +655,11 @@ function CheckPageContent() {
                             approval likelihood score, and personalised next steps —
                             completely free.
                           </p>
-                          <img
+                          <Image
                             src="/illustrations/report.svg"
                             alt=""
+                            width={160}
+                            height={160}
                             className="mt-6 hidden h-auto w-40 opacity-80 md:block"
                           />
                         </div>
@@ -894,9 +911,11 @@ function CheckLoadingFallback() {
         </div>
         <section className="w-full bg-background py-16">
           <div className="mx-auto max-w-5xl px-6 md:px-8">
-            <img
+            <Image
               src="/illustrations/analysis.svg"
               alt=""
+              width={160}
+              height={160}
               className="mx-auto mb-8 h-auto w-40 opacity-60"
             />
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">

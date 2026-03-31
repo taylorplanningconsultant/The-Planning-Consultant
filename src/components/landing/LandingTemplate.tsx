@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
@@ -316,10 +317,12 @@ export function LandingTemplate() {
           <div className="steps">
             <div className="step">
               <div className="step-num">01</div>
-              <img
+              <Image
                 src="/illustrations/house_searching.svg"
                 alt=""
-                className="w-full h-28 object-contain mb-4 opacity-90"
+                width={400}
+                height={112}
+                className="mb-4 h-28 w-full object-contain opacity-90"
               />
               <div className="step-icon-wrap">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -344,10 +347,12 @@ export function LandingTemplate() {
             </div>
             <div className="step">
               <div className="step-num">02</div>
-              <img
+              <Image
                 src="/illustrations/checklist.svg"
                 alt=""
-                className="w-full h-28 object-contain mb-4 opacity-90"
+                width={400}
+                height={112}
+                className="mb-4 h-28 w-full object-contain opacity-90"
               />
               <div className="step-icon-wrap">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -375,10 +380,12 @@ export function LandingTemplate() {
             </div>
             <div className="step">
               <div className="step-num">03</div>
-              <img
+              <Image
                 src="/illustrations/report.svg"
                 alt=""
-                className="w-full h-28 object-contain mb-4 opacity-90"
+                width={400}
+                height={112}
+                className="mb-4 h-28 w-full object-contain opacity-90"
               />
               <div className="step-icon-wrap">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -790,10 +797,12 @@ export function LandingTemplate() {
             </a>
           </div>
           <div className="pro-right">
-            <img
+            <Image
               src="/illustrations/city.svg"
               alt=""
-              className="w-full h-48 object-contain mb-6 opacity-90"
+              width={480}
+              height={192}
+              className="mb-6 h-48 w-full object-contain opacity-90"
             />
             <div className="pro-metrics">
               <div className="pm-card">

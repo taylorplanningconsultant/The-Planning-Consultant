@@ -18,54 +18,59 @@ const DEFAULT_STEPS: string[] = [
 ]
 
 export function SparkleLoader({ message, steps }: SparkleLoaderProps) {
-  const liveSteps = useMemo(
-    () => (steps && steps.length > 0 ? steps : DEFAULT_STEPS),
-    [steps],
+  const stepsSignature = useMemo(() => {
+    if (steps && steps.length > 0) return steps.join("\u0001")
+    return "__default__"
+  }, [steps])
+
+  const stepsRef = useRef(steps)
+  useEffect(() => {
+    stepsRef.current = steps
+  })
+
+  const [visibleStep, setVisibleStep] = useState(
+    () =>
+      steps && steps.length > 0
+        ? (steps[0] ?? "")
+        : (DEFAULT_STEPS[0] ?? ""),
   )
-  const [stepIndex, setStepIndex] = useState<number>(0)
-  const [visibleStep, setVisibleStep] = useState<string>(liveSteps[0] ?? "")
-  const [isStepVisible, setIsStepVisible] = useState<boolean>(true)
-  const [dotCount, setDotCount] = useState<number>(1)
-  const enterTimeoutRef = useRef<number | null>(null)
-  const exitTimeoutRef = useRef<number | null>(null)
-  const transitionDurationMs = 260
+  const [dotCount, setDotCount] = useState(1)
+  const stepIndexRef = useRef(0)
 
   useEffect(() => {
-    setStepIndex(0)
-    setVisibleStep(liveSteps[0] ?? "")
-    setIsStepVisible(true)
-  }, [liveSteps])
+    queueMicrotask(() => {
+      const list =
+        stepsRef.current && stepsRef.current.length > 0
+          ? stepsRef.current
+          : DEFAULT_STEPS
+      stepIndexRef.current = 0
+      setVisibleStep(list[0] ?? "")
+    })
+  }, [stepsSignature])
 
   useEffect(() => {
-    if (liveSteps.length <= 1) return
-
     const rotateInterval = window.setInterval(() => {
-      setIsStepVisible(false)
+      const list =
+        stepsRef.current && stepsRef.current.length > 0
+          ? stepsRef.current
+          : DEFAULT_STEPS
+      if (list.length <= 1) return
 
-      exitTimeoutRef.current = window.setTimeout(() => {
-        setStepIndex((currentIndex) => {
-          const nextIndex = Math.floor(Math.random() * liveSteps.length)
-          const resolvedIndex =
-            nextIndex === currentIndex
-              ? (currentIndex + 1) % liveSteps.length
-              : nextIndex
+      const currentIndex = stepIndexRef.current
+      const nextIndex = Math.floor(Math.random() * list.length)
+      const resolvedIndex =
+        nextIndex === currentIndex
+          ? (currentIndex + 1) % list.length
+          : nextIndex
 
-          setVisibleStep(liveSteps[resolvedIndex] ?? "")
-          return resolvedIndex
-        })
-
-        enterTimeoutRef.current = window.setTimeout(() => {
-          setIsStepVisible(true)
-        }, 10)
-      }, transitionDurationMs)
+      stepIndexRef.current = resolvedIndex
+      setVisibleStep(list[resolvedIndex] ?? "")
     }, 1800)
 
     return () => {
       window.clearInterval(rotateInterval)
-      if (exitTimeoutRef.current) window.clearTimeout(exitTimeoutRef.current)
-      if (enterTimeoutRef.current) window.clearTimeout(enterTimeoutRef.current)
     }
-  }, [liveSteps])
+  }, [stepsSignature])
 
   useEffect(() => {
     const dotInterval = window.setInterval(() => {
@@ -76,12 +81,17 @@ export function SparkleLoader({ message, steps }: SparkleLoaderProps) {
   }, [])
 
   const animatedDots = ".".repeat(dotCount)
-  const title = message ?? "AI is thinking"
+  const ariaLabel = message ? `${message} ${visibleStep}` : visibleStep
 
   return (
-    <div className="flex items-center gap-3 py-2">
+    <div
+      className="flex items-center gap-3 py-2"
+      role="status"
+      aria-live="polite"
+      aria-label={ariaLabel}
+    >
       <Sparkles
-        className="w-5 h-5 text-accent flex-shrink-0"
+        className="h-5 w-5 flex-shrink-0 text-accent"
         style={{ animation: "gentle-pulse 2s ease-in-out infinite" }}
       />
       <div className="relative overflow-hidden">
@@ -90,7 +100,7 @@ export function SparkleLoader({ message, steps }: SparkleLoaderProps) {
           <span className="text-muted-brand">{animatedDots}</span>
         </p>
         <div
-          className="absolute inset-y-0 w-1/3 pointer-events-none"
+          className="pointer-events-none absolute inset-y-0 w-1/3"
           style={{
             background:
               "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.65) 50%, transparent 100%)",
