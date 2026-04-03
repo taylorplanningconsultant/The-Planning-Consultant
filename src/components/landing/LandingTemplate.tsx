@@ -276,8 +276,8 @@ export function LandingTemplate() {
       </div>
 
       {/* LOGOS */}
-      <div className="w-full flex justify-center">
-          <span className="logos-lbl">Trusted by</span>
+      <div className="flex w-full justify-center px-6 text-center md:px-8">
+        <span className="logos-lbl">Trusted by</span>
       </div>
       <div className="logos">
         <div className="logos-carousel-full">

@@ -101,71 +101,100 @@ export default async function DashboardPage() {
     <>
       <Nav />
       <main className="min-h-screen bg-background">
-        <section className="mx-auto max-w-5xl px-6 py-12 md:px-8">
-          <p className="mb-2 text-xs font-bold uppercase tracking-widest text-accent">Dashboard</p>
-          <h1 className="mb-1 text-3xl font-bold text-foreground">Welcome back, {displayName}</h1>
-          <p className="text-sm text-muted-foreground">Your planning reports and activity</p>
-
-          <div className="mb-8 mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-            <div className="rounded-2xl border border-border bg-secondary p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-brand">
-                Total reports
-              </p>
-              <p className="mt-2 text-2xl font-bold text-foreground">{totalReports}</p>
-            </div>
-            <div className="rounded-2xl border border-border bg-secondary p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-brand">
-                Full reports
-              </p>
-              <p className="mt-2 text-2xl font-bold text-foreground">{fullReports}</p>
-            </div>
-            <div className="rounded-2xl border border-border bg-secondary p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-brand">Latest LPA</p>
-              <p className="mt-2 text-base font-semibold text-foreground">{latestLpa}</p>
-            </div>
-            <div className="rounded-2xl border border-border bg-secondary p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-brand">
-                Member since
-              </p>
-              <p className="mt-2 text-base font-semibold text-foreground">{memberSince}</p>
+        <section className="bg-brand-dark dot-bg pt-24 pb-10">
+          <div className="mx-auto max-w-5xl px-6 md:px-8">
+            <div className="grid grid-cols-1 items-center gap-6 md:grid-cols-2">
+              <div>
+                <p className="mb-2 text-xs font-bold uppercase tracking-widest text-white/50">Dashboard</p>
+                <h1 className="mb-1 text-3xl font-bold text-white">Welcome back, {displayName}</h1>
+                <p className="text-sm text-white/60">Your planning reports and activity</p>
+              </div>
+              <div className="hidden justify-end md:flex">
+                <Link
+                  href="/check"
+                  className="rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-brand-dark transition-opacity hover:opacity-90"
+                >
+                  Run new check →
+                </Link>
+              </div>
             </div>
           </div>
+        </section>
 
-          <section className="mt-8">
-            <h2 className="mb-4 text-xl font-bold text-foreground">Recent reports</h2>
+        <section className="border-b border-border bg-background">
+          <div className="mx-auto max-w-5xl px-6 py-6 md:px-8">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+              <div className="rounded-xl border border-border bg-secondary p-4">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-brand">
+                  Total reports
+                </p>
+                <p className="text-2xl font-bold text-foreground">{totalReports}</p>
+              </div>
+              <div className="rounded-xl border border-border bg-secondary p-4">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-brand">
+                  Full reports
+                </p>
+                <p className="text-2xl font-bold text-foreground">{fullReports}</p>
+              </div>
+              <div className="rounded-xl border border-border bg-secondary p-4">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-brand">
+                  Latest LPA
+                </p>
+                <p className="text-base font-bold text-foreground">{latestLpa}</p>
+              </div>
+              <div className="rounded-xl border border-border bg-secondary p-4">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-brand">
+                  Member since
+                </p>
+                <p className="text-base font-bold text-foreground">{memberSince}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-background py-10">
+          <div className="mx-auto max-w-5xl px-6 md:px-8">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-foreground">Recent reports</h2>
+              <Link href="/check" className="text-sm font-medium text-accent hover:underline">
+                Run new check →
+              </Link>
+            </div>
 
             {hasError ? (
-              <div className="rounded-2xl border border-border bg-secondary p-6">
-                <p className="text-sm text-muted-foreground">
-                  We could not load your dashboard data right now. Please refresh and try again.
+              <div className="rounded-2xl border border-[#F5C6C6] bg-[#FDECEA] p-6">
+                <p className="text-sm text-[#991818]">
+                  Could not load dashboard data. Please refresh.
                 </p>
               </div>
             ) : recentReports.length === 0 ? (
-              <div className="rounded-2xl border border-border bg-secondary p-8 text-center">
+              <div className="rounded-2xl border border-border bg-secondary p-12 text-center">
                 <Image
                   src="/illustrations/analysis.svg"
                   alt="No reports yet"
                   width={220}
                   height={160}
-                  className="mx-auto h-auto w-full max-w-[220px]"
+                  className="mx-auto mb-6 h-32 w-auto opacity-70"
                 />
-                <p className="mt-5 text-sm text-muted-foreground">No reports yet. Run your first check.</p>
+                <p className="mb-6 text-muted-foreground">
+                  No reports yet. Run your first constraint check to get started.
+                </p>
                 <Link
                   href="/check"
-                  className="mt-5 inline-flex bg-gradient-to-br from-primary to-accent px-6 py-3 font-semibold text-white shadow-md transition-opacity hover:opacity-90"
+                  className="inline-flex rounded-lg bg-gradient-to-br from-primary to-accent px-6 py-3 font-semibold text-white shadow-md transition-opacity hover:opacity-90"
                 >
-                  Start first check
+                  Check a postcode
                 </Link>
               </div>
             ) : (
-              <div className="rounded-2xl border border-border bg-background px-4 md:px-6">
+              <div className="overflow-hidden rounded-2xl border border-border bg-background">
                 {recentReports.map((report) => {
                   const scoreBadge = getScoreBadgeStyles(report.approval_score)
 
                   return (
                     <div
                       key={report.id}
-                      className="flex items-center justify-between gap-4 border-b border-border py-4 last:border-0"
+                      className="flex items-center justify-between gap-4 border-b border-border px-6 py-4 transition-colors last:border-0 hover:bg-secondary"
                     >
                       <div className="min-w-0">
                         <p className="font-semibold text-foreground">{report.postcode}</p>
@@ -177,15 +206,15 @@ export default async function DashboardPage() {
 
                       <div className="flex shrink-0 items-center gap-3">
                         <span
-                          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${scoreBadge.classes}`}
+                          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${scoreBadge.classes}`}
                         >
                           {scoreBadge.label}
                         </span>
                         <Link
                           href={`/report/${report.share_token}`}
-                          className="text-sm font-semibold text-primary hover:underline"
+                          className="text-sm font-semibold text-accent hover:underline"
                         >
-                          View report
+                          View →
                         </Link>
                       </div>
                     </div>
@@ -193,7 +222,7 @@ export default async function DashboardPage() {
                 })}
               </div>
             )}
-          </section>
+          </div>
         </section>
       </main>
       <Footer />

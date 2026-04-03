@@ -13,3 +13,20 @@ export const STRIPE_PRODUCTS = {
     agencyAnnual: "price_1TGoetJRdCrAqoHOXGliTSr9",
   },
 } as const;
+
+/** Maps a Stripe price id to the `subscriptions.plan` enum. */
+export function planFromStripePriceId(
+  priceId: string,
+): "starter" | "pro" | "agency" | null {
+  const s = STRIPE_PRODUCTS.subscriptions;
+  if (priceId === s.starterMonthly || priceId === s.starterAnnual) {
+    return "starter";
+  }
+  if (priceId === s.proMonthly || priceId === s.proAnnual) {
+    return "pro";
+  }
+  if (priceId === s.agencyMonthly || priceId === s.agencyAnnual) {
+    return "agency";
+  }
+  return null;
+}

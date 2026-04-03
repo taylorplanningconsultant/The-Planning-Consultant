@@ -93,7 +93,7 @@ export default function LoginPage() {
       return
     }
 
-    setSuccessMessage("Check your email to confirm your account.")
+    router.push("/dashboard")
   }
 
   async function handleMagicLinkSignIn() {
