@@ -3,7 +3,6 @@ import { DownloadPDFButton } from "@/components/report/DownloadPDFButton"
 import { ScoreGauge } from "@/components/report/ScoreGauge"
 import { ShareLinkCopyButton } from "@/components/report/ShareLinkCopyButton"
 import { Footer } from "@/components/layout/Footer"
-import { Nav } from "@/components/layout/Nav"
 import { createClient } from "@/lib/supabase/server"
 import type { Tables } from "@/types/database"
 import type { ConstraintResult } from "@/types/planning"
@@ -68,7 +67,6 @@ export default async function SharedReportPage({
   if (error) {
     return (
       <>
-        <Nav />
         <main className="min-h-screen bg-background">
           <section className="mx-auto max-w-4xl px-6 py-16 md:px-8 md:py-24">
             <p className="mb-3 text-xs font-bold uppercase tracking-widest text-accent">
@@ -90,7 +88,6 @@ export default async function SharedReportPage({
   if (!report) {
     return (
       <>
-        <Nav />
         <main className="min-h-screen bg-background">
           <section className="mx-auto max-w-4xl px-6 py-16 md:px-8 md:py-24">
             <p className="mb-3 text-xs font-bold uppercase tracking-widest text-accent">
@@ -113,7 +110,6 @@ export default async function SharedReportPage({
 
   return (
     <>
-      <Nav />
       <main className="min-h-screen bg-background">
         <section className="bg-brand-dark dot-bg dot-bg-on-dark pt-20 md:pt-24">
           <div className="mx-auto grid max-w-5xl grid-cols-1 items-center gap-8 px-6 py-10 md:grid-cols-2 md:py-14">

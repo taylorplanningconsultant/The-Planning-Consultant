@@ -208,6 +208,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          phone: string | null
           role: string
           stripe_customer_id: string | null
           subscription_tier: string
@@ -217,6 +218,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          phone?: string | null
           role?: string
           stripe_customer_id?: string | null
           subscription_tier?: string
@@ -226,6 +228,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          phone?: string | null
           role?: string
           stripe_customer_id?: string | null
           subscription_tier?: string

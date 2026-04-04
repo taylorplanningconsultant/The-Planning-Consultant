@@ -4,7 +4,6 @@ import { ConstraintTable } from "@/components/report/ConstraintTable"
 import { ScoreGauge } from "@/components/report/ScoreGauge"
 import { SparkleLoader } from "@/components/ui/SparkleLoader"
 import { Footer } from "@/components/layout/Footer"
-import { Nav } from "@/components/layout/Nav"
 import { STRIPE_PRODUCTS } from "@/lib/stripe/products"
 import type {
   ConstraintCheckResponse,
@@ -333,7 +332,6 @@ function CheckPageContent() {
 
   return (
     <>
-      <Nav />
       <main className="min-h-screen bg-background font-sans">
         <section className="bg-brand-dark dot-bg dot-bg-on-dark py-16 md:py-20">
           <div className="mx-auto max-w-5xl px-6 md:px-8">
@@ -883,7 +881,6 @@ function CheckPageContent() {
 function CheckLoadingFallback() {
   return (
     <>
-      <Nav />
       <main className="min-h-screen bg-background font-sans">
         <section className="bg-brand-dark dot-bg dot-bg-on-dark py-16 md:py-20">
           <div className="mx-auto max-w-5xl px-6 md:px-8">

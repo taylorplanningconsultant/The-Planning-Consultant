@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
 import { cn } from "@/utils/cn";
 
@@ -76,7 +75,6 @@ export function LandingTemplate() {
 
   return (
     <>
-      <Nav />
       <div className="hero-wrap">
         <div className="hero-gradient" />
         <div className="hero-dot" />
