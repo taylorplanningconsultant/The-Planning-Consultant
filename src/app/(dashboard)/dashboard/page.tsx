@@ -111,7 +111,7 @@ export default async function DashboardPage() {
   const fullReports = fullReportsResult.count ?? 0
   const profile = profileResult.data
   const displayName =
-    profile?.full_name?.trim() || profile?.email?.trim() || session.user.email || "there"
+    profile?.full_name?.trim() || profile?.email?.trim() || user.email || "there"
 
   const latestReport = recentReports[0]
   const latestLpa =

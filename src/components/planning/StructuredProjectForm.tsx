@@ -608,11 +608,6 @@ export function StructuredProjectForm({
 
         {!loadingQuestions && uiStep === 2 ? (
           <div className="space-y-8">
-            {console.log(
-              "Rendering step 2, questions:",
-              generatedQuestions.length,
-              generatedQuestions,
-            )}
             {generatedQuestions.map((q) => (
               <div key={q.id}>
                 <p className="mb-1 text-xs font-semibold text-muted-brand">

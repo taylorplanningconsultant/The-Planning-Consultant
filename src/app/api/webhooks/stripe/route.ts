@@ -257,7 +257,9 @@ export async function POST(request: Request) {
           STRIPE_PRODUCTS.subscriptions.agencyAnnual,
         ];
 
-        const billingInterval = annualPriceIds.includes(priceId ?? "")
+        const billingInterval = annualPriceIds.includes(
+          (priceId ?? "") as typeof annualPriceIds[number]
+        )
           ? "annual"
           : "monthly";
 
