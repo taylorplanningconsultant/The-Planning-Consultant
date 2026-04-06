@@ -7,8 +7,8 @@ import { useEffect, useId, useState } from "react";
 import { cn } from "@/utils/cn";
 
 const navLinks = [
-  { href: "/#how-it-works", label: "How it works" },
   { href: "/check", label: "Constraint checker" },
+  { href: "/statement", label: "Planning statement" },
   { href: "/#pricing", label: "Pricing" },
   { href: "/#guides", label: "Guides" },
   { href: "/#professionals", label: "For professionals" },
@@ -87,7 +87,7 @@ export function NavClient({ user }: NavClientProps) {
             </svg>
           </div>
           <span className="truncate text-sm font-bold tracking-tight text-foreground sm:text-base">
-            MyPlanningGuide
+            The Planning Consultant
           </span>
         </Link>
 

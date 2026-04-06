@@ -1,6 +1,7 @@
 import { DashboardShell } from "@/components/dashboard/DashboardShell"
 import { Footer } from "@/components/layout/Footer"
 import { Nav } from "@/components/layout/Nav"
+import { getCreditsBalance, getSubscriptionTier } from "@/lib/credits"
 import { createClient } from "@/lib/supabase/server"
 import type { Tables } from "@/types/database"
 import { cn } from "@/utils/cn"
@@ -58,16 +59,16 @@ type RecentReportRow = Pick<
 export default async function DashboardPage() {
   const supabase = await createClient()
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  if (!session) {
+  if (!user) {
     redirect("/login")
   }
 
-  const userId = session.user.id
+  const userId = user.id
 
-  const [recentReportsResult, totalReportsResult, fullReportsResult, profileResult] = await Promise.all([
+  const results = await Promise.all([
     supabase
       .from("reports")
       .select("id, postcode, lpa_name, approval_score, share_token, report_type, created_at")
@@ -88,7 +89,16 @@ export default async function DashboardPage() {
       .select("full_name, email, created_at")
       .eq("id", userId)
       .maybeSingle(),
+    getCreditsBalance(userId),
+    getSubscriptionTier(userId),
   ])
+
+  const recentReportsResult = results[0]
+  const totalReportsResult = results[1]
+  const fullReportsResult = results[2]
+  const profileResult = results[3]
+  const creditsBalance = results[4] ?? 0
+  const tier = results[5] ?? "free"
 
   const hasError =
     Boolean(recentReportsResult.error) ||
@@ -103,8 +113,20 @@ export default async function DashboardPage() {
   const displayName =
     profile?.full_name?.trim() || profile?.email?.trim() || session.user.email || "there"
 
+  const latestReport = recentReports[0]
   const latestLpa =
-    recentReports.length > 0 ? (recentReports[0]?.lpa_name?.trim() || "—") : "—"
+    recentReports.length > 0 ? (latestReport?.lpa_name?.trim() || "—") : "—"
+  const latestLpaHref = latestReport?.share_token
+    ? `/report/${latestReport.share_token}`
+    : recentReports.length > 0
+      ? "/dashboard/reports"
+      : "/check"
+  const latestLpaCta =
+    latestReport?.share_token != null && latestReport.share_token !== ""
+      ? "Open latest report"
+      : recentReports.length > 0
+        ? "View reports"
+        : "Run your first check"
   const memberSince = formatDate(profile?.created_at ?? null)
 
   const quickActions = [
@@ -150,40 +172,121 @@ export default async function DashboardPage() {
               <p className="text-[#18A056] mb-3 text-xs font-bold uppercase tracking-widest">
                 At a glance
               </p>
-              <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-                <div className="rounded-2xl border border-border bg-background p-5 shadow-sm">
+              <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+                <Link
+                  href="/dashboard/reports"
+                  className="group rounded-2xl border border-border bg-background p-5 shadow-sm transition-colors hover:border-ring hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+                  aria-label={`Total reports: ${totalReports}. Open your reports list.`}
+                >
                   <p className="text-muted-brand mb-2 text-[10px] font-semibold uppercase tracking-wider">
                     Total reports
                   </p>
                   <p className="text-foreground text-3xl font-extrabold tabular-nums tracking-tight md:text-4xl">
                     {totalReports}
                   </p>
-                </div>
-                <div className="rounded-2xl border border-border bg-background p-5 shadow-sm">
+                  <p className="text-primary mt-3 flex items-center gap-1 text-xs font-semibold">
+                    View reports
+                    <ArrowRight
+                      className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:translate-x-0.5"
+                      aria-hidden
+                    />
+                  </p>
+                </Link>
+                <Link
+                  href="/dashboard/reports"
+                  className="group rounded-2xl border border-border bg-background p-5 shadow-sm transition-colors hover:border-ring hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+                  aria-label={`Full reports: ${fullReports}. Open your reports list.`}
+                >
                   <p className="text-muted-brand mb-2 text-[10px] font-semibold uppercase tracking-wider">
                     Full reports
                   </p>
                   <p className="text-foreground text-3xl font-extrabold tabular-nums tracking-tight md:text-4xl">
                     {fullReports}
                   </p>
-                </div>
-                <div className="col-span-2 rounded-2xl border border-border bg-background p-5 shadow-sm lg:col-span-1">
+                  <p className="text-primary mt-3 flex items-center gap-1 text-xs font-semibold">
+                    View reports
+                    <ArrowRight
+                      className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:translate-x-0.5"
+                      aria-hidden
+                    />
+                  </p>
+                </Link>
+                <Link
+                  href={latestLpaHref}
+                  className="group col-span-2 rounded-2xl border border-border bg-background p-5 shadow-sm transition-colors hover:border-ring hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 lg:col-span-1"
+                  aria-label={
+                    recentReports.length > 0
+                      ? `Latest LPA: ${latestLpa}. ${latestLpaCta}.`
+                      : "No reports yet. Run a planning check."
+                  }
+                >
                   <p className="text-muted-brand mb-2 text-[10px] font-semibold uppercase tracking-wider">
                     Latest LPA
                   </p>
-                  <p className="text-foreground line-clamp-2 text-base font-semibold leading-snug md:text-lg">
+                  <p
+                    className={cn(
+                      "line-clamp-2 text-base font-semibold leading-snug md:text-lg",
+                      recentReports.length > 0 ? "text-foreground" : "text-muted-foreground",
+                    )}
+                  >
                     {latestLpa}
                   </p>
-                </div>
-                <div className="col-span-2 rounded-2xl border border-border bg-background p-5 shadow-sm lg:col-span-1">
+                  <p className="text-primary mt-3 flex items-center gap-1 text-xs font-semibold">
+                    {latestLpaCta}
+                    <ArrowRight
+                      className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:translate-x-0.5"
+                      aria-hidden
+                    />
+                  </p>
+                </Link>
+                <Link
+                  href="/dashboard/account"
+                  className="group col-span-2 rounded-2xl border border-border bg-background p-5 shadow-sm transition-colors hover:border-ring hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 lg:col-span-1"
+                  aria-label={`Member since ${memberSince}. Open account settings.`}
+                >
                   <p className="text-muted-brand mb-2 text-[10px] font-semibold uppercase tracking-wider">
                     Member since
                   </p>
                   <p className="text-foreground text-base font-semibold tabular-nums md:text-lg">
                     {memberSince}
                   </p>
-                </div>
+                  <p className="text-primary mt-3 flex items-center gap-1 text-xs font-semibold">
+                    Account
+                    <ArrowRight
+                      className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:translate-x-0.5"
+                      aria-hidden
+                    />
+                  </p>
+                </Link>
+                <Link
+                  href="/dashboard/billing"
+                  className="group col-span-2 rounded-2xl border border-border bg-background p-5 shadow-sm transition-colors hover:border-ring hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 lg:col-span-1"
+                  aria-label={`Credits remaining: ${creditsBalance}. Open billing.`}
+                >
+                  <p className="text-muted-brand mb-2 text-[10px] font-semibold uppercase tracking-wider">
+                    Credits remaining
+                  </p>
+                  <p className="text-foreground text-3xl font-extrabold tabular-nums tracking-tight md:text-4xl">
+                    {creditsBalance}
+                  </p>
+                  <p className="text-muted-brand mt-1 text-xs">
+                    {tier === "free" ? "Pay per report" : `${tier} plan`}
+                  </p>
+                </Link>
               </div>
+              {tier === "free" ? (
+                <div className="mt-4 flex items-center justify-between rounded-xl border border-border bg-secondary p-4">
+                  <p className="text-sm text-foreground">
+                    Subscribe for monthly credits and save
+                  </p>
+                  <Link
+                    href="/#professional-pricing"
+                    className="text-sm font-semibold text-accent hover:underline"
+                  >
+                    View plans →
+                  </Link>
+                </div>
+              ) : null}
             </section>
 
             {/* Quick actions */}

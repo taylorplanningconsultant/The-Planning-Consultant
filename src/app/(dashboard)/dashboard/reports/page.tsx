@@ -14,14 +14,14 @@ type ReportRow = Pick<
 export default async function DashboardReportsPage() {
   const supabase = await createClient()
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  if (!session) {
+  if (!user) {
     redirect("/login")
   }
 
-  const userId = session.user.id
+  const userId = user.id
 
   const { data: reportsData, error } = await supabase
     .from("reports")

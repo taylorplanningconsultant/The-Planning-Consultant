@@ -1,34 +1,36 @@
 "use client"
 
+import {
+  StructuredProjectForm,
+  type ProjectAnswers,
+} from "@/components/planning/StructuredProjectForm"
 import { ConstraintTable } from "@/components/report/ConstraintTable"
 import { ScoreGauge } from "@/components/report/ScoreGauge"
 import { SparkleLoader } from "@/components/ui/SparkleLoader"
 import { Footer } from "@/components/layout/Footer"
+import { createClient } from "@/lib/supabase/client"
 import { STRIPE_PRODUCTS } from "@/lib/stripe/products"
 import type {
   ConstraintCheckResponse,
   ConstraintResult,
 } from "@/types/planning"
 import { cn } from "@/utils/cn"
-import {
-  Check,
-  ChevronDown,
-  Clock,
-  Database,
-  Loader2,
-  Lock,
-  Shield,
-  ShieldCheck,
-} from "lucide-react"
+import { Check, Loader2, Lock, ShieldCheck } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { Suspense, useEffect, useState } from "react"
+import ReactMarkdown, { type Components } from "react-markdown"
+import type { User } from "@supabase/supabase-js"
+import { Suspense, useCallback, useEffect, useRef, useState } from "react"
 
 const inputClassName =
   "w-full rounded-lg border border-border bg-background px-4 py-3 text-foreground placeholder:text-muted-brand focus:border-transparent focus:outline-none focus:ring-2 focus:ring-accent"
 
 const primaryCtaClassName =
   "inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-br from-primary to-accent px-8 py-3 font-semibold text-white shadow-md transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 md:w-auto"
+
+const outlineButtonClassName =
+  "inline-flex items-center justify-center rounded-lg border border-ring px-6 py-3 font-medium text-muted-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
 
 function scoreBandClass(score: number): string {
   if (score >= 70) return "text-[#0F7040]"
@@ -46,16 +48,6 @@ function normalizePostcodeInput(raw: string): string {
   return raw.toUpperCase().replace(/\s+/g, " ").trim()
 }
 
-const PROJECT_TYPE_OPTIONS = [
-  "Rear extension",
-  "Loft conversion",
-  "Side extension",
-  "Outbuilding / garden room",
-  "New build",
-  "Change of use",
-  "Other",
-] as const
-
 function splitFirstParagraph(text: string): { first: string; rest: string } {
   const trimmed = text.trim()
   const parts = trimmed.split(/\n\s*\n/)
@@ -69,62 +61,115 @@ function splitFirstParagraph(text: string): { first: string; rest: string } {
   }
 }
 
+const assessmentPreviewMarkdownComponents: Components = {
+  h1: (props) => (
+    <h1 className="mb-3 mt-4 text-xl font-bold text-foreground">{props.children}</h1>
+  ),
+  h2: (props) => (
+    <h2 className="mb-2 mt-6 border-t border-border pt-4 text-lg font-bold text-foreground">
+      {props.children}
+    </h2>
+  ),
+  h3: (props) => (
+    <h3 className="mb-2 mt-4 text-base font-semibold text-foreground">
+      {props.children}
+    </h3>
+  ),
+  p: (props) => (
+    <p className="mb-3 text-sm leading-relaxed text-muted-foreground">{props.children}</p>
+  ),
+  ul: (props) => (
+    <ul className="list-disc list-inside space-y-1 mb-3">{props.children}</ul>
+  ),
+  li: (props) => (
+    <li className="text-sm text-muted-foreground">{props.children}</li>
+  ),
+  strong: (props) => (
+    <strong className="font-semibold text-foreground">{props.children}</strong>
+  ),
+}
+
+/**
+ * Always shown inside the blurred teaser (in addition to any real continuation text)
+ * so single-paragraph assessments still get a visible “more below” hook.
+ */
+const ASSESSMENT_PREVIEW_HOOK = `
+
+The full write-up continues with plain-English notes on your constraint flags, what they usually mean for applications like yours, and practical next steps.
+
+Unlocking delivers the complete PDF — ready to share with a designer or builder.`
+
 function AssessmentPreviewBlock({
   assessment,
   paymentLoading,
   onUnlock,
+  onBundleUnlock,
 }: {
   assessment: string
   paymentLoading: boolean
   onUnlock: () => void
+  onBundleUnlock: () => void
 }) {
   const { first, rest } = splitFirstParagraph(assessment)
   return (
     <div>
-      <p className="whitespace-pre-wrap text-base leading-relaxed text-muted-foreground">
+      <ReactMarkdown components={assessmentPreviewMarkdownComponents}>
         {first}
-      </p>
-      {rest ? (
-        <div className="relative mt-4">
-          <div
-            className="pointer-events-none max-h-48 select-none overflow-hidden blur-sm"
-            aria-hidden
-          >
-            <p className="whitespace-pre-wrap text-base leading-relaxed text-muted-foreground">
+      </ReactMarkdown>
+      <div className="relative mt-4">
+        <div
+          className={cn(
+            "pointer-events-none min-h-[7.5rem] max-h-60 select-none overflow-hidden rounded-lg border border-border/60 bg-secondary/40 px-5 py-5",
+            "blur-[3.873px]",
+            "[-webkit-mask-image:linear-gradient(to_bottom,#000_0%,#000_55%,rgba(0,0,0,0.65)_85%,transparent_100%)]",
+            "[mask-image:linear-gradient(to_bottom,#000_0%,#000_55%,rgba(0,0,0,0.65)_85%,transparent_100%)]",
+          )}
+          aria-hidden
+        >
+          {rest ? (
+            <ReactMarkdown components={assessmentPreviewMarkdownComponents}>
               {rest}
-            </p>
-          </div>
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-background/80 to-background" />
-          <div className="absolute inset-x-0 bottom-0 flex justify-center pb-2 pt-12">
+            </ReactMarkdown>
+          ) : null}
+          <ReactMarkdown components={assessmentPreviewMarkdownComponents}>
+            {ASSESSMENT_PREVIEW_HOOK}
+          </ReactMarkdown>
+        </div>
+        <div className="relative z-10 -mt-10 w-full px-2 pb-1 pt-3">
+          <div className="mx-auto flex w-full max-w-md flex-col">
             <button
               type="button"
               onClick={onUnlock}
               disabled={paymentLoading}
               className={cn(
                 primaryCtaClassName,
-                "pointer-events-auto shadow-lg",
+                "shadow-lg w-full max-w-none md:w-full",
               )}
             >
               {paymentLoading
-                ? "Redirecting…"
-                : "Unlock full report — £29"}
+                ? "Redirecting to secure payment…"
+                : "Unlock full report — £29 one-off"}
             </button>
+            <p className="my-2 text-center text-xs text-muted-brand">or</p>
+            <button
+              type="button"
+              onClick={onBundleUnlock}
+              disabled={paymentLoading}
+              className="w-full rounded-lg border border-border px-6 py-3 text-sm font-medium text-foreground hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {paymentLoading
+                ? "Redirecting to secure payment…"
+                : "Report + Statement — £99"}
+            </button>
+            <p className="mt-2 text-center text-xs font-medium text-primary">
+              Save £9 vs buying separately (£29 + £79)
+            </p>
+            <p className="mt-1.5 text-center text-xs text-muted-brand">
+              Bundle includes full report + planning statement draft
+            </p>
           </div>
         </div>
-      ) : (
-        <div className="mt-6 flex justify-center">
-          <button
-            type="button"
-            onClick={onUnlock}
-            disabled={paymentLoading}
-            className={cn(primaryCtaClassName, "shadow-lg")}
-          >
-            {paymentLoading
-              ? "Redirecting…"
-              : "Unlock full report — £29"}
-          </button>
-        </div>
-      )}
+      </div>
     </div>
   )
 }
@@ -144,29 +189,103 @@ function CheckPageContent() {
   const [leadEmail, setLeadEmail] = useState("")
   const [leadSubmitting, setLeadSubmitting] = useState(false)
   const [paymentLoading, setPaymentLoading] = useState(false)
-  const [projectType, setProjectType] = useState("")
-  const [description, setDescription] = useState("")
-  const [concerns, setConcerns] = useState<string[]>([])
-  const [formStep, setFormStep] = useState(1)
-  const [isStepFading, setIsStepFading] = useState(false)
-  const [pendingStep, setPendingStep] = useState<number | null>(null)
   const [assessment, setAssessment] = useState("")
   const [assessmentLoading, setAssessmentLoading] = useState(false)
+  const [showCreditConfirm, setShowCreditConfirm] = useState(false)
+  const [pendingAnswers, setPendingAnswers] = useState<ProjectAnswers | null>(
+    null,
+  )
+  const [creditsBalance, setCreditsBalance] = useState(0)
+  const [authUser, setAuthUser] = useState<User | null>(null)
+  const [isSubscriber, setIsSubscriber] = useState(false)
+  const [projectFormKey, setProjectFormKey] = useState(0)
+  const [creditDialogPending, setCreditDialogPending] = useState(false)
+  const [formStepLoading, setFormStepLoading] = useState({
+    loadingQuestions: false,
+    reviewLoading: false,
+  })
+  const [cachedAnswers, setCachedAnswers] = useState<Record<string, string>>(
+    {},
+  )
+  const [lastDescription, setLastDescription] = useState("")
+
+  const resultsSectionRef = useRef<HTMLElement | null>(null)
+  const projectDetailsSectionRef = useRef<HTMLDivElement | null>(null)
+  const hasScrolledToResultsRef = useRef(false)
+  const hasScrolledToProjectDetailsRef = useRef(false)
 
   useEffect(() => {
     setPostcode(postcodeFromQuery)
   }, [postcodeFromQuery])
 
   useEffect(() => {
-    if (pendingStep === null) return
-    const timeoutId = setTimeout(() => {
-      setFormStep(pendingStep)
-      setIsStepFading(false)
-      setPendingStep(null)
-    }, 150)
+    let cancelled = false
 
-    return () => clearTimeout(timeoutId)
-  }, [pendingStep])
+    async function loadCreditsProfile() {
+      const supabase = createClient()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (cancelled) return
+      if (!user) {
+        setAuthUser(null)
+        setIsSubscriber(false)
+        setCreditsBalance(0)
+        return
+      }
+      setAuthUser(user)
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("credits_balance, subscription_tier")
+        .eq("id", user.id)
+        .single()
+      if (cancelled) return
+      const row = profile as {
+        credits_balance?: number | null
+        subscription_tier?: string | null
+      } | null
+      setCreditsBalance(row?.credits_balance ?? 0)
+      setIsSubscriber((row?.subscription_tier ?? "free") !== "free")
+    }
+
+    void loadCreditsProfile()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!result) {
+      hasScrolledToResultsRef.current = false
+      hasScrolledToProjectDetailsRef.current = false
+      return
+    }
+    if (isLoading) return
+    if (!hasScrolledToResultsRef.current) {
+      hasScrolledToResultsRef.current = true
+      const frame = requestAnimationFrame(() => {
+        resultsSectionRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        })
+      })
+      return () => cancelAnimationFrame(frame)
+    }
+  }, [result, isLoading])
+
+  useEffect(() => {
+    if (!emailUnlocked || !result) return
+    if (hasScrolledToProjectDetailsRef.current) return
+    hasScrolledToProjectDetailsRef.current = true
+    const frame = requestAnimationFrame(() => {
+      projectDetailsSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [emailUnlocked, result])
 
   async function fetchSuggestions(pc: string) {
     if (pc.length < 5) {
@@ -200,11 +319,12 @@ function CheckPageContent() {
     setError(null)
     setResult(null)
     setEmailUnlocked(false)
-    setProjectType("")
-    setDescription("")
-    setConcerns([])
-    setFormStep(1)
     setAssessment("")
+    setShowCreditConfirm(false)
+    setPendingAnswers(null)
+    setCachedAnswers({})
+    setLastDescription("")
+    setProjectFormKey((k) => k + 1)
 
     try {
       const response = await fetch("/api/check-constraints", {
@@ -265,23 +385,37 @@ function CheckPageContent() {
     }
   }
 
-  async function handleGenerateAssessment() {
-    if (!projectType || !description.trim()) return
+  async function runGenerateReport(answers: ProjectAnswers) {
     setAssessmentLoading(true)
+    setError(null)
     try {
       const res = await fetch("/api/generate-report", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           reportId: result?.reportId,
-          projectType,
-          description: description.trim(),
-          concerns,
+          projectType: answers.projectType,
+          description: JSON.stringify(answers),
         }),
       })
-      const data = (await res.json()) as { assessment?: string }
-      if (typeof data.assessment === "string") {
+      if (res.status === 402) {
+        setError(
+          "You have insufficient credits. Please top up or upgrade your plan.",
+        )
+        return
+      }
+      if (!res.ok) {
+        setError("Something went wrong. Please try again.")
+        return
+      }
+      const data = await res.json()
+      if (data.assessment) {
         setAssessment(data.assessment)
+        if (isSubscriber) {
+          setCreditsBalance((b) => Math.max(0, b - 1))
+        }
       }
     } finally {
       setAssessmentLoading(false)
@@ -307,25 +441,24 @@ function CheckPageContent() {
     }
   }
 
-  function goToStep(step: number) {
-    if (step === formStep) return
-    setIsStepFading(true)
-    setPendingStep(step)
-  }
+  const handleFormInternalLoadingChange = useCallback(
+    (state: { loadingQuestions: boolean; reviewLoading: boolean }) => {
+      setFormStepLoading(state)
+    },
+    [],
+  )
 
-  function toggleConcern(concern: string) {
-    setConcerns((prev) =>
-      prev.includes(concern)
-        ? prev.filter((item) => item !== concern)
-        : [...prev, concern],
-    )
-  }
+  const postcodeFieldsDisabled =
+    isLoading ||
+    assessmentLoading ||
+    formStepLoading.loadingQuestions ||
+    formStepLoading.reviewLoading
 
   const trustItems = [
-    { label: "8 constraint categories checked", Icon: Shield },
-    { label: "Live government data", Icon: Database },
-    { label: "Results in under 60 seconds", Icon: Clock },
-    { label: "Free basic check", Icon: Check },
+    "Eight statutory constraint categories reviewed",
+    "Drawn from live government planning data",
+    "Initial screen at no charge",
+    "Full written report available from £29 one-off",
   ] as const
 
   const showStateAIdle = !isLoading && !result
@@ -333,230 +466,122 @@ function CheckPageContent() {
   return (
     <>
       <main className="min-h-screen bg-background font-sans">
-        <section className="bg-brand-dark dot-bg dot-bg-on-dark py-16 md:py-20">
+        <section className="bg-brand-dark dot-bg dot-bg-on-dark py-20 md:py-24">
           <div className="mx-auto max-w-5xl px-6 md:px-8">
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 items-center">
+            <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2 md:gap-16">
               <div>
-                <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white/80">
-                  ● Live planning data
+                <span className="mb-8 inline-flex items-center rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/85">
+                  Planning constraint analysis
                 </span>
-                <h1 className="mb-4 text-4xl font-extrabold leading-tight tracking-tight text-white md:text-5xl">
+                <h1 className="mb-6 text-4xl font-extrabold leading-tight tracking-tight text-white md:text-5xl">
                   Check planning constraints for your postcode
                 </h1>
-                <p className="max-w-2xl text-lg font-normal text-white/70">
-                  Enter your UK postcode for an area-level constraint check from
-                  8 live government sources. Free to check — full PDF report
-                  from £29.
+                <p className="max-w-xl text-lg font-normal leading-relaxed text-white/75 md:text-xl">
+                  A structured, area-level review of planning constraints from
+                  authoritative sources — with an optional full PDF report from
+                  £29 one-off when you need detail.
                 </p>
               </div>
               <div className="hidden text-center md:block">
                 <Image
-                  src="/illustrations/house_searching.svg"
+                  src="/illustrations/agreement.svg"
                   alt=""
                   width={320}
                   height={280}
-                  className="mx-auto h-auto w-full max-w-xs opacity-90"
+                  className="mx-auto h-auto w-full max-w-sm opacity-95"
                 />
               </div>
             </div>
           </div>
         </section>
 
-        <form
-          onSubmit={handleSubmit}
-          className="mx-auto flex w-full max-w-5xl flex-col items-center justify-center gap-4 border-b border-border bg-background px-6 py-8 md:flex-row md:px-8"
-        >
-          <div className="relative w-full md:w-80">
-            <label
-              htmlFor="check-postcode"
-              className="mb-2 block text-sm font-semibold text-foreground"
-            >
-              Postcode
-            </label>
-            <input
-              id="check-postcode"
-              type="text"
-              value={postcode}
-              onChange={async (e) => {
-                const val = e.target.value.toUpperCase()
-                setPostcode(val)
-                await fetchSuggestions(val)
-              }}
-              autoComplete="off"
-              disabled={isLoading}
-              className={inputClassName}
-              placeholder="Start typing your postcode…"
-              inputMode="text"
-              spellCheck={false}
-              role="combobox"
-              aria-expanded={showSuggestions && suggestions.length > 0}
-              aria-controls="check-postcode-suggestions"
-              aria-autocomplete="list"
-              aria-haspopup="listbox"
-            />
-            {showSuggestions && suggestions.length > 0 ? (
-              <div
-                id="check-postcode-suggestions"
-                className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-lg border border-border bg-background shadow-lg"
-                role="listbox"
-              >
-                {suggestions.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => {
-                      setPostcode(s)
-                      setSuggestions([])
-                      setShowSuggestions(false)
-                    }}
-                    className="w-full border-b border-border px-4 py-2.5 text-left text-sm text-foreground last:border-0 hover:bg-secondary"
+        <form onSubmit={handleSubmit} className="border-b border-border bg-secondary">
+          <div className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 py-12 md:flex-row md:items-end md:gap-10 md:px-8 md:py-14">
+            <div className="min-w-0 flex-1">
+              <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-accent">
+                Site location
+              </p>
+              <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+                Enter the postcode for the property or site you wish to
+                screen. We use it to resolve the local planning authority and
+                retrieve constraint layers for that area.
+              </p>
+              <div className="relative">
+                <label
+                  htmlFor="check-postcode"
+                  className="mb-2 block text-sm font-semibold text-foreground"
+                >
+                  Site postcode
+                </label>
+                <input
+                  id="check-postcode"
+                  type="text"
+                  value={postcode}
+                  onChange={async (e) => {
+                    const val = e.target.value.toUpperCase()
+                    setPostcode(val)
+                    await fetchSuggestions(val)
+                  }}
+                  autoComplete="off"
+                  disabled={postcodeFieldsDisabled}
+                  className={inputClassName}
+                  placeholder="Enter postcode"
+                  inputMode="text"
+                  spellCheck={false}
+                  role="combobox"
+                  aria-expanded={showSuggestions && suggestions.length > 0}
+                  aria-controls="check-postcode-suggestions"
+                  aria-autocomplete="list"
+                  aria-haspopup="listbox"
+                />
+                {showSuggestions && suggestions.length > 0 ? (
+                  <div
+                    id="check-postcode-suggestions"
+                    className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-lg border border-border bg-background shadow-lg"
+                    role="listbox"
                   >
-                    {s}
-                  </button>
-                ))}
+                    {suggestions.map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => {
+                          setPostcode(s)
+                          setSuggestions([])
+                          setShowSuggestions(false)
+                        }}
+                        className="w-full border-b border-border px-4 py-2.5 text-left text-sm text-foreground last:border-0 hover:bg-secondary"
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
               </div>
-            ) : null}
-          </div>
-          <div className="w-full shrink-0 md:w-auto">
-            <span className="mb-2 hidden text-sm font-semibold text-transparent md:block">
-              &nbsp;
-            </span>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={cn(
-                primaryCtaClassName,
-                "flex-shrink-0 whitespace-nowrap",
-              )}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2
-                    className="h-4 w-4 shrink-0 animate-spin"
-                    aria-hidden
-                  />
-                  Checking...
-                </>
-              ) : (
-                "Check now →"
-              )}
-            </button>
+            </div>
+            <div className="w-full shrink-0 md:w-auto md:pb-0.5">
+              <button
+                type="submit"
+                disabled={postcodeFieldsDisabled}
+                className={cn(
+                  primaryCtaClassName,
+                  "min-w-[200px] flex-shrink-0 whitespace-nowrap px-10",
+                )}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2
+                      className="h-4 w-4 shrink-0 animate-spin"
+                      aria-hidden
+                    />
+                    Retrieving…
+                  </>
+                ) : (
+                  "Continue"
+                )}
+              </button>
+            </div>
           </div>
         </form>
-
-        {isLoading ? (
-          <section className="w-full bg-background py-16">
-            <div className="mx-auto max-w-5xl px-6 md:px-8">
-              <Image
-                src="/illustrations/analysis.svg"
-                alt=""
-                width={160}
-                height={160}
-                className="mx-auto mb-8 h-auto w-40 opacity-60"
-              />
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="animate-pulse rounded-2xl bg-secondary p-6"
-                  >
-                    <div className="mb-6 h-4 w-24 rounded bg-border" />
-                    <div className="mb-4 h-10 w-16 rounded bg-border" />
-                    <div className="mb-2 h-3 w-full rounded bg-border" />
-                    <div className="h-3 w-3/4 rounded bg-border" />
-                  </div>
-                ))}
-              </div>
-              <div className="py-4 text-center">
-                <p className="text-sm text-muted-brand">
-                  Checking live planning data — this takes a few seconds
-                </p>
-              </div>
-            </div>
-          </section>
-        ) : null}
-
-        {showStateAIdle ? (
-          <section className="border-b border-border bg-secondary py-4">
-            <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-6 px-6 md:px-8">
-              {trustItems.map(({ label, Icon }) => (
-                <div key={label} className="flex items-center gap-2">
-                  <Icon className="h-4 w-4 shrink-0 text-accent" aria-hidden />
-                  <span className="text-sm font-medium text-muted-foreground">
-                    {label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        {!result && !isLoading && (
-          <div className="bg-background py-16">
-            <div className="max-w-5xl mx-auto px-6 md:px-8">
-              <p className="text-accent text-xs font-bold uppercase tracking-widest mb-3 text-center">
-                What you get
-              </p>
-              <h2 className="text-3xl font-extrabold text-foreground tracking-tight text-center mb-12">
-                Everything you need before hiring an architect
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="bg-secondary border border-border rounded-2xl p-6 flex flex-col items-start gap-4">
-                  <Image
-                    src="/illustrations/checklist.svg"
-                    alt=""
-                    width={200}
-                    height={160}
-                    className="h-32 w-auto object-contain"
-                  />
-                  <h3 className="text-lg font-bold text-foreground">
-                    8 constraint checks
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Conservation areas, listed buildings, Article 4 directions,
-                    flood zones, green belt, AONB, TPOs, and permitted
-                    development rights — all checked instantly from live
-                    government data.
-                  </p>
-                </div>
-                <div className="bg-secondary border border-border rounded-2xl p-6 flex flex-col items-start gap-4">
-                  <Image
-                    src="/illustrations/analysis.svg"
-                    alt=""
-                    width={200}
-                    height={160}
-                    className="h-32 w-auto object-contain"
-                  />
-                  <h3 className="text-lg font-bold text-foreground">
-                    Approval likelihood score
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Get an AI-calculated approval likelihood score based on your
-                    site constraints and local planning precedent. Know your
-                    chances before you spend a penny on professional fees.
-                  </p>
-                </div>
-                <div className="bg-secondary border border-border rounded-2xl p-6 flex flex-col items-start gap-4">
-                  <Image
-                    src="/illustrations/report.svg"
-                    alt=""
-                    width={200}
-                    height={160}
-                    className="h-32 w-auto object-contain"
-                  />
-                  <h3 className="text-lg font-bold text-foreground">
-                    Full PDF report — £29
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Download a complete planning report with constraint analysis,
-                    next steps, and local policy references. Share directly
-                    with your architect or planning consultant.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {error && !result ? (
           <div
@@ -569,306 +594,434 @@ function CheckPageContent() {
           </div>
         ) : null}
 
+        {isLoading ? (
+          <section className="w-full bg-background py-20 md:py-24">
+            <div className="mx-auto max-w-3xl px-6 md:px-8">
+              <Image
+                src="/illustrations/agreement.svg"
+                alt=""
+                width={140}
+                height={140}
+                className="mx-auto mb-10 h-auto w-36 opacity-70"
+              />
+              <div className="flex justify-center">
+                <SparkleLoader message="Retrieving planning constraints" />
+              </div>
+              <p className="mt-8 text-center text-sm leading-relaxed text-muted-foreground">
+                Querying live datasets for your local planning authority — please
+                wait a moment
+              </p>
+            </div>
+          </section>
+        ) : null}
+
+        {showStateAIdle ? (
+          <section className="border-b border-border bg-background py-8 md:py-10">
+            <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-10 gap-y-5 px-6 md:px-8">
+              {trustItems.map((label) => (
+                <div key={label} className="flex max-w-xs items-start gap-3">
+                  <Check
+                    className="mt-0.5 h-4 w-4 shrink-0 text-accent"
+                    aria-hidden
+                  />
+                  <span className="text-sm font-medium leading-snug text-muted-foreground">
+                    {label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {!result && !isLoading && (
+          <div className="bg-background py-20 md:py-28">
+            <div className="mx-auto max-w-5xl px-6 md:px-8">
+              <p className="mb-4 text-center text-xs font-semibold uppercase tracking-widest text-accent">
+                The service
+              </p>
+              <h2 className="mx-auto mb-6 max-w-2xl text-center text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">
+                Evidence-led screening before you instruct consultants
+              </h2>
+              <p className="mx-auto mb-16 max-w-2xl text-center text-base leading-relaxed text-muted-foreground">
+                Use the free check to understand material constraints; upgrade
+                when you require a scored assessment and downloadable report for
+                your records or advisers.
+              </p>
+              <div className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
+                <div className="flex flex-col items-start gap-5 rounded-2xl border border-border bg-secondary p-8">
+                  <Image
+                    src="/illustrations/checklist.svg"
+                    alt=""
+                    width={200}
+                    height={160}
+                    className="h-28 w-auto object-contain opacity-90"
+                  />
+                  <h3 className="text-lg font-bold text-foreground">
+                    Eight constraint categories
+                  </h3>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    Conservation areas, listed buildings, Article 4 directions,
+                    flood risk, green belt, AONB, tree preservation, and
+                    permitted development context — queried from current national
+                    datasets.
+                  </p>
+                </div>
+                <div className="flex flex-col items-start gap-5 rounded-2xl border border-border bg-secondary p-8">
+                  <Image
+                    src="/illustrations/analysis.svg"
+                    alt=""
+                    width={200}
+                    height={160}
+                    className="h-28 w-auto object-contain opacity-90"
+                  />
+                  <h3 className="text-lg font-bold text-foreground">
+                    Approval likelihood score
+                  </h3>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    After you unlock your free summary, an AI-assisted score
+                    reflects constraint severity for your site — a concise
+                    indicator, not a substitute for professional advice.
+                  </p>
+                </div>
+                <div className="flex flex-col items-start gap-5 rounded-2xl border border-border bg-secondary p-8">
+                  <Image
+                    src="/illustrations/report.svg"
+                    alt=""
+                    width={200}
+                    height={160}
+                    className="h-28 w-auto object-contain opacity-90"
+                  />
+                  <h3 className="text-lg font-bold text-foreground">
+                    Full PDF — £29 one-off
+                  </h3>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    Purchase when you need the complete written report with
+                    analysis, next steps, and policy references to share with
+                    your architect or planning consultant.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {!isLoading && result ? (
           <>
-            <section className="border-b border-border bg-secondary py-4">
-              <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 md:px-8">
+            <section className="border-b border-border bg-secondary py-6 md:py-7">
+              <div className="mx-auto flex max-w-5xl flex-col gap-2 px-6 md:flex-row md:items-baseline md:justify-between md:px-8">
                 <p className="text-sm text-muted-foreground">
-                  Results for:{" "}
                   <span className="font-semibold text-foreground">
-                    {normalizePostcodeInput(postcode) || "—"}
-                  </span>
+                    Site postcode:
+                  </span>{" "}
+                  {normalizePostcodeInput(postcode) || "—"}
                 </p>
-                <p className="text-sm text-muted-brand">{result.lpa.lpaName}</p>
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-semibold text-foreground">
+                    Local planning authority:
+                  </span>{" "}
+                  {result.lpa.lpaName}
+                </p>
               </div>
             </section>
 
-            <section className="bg-background py-10">
-              <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 px-6 md:grid-cols-4">
-                  <div className="md:col-span-1">
-                    <div className="sticky top-6 rounded-2xl border border-border bg-background p-6">
-                      <p className="mb-4 text-xs font-bold uppercase tracking-widest text-accent">
-                        Approval Score
-                      </p>
-                      <ScoreGauge score={result.score ?? 0} blurred={!emailUnlocked} />
-                      <div className="mt-4 text-center">
-                        {emailUnlocked ? (
-                          <p
-                            className={cn(
-                              "text-sm font-semibold",
-                              scoreBandClass(result.score ?? 0),
-                            )}
-                          >
-                            {scoreBandLabel(result.score ?? 0)}
-                          </p>
-                        ) : (
-                          <p className="flex items-center justify-center gap-2 text-sm text-muted-brand">
-                            <Lock className="w-4 h-4 text-muted-brand" />
-                            Unlock to reveal your score
-                          </p>
-                        )}
-                      </div>
-                      <div className="mt-6 border-t border-border pt-6">
-                        <p className="text-xs leading-relaxed text-muted-brand">
-                          Score based on live constraint data. For professional
-                          advice, consult an RTPI-accredited planning
-                          consultant.
+            <section
+              ref={resultsSectionRef}
+              id="check-results"
+              tabIndex={-1}
+              className="scroll-mt-[58px] bg-background py-14 md:py-20 focus:outline-none"
+            >
+              {error ? (
+                <div
+                  className="border-b border-[#F5C6C6] bg-[#FDECEA] py-3"
+                  role="alert"
+                >
+                  <div className="mx-auto max-w-5xl px-6 text-sm font-medium text-[#991818] md:px-8">
+                    {error}
+                  </div>
+                </div>
+              ) : null}
+              <div className="mx-auto grid max-w-5xl grid-cols-1 gap-10 px-6 md:grid-cols-4 md:gap-8 md:px-8">
+                <div className="md:col-span-1">
+                  <div className="sticky top-6 rounded-2xl border border-border bg-background p-8 shadow-sm">
+                    <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-accent">
+                      Approval likelihood
+                    </p>
+                    <ScoreGauge
+                      score={result.score ?? 0}
+                      blurred={!emailUnlocked}
+                    />
+                    <div className="mt-5 text-center">
+                      {emailUnlocked ? (
+                        <p
+                          className={cn(
+                            "text-sm font-semibold",
+                            scoreBandClass(result.score ?? 0),
+                          )}
+                        >
+                          {scoreBandLabel(result.score ?? 0)}
                         </p>
-                        <div className="mt-4 flex items-center gap-2">
-                          <ShieldCheck
-                            className="h-4 w-4 flex-shrink-0 text-accent"
-                            aria-hidden
-                          />
-                          <span className="text-xs text-muted-brand">
-                            RTPI-accredited data sources
-                          </span>
-                        </div>
+                      ) : (
+                        <p className="flex items-center justify-center gap-2 text-sm text-muted-brand">
+                          <Lock className="h-4 w-4 text-muted-brand" />
+                          Submit email below to reveal score
+                        </p>
+                      )}
+                    </div>
+                    <div className="mt-8 border-t border-border pt-6">
+                      <p className="text-xs leading-relaxed text-muted-brand">
+                        Indicative score only, derived from live constraint
+                        flags. Not a substitute for RTPI-accredited advice.
+                      </p>
+                      <div className="mt-4 flex items-center gap-2">
+                        <ShieldCheck
+                          className="h-4 w-4 flex-shrink-0 text-accent"
+                          aria-hidden
+                        />
+                        <span className="text-xs text-muted-brand">
+                          Authoritative data sources
+                        </span>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  <div className="md:col-span-3">
-                    <p className="mb-2 text-xs font-bold uppercase tracking-widest text-accent">
-                      Planning Constraints
-                    </p>
-                    <h2 className="mb-1 text-xl font-bold text-foreground">
-                      {result.constraints.length} of 8 categories checked
-                    </h2>
-                    <p className="mb-6 text-sm text-muted-brand">
-                      Live data from planning.data.gov.uk
-                    </p>
-                    <ConstraintTable constraints={result.constraints} showAll={true} />
+                <div className="md:col-span-3">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-accent">
+                    Constraint summary
+                  </p>
+                  <h2 className="mb-2 text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+                    {result.constraints.length} of eight categories reviewed
+                  </h2>
+                  <p className="mb-8 text-sm leading-relaxed text-muted-foreground">
+                    Data retrieved from national planning and environmental
+                    datasets (including planning.data.gov.uk).
+                  </p>
+                  <ConstraintTable
+                    constraints={result.constraints}
+                    showAll={true}
+                  />
 
-                    {!emailUnlocked ? (
-                      <div className="mt-6 grid grid-cols-1 items-center gap-8 rounded-2xl border border-border bg-secondary p-8 md:grid-cols-2">
-                        <div>
-                          <p className="mb-3 text-xs font-bold uppercase tracking-widest text-accent">
-                            Free full report
-                          </p>
-                          <h3 className="mb-3 text-2xl font-bold text-foreground">
-                            Unlock all 8 constraints and your approval score
-                          </h3>
-                          <p className="text-sm leading-relaxed text-muted-foreground">
-                            Enter your email to see your complete results, full
-                            approval likelihood score, and personalised next steps —
-                            completely free.
-                          </p>
-                          <Image
-                            src="/illustrations/report.svg"
-                            alt=""
-                            width={160}
-                            height={160}
-                            className="mt-6 hidden h-auto w-40 opacity-80 md:block"
-                          />
-                        </div>
-                        <div>
-                          <form onSubmit={handleLeadSubmit}>
-                            <input
-                              type="email"
-                              value={leadEmail}
-                              onChange={(e) => setLeadEmail(e.target.value)}
-                              placeholder="your@email.com"
-                              required
-                              className={cn(inputClassName, "mb-3 w-full")}
-                              autoComplete="email"
-                            />
-                            <button
-                              type="submit"
-                              disabled={leadSubmitting}
-                              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-br from-primary to-accent px-8 py-3 font-semibold text-white shadow-md transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-                            >
-                              {leadSubmitting ? "Saving..." : "Unlock free report →"}
-                            </button>
-                            <p className="mt-3 text-center text-xs text-muted-brand">
-                              No spam. Unsubscribe any time.
-                            </p>
-                          </form>
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {emailUnlocked && !assessment ? (
-                      <div className="mt-6 rounded-2xl border border-border bg-background p-6">
-                        <p className="mb-3 text-xs font-bold uppercase tracking-widest text-accent">
-                          Get your AI report
+                  {!emailUnlocked ? (
+                    <div className="mt-10 grid grid-cols-1 items-center gap-10 rounded-2xl border border-border bg-secondary p-8 md:grid-cols-2 md:gap-12 md:p-10">
+                      <div>
+                        <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-accent">
+                          Complimentary summary
                         </p>
-                        <h3 className="mb-6 text-xl font-bold text-foreground md:text-2xl">
-                          Tell us what you want to build
+                        <h3 className="mb-4 text-2xl font-bold text-foreground">
+                          Unlock full results and your score
                         </h3>
-                        <div
-                          className={cn(
-                            "rounded-2xl border border-border bg-secondary p-6 transition-opacity duration-200",
-                            isStepFading ? "opacity-0" : "opacity-100",
-                          )}
-                        >
-                          <p className="mb-4 text-sm font-semibold text-muted-foreground">
-                            Step {formStep} of 3
-                          </p>
-
-                          {formStep === 1 ? (
-                            <div className="space-y-4">
-                              <div>
-                                <label
-                                  htmlFor="check-project-type"
-                                  className="mb-2 block text-sm font-semibold text-foreground"
-                                >
-                                  What do you want to build?
-                                </label>
-                                <div className="relative">
-                                  <select
-                                    id="check-project-type"
-                                    value={projectType}
-                                    onChange={(e) =>
-                                      setProjectType(e.target.value)
-                                    }
-                                    className={cn(
-                                      inputClassName,
-                                      "w-full cursor-pointer appearance-none pr-10",
-                                    )}
-                                  >
-                                    <option value="">
-                                      Select a project type…
-                                    </option>
-                                    {PROJECT_TYPE_OPTIONS.map((opt) => (
-                                      <option key={opt} value={opt}>
-                                        {opt}
-                                      </option>
-                                    ))}
-                                  </select>
-                                  <ChevronDown
-                                    className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-brand"
-                                    aria-hidden
-                                  />
-                                </div>
-                              </div>
-                              <div className="flex justify-end">
-                                <button
-                                  type="button"
-                                  onClick={() => goToStep(2)}
-                                  disabled={!projectType}
-                                  className={cn(primaryCtaClassName)}
-                                >
-                                  Next →
-                                </button>
-                              </div>
-                            </div>
-                          ) : null}
-
-                          {formStep === 2 ? (
-                            <div className="space-y-4">
-                              <div>
-                                <label
-                                  htmlFor="check-description"
-                                  className="mb-2 block text-sm font-semibold text-foreground"
-                                >
-                                  Describe your project briefly
-                                </label>
-                                <textarea
-                                  id="check-description"
-                                  value={description}
-                                  onChange={(e) => setDescription(e.target.value)}
-                                  placeholder="e.g. Single storey rear extension, approximately 4m projection, flat roof, brick to match existing..."
-                                  rows={4}
-                                  className={cn(
-                                    inputClassName,
-                                    "min-h-[6.5rem] resize-y",
-                                  )}
-                                />
-                              </div>
-                              <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
-                                <button
-                                  type="button"
-                                  onClick={() => goToStep(1)}
-                                  className="rounded-lg border border-ring px-6 py-3 font-medium text-muted-foreground transition-colors hover:bg-muted"
-                                >
-                                  Back
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => goToStep(3)}
-                                  disabled={description.trim().length < 20}
-                                  className={cn(primaryCtaClassName)}
-                                >
-                                  Next →
-                                </button>
-                              </div>
-                            </div>
-                          ) : null}
-
-                          {formStep === 3 ? (
-                            <div className="space-y-4">
-                              <div>
-                                <p className="mb-3 block text-sm font-semibold text-foreground">
-                                  Any specific concerns?
-                                </p>
-                                <div className="space-y-2">
-                                  {[
-                                    "Neighbour objections",
-                                    "Trees in or near garden",
-                                    "Limited budget",
-                                    "Need to complete quickly",
-                                    "Unsure about permitted development",
-                                  ].map((concern) => (
-                                    <label
-                                      key={concern}
-                                      className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground"
-                                    >
-                                      <input
-                                        type="checkbox"
-                                        checked={concerns.includes(concern)}
-                                        onChange={() => toggleConcern(concern)}
-                                        className="h-4 w-4 rounded border-border text-accent focus:ring-accent"
-                                      />
-                                      <span>{concern}</span>
-                                    </label>
-                                  ))}
-                                </div>
-                              </div>
-                              {assessmentLoading ? (
-                                <SparkleLoader message="Analysing your site and generating personalised planning assessment..." />
-                              ) : (
-                                <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
-                                  <button
-                                    type="button"
-                                    onClick={() => goToStep(2)}
-                                    className="rounded-lg border border-ring px-6 py-3 font-medium text-muted-foreground transition-colors hover:bg-muted"
-                                  >
-                                    Back
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={handleGenerateAssessment}
-                                    className={cn(primaryCtaClassName)}
-                                  >
-                                    Generate my report — £29
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          ) : null}
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {emailUnlocked && assessment ? (
-                      <div className="mt-6 rounded-2xl border border-border bg-background p-6">
-                        <p className="mb-3 text-xs font-bold uppercase tracking-widest text-accent">
-                          Your AI preview
+                        <p className="text-sm leading-relaxed text-muted-foreground">
+                          Provide a correspondence address to reveal all
+                          constraint categories, the approval likelihood score,
+                          and tailored next steps — at no charge.
                         </p>
-                        <h3 className="mb-4 text-xl font-bold text-foreground md:text-2xl">
+                        <Image
+                          src="/illustrations/report.svg"
+                          alt=""
+                          width={160}
+                          height={160}
+                          className="mt-8 hidden h-auto w-40 opacity-85 md:block"
+                        />
+                      </div>
+                      <div>
+                        <form onSubmit={handleLeadSubmit}>
+                          <label
+                            htmlFor="check-lead-email"
+                            className="mb-2 block text-sm font-semibold text-foreground"
+                          >
+                            Correspondence email
+                          </label>
+                          <input
+                            id="check-lead-email"
+                            type="email"
+                            value={leadEmail}
+                            onChange={(e) => setLeadEmail(e.target.value)}
+                            placeholder="name@example.com"
+                            required
+                            className={cn(inputClassName, "mb-4 w-full py-3.5")}
+                            autoComplete="email"
+                          />
+                          <button
+                            type="submit"
+                            disabled={leadSubmitting}
+                            className={cn(
+                              primaryCtaClassName,
+                              "md:w-full px-10",
+                            )}
+                          >
+                            {leadSubmitting
+                              ? "Saving…"
+                              : "Unlock free report"}
+                          </button>
+                          <p className="mt-4 text-center text-xs text-muted-brand">
+                            We will not send unsolicited marketing. You may
+                            unsubscribe at any time.
+                          </p>
+                        </form>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {emailUnlocked && !assessment ? (
+                    <div
+                      ref={projectDetailsSectionRef}
+                      id="check-project-details"
+                      tabIndex={-1}
+                      className="mt-10 scroll-mt-[58px] focus:outline-none"
+                    >
+                      <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-accent">
+                        Written assessment
+                      </p>
+                      <h3 className="mb-4 text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+                        Particulars for your AI report
+                      </h3>
+                      <p className="mb-10 max-w-2xl text-base leading-relaxed text-muted-foreground">
+                        The following information shapes the narrative of your
+                        planning assessment. Please complete each part in order.
+                      </p>
+                      <div className="space-y-6">
+                        <StructuredProjectForm
+                          key={projectFormKey}
+                          purpose="report"
+                          constraints={result?.constraints}
+                          lpaName={result?.lpa?.lpaName}
+                          isLoading={assessmentLoading}
+                          cachedAnswers={cachedAnswers}
+                          setCachedAnswers={setCachedAnswers}
+                          lastDescription={lastDescription}
+                          setLastDescription={setLastDescription}
+                          hideFinishingLoader={
+                            showCreditConfirm || creditDialogPending
+                          }
+                          onInternalLoadingChange={
+                            handleFormInternalLoadingChange
+                          }
+                          onComplete={async (answers) => {
+                            if (authUser && isSubscriber) {
+                              setCreditDialogPending(true)
+                              try {
+                                const supabase = createClient()
+                                const { data: profile } = await supabase
+                                  .from("profiles")
+                                  .select("credits_balance")
+                                  .eq("id", authUser.id)
+                                  .single()
+                                const row = profile as {
+                                  credits_balance?: number | null
+                                } | null
+                                setCreditsBalance(row?.credits_balance ?? 0)
+                                setPendingAnswers(answers)
+                                setShowCreditConfirm(true)
+                              } finally {
+                                setCreditDialogPending(false)
+                              }
+                              return
+                            }
+                            await runGenerateReport(answers)
+                          }}
+                        />
+                        {showCreditConfirm ? (
+                          <div
+                            className="rounded-2xl border border-border bg-secondary p-6 shadow-sm"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="credit-confirm-title"
+                          >
+                            <h3
+                              id="credit-confirm-title"
+                              className="mb-2 text-base font-bold text-foreground"
+                            >
+                              Generate your AI report
+                            </h3>
+                            <p className="mb-4 text-sm text-muted-foreground">
+                              You have {creditsBalance}{" "}
+                              {creditsBalance === 1 ? "credit" : "credits"}{" "}
+                              available.
+                            </p>
+                            <div className="flex flex-row gap-2">
+                              <button
+                                type="button"
+                                className={cn(
+                                  outlineButtonClassName,
+                                  "min-w-0 flex-1 py-2 px-3 text-sm",
+                                )}
+                                onClick={() => {
+                                  setShowCreditConfirm(false)
+                                  setPendingAnswers(null)
+                                  setCreditDialogPending(false)
+                                  setProjectFormKey((k) => k + 1)
+                                }}
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                type="button"
+                                disabled={creditsBalance === 0}
+                                className={cn(
+                                  primaryCtaClassName,
+                                  "min-w-0 flex-1 py-2 px-3 text-sm !w-auto",
+                                )}
+                                onClick={() => {
+                                  if (!pendingAnswers) return
+                                  const answers = pendingAnswers
+                                  setShowCreditConfirm(false)
+                                  setPendingAnswers(null)
+                                  setCreditDialogPending(false)
+                                  void runGenerateReport(answers)
+                                }}
+                              >
+                                {creditsBalance === 0
+                                  ? "No credits remaining"
+                                  : "Use 1 credit"}
+                              </button>
+                            </div>
+                            {creditsBalance === 0 ? (
+                              <p className="mt-2 text-xs text-danger">
+                                You have no credits.{" "}
+                                <Link
+                                  href="/dashboard/billing"
+                                  className="text-accent underline-offset-2 hover:underline"
+                                >
+                                  Top up here →
+                                </Link>
+                              </p>
+                            ) : null}
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {emailUnlocked && assessment ? (
+                    <div className="mt-10 overflow-hidden rounded-2xl border border-border bg-brand-dark dot-bg dot-bg-on-dark text-white shadow-xl ring-1 ring-white/10">
+                      <div className="border-b border-white/10 px-8 py-8 md:px-10 md:py-10">
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
+                          Report preview
+                        </p>
+                        <h3 className="mt-3 text-2xl font-bold tracking-tight md:text-3xl">
                           Planning assessment
                         </h3>
+                        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/75">
+                          The following is an extract. Purchase the full report
+                          to remove the paywall and receive the complete PDF.
+                        </p>
+                      </div>
+                      <div className="bg-background px-8 py-8 text-foreground md:px-10 md:py-10">
                         <AssessmentPreviewBlock
                           assessment={assessment}
                           paymentLoading={paymentLoading}
                           onUnlock={() =>
                             handlePayment(STRIPE_PRODUCTS.oneOff.fullReport)
                           }
+                          onBundleUnlock={() =>
+                            handlePayment(STRIPE_PRODUCTS.oneOff.bundle)
+                          }
                         />
                       </div>
-                    ) : null}
-                  </div>
+                    </div>
+                  ) : null}
                 </div>
+              </div>
             </section>
           </>
         ) : null}
@@ -882,54 +1035,38 @@ function CheckLoadingFallback() {
   return (
     <>
       <main className="min-h-screen bg-background font-sans">
-        <section className="bg-brand-dark dot-bg dot-bg-on-dark py-16 md:py-20">
+        <section className="bg-brand-dark dot-bg dot-bg-on-dark py-20 md:py-24">
           <div className="mx-auto max-w-5xl px-6 md:px-8">
-            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white/80">
-              ● Live planning data
+            <span className="mb-8 inline-flex items-center rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/85">
+              Planning constraint analysis
             </span>
-            <h1 className="mb-4 text-4xl font-extrabold leading-tight tracking-tight text-white md:text-5xl">
+            <h1 className="mb-6 text-4xl font-extrabold leading-tight tracking-tight text-white md:text-5xl">
               Check planning constraints for your postcode
             </h1>
-            <p className="max-w-2xl text-lg font-normal text-white/70">
-              Enter your UK postcode for an area-level constraint check from 8
-              live government sources. Free to check — full PDF report from £29.
+            <p className="max-w-xl text-lg font-normal leading-relaxed text-white/75 md:text-xl">
+              A structured, area-level review of planning constraints from
+              authoritative sources — with an optional full PDF report from £29
+              one-off when you need detail.
             </p>
           </div>
         </section>
-        <div className="mx-auto flex w-full max-w-5xl flex-col items-center justify-center gap-4 border-b border-border bg-background px-6 py-8 md:flex-row md:px-8">
-          <div className="w-full md:w-80">
-            <div className="mb-2 h-4 w-24 animate-pulse rounded bg-border" />
-            <div className="h-[46px] w-full animate-pulse rounded-lg bg-secondary" />
-          </div>
-          <div className="w-full shrink-0 md:w-auto">
-            <div className="mb-2 hidden h-4 md:block" />
-            <div className="h-12 w-full animate-pulse rounded-lg bg-secondary md:min-w-[140px]" />
+        <div className="border-b border-border bg-secondary">
+          <div className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 py-12 md:flex-row md:items-end md:gap-10 md:px-8 md:py-14">
+            <div className="min-w-0 flex-1">
+              <div className="mb-4 h-3 w-28 animate-pulse rounded bg-border" />
+              <div className="mb-4 h-12 max-w-lg animate-pulse rounded bg-white/60" />
+              <div className="h-[46px] w-full max-w-md animate-pulse rounded-lg bg-white/80" />
+            </div>
+            <div className="h-12 w-full max-w-[200px] shrink-0 animate-pulse rounded-lg bg-white/40 md:pb-0.5" />
           </div>
         </div>
-        <section className="w-full bg-background py-16">
-          <div className="mx-auto max-w-5xl px-6 md:px-8">
-            <Image
-              src="/illustrations/analysis.svg"
-              alt=""
-              width={160}
-              height={160}
-              className="mx-auto mb-8 h-auto w-40 opacity-60"
-            />
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              {[0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="animate-pulse rounded-2xl bg-secondary p-6"
-                >
-                  <div className="mb-6 h-4 w-24 rounded bg-border" />
-                  <div className="mb-4 h-10 w-16 rounded bg-border" />
-                  <div className="mb-2 h-3 w-full rounded bg-border" />
-                  <div className="h-3 w-3/4 rounded bg-border" />
-                </div>
-              ))}
+        <section className="w-full bg-background py-20 md:py-24">
+          <div className="mx-auto max-w-3xl px-6 md:px-8">
+            <div className="flex justify-center">
+              <SparkleLoader message="Loading" />
             </div>
-            <p className="py-4 text-center text-sm text-muted-brand">
-              Loading…
+            <p className="mt-8 text-center text-sm text-muted-brand">
+              Preparing form…
             </p>
           </div>
         </section>

@@ -2,8 +2,10 @@
 
 import { Check, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
+import { STRIPE_PRODUCTS } from "@/lib/stripe/products";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/utils/cn";
 
 import type { openBillingPortalAction } from "@/app/(dashboard)/dashboard/billing/actions";
@@ -14,6 +16,7 @@ type ChargeRow = {
   description: string;
   dateLabel: string;
   paid: boolean;
+  url?: string;
 };
 
 export type BillingDashboardContentProps = {
@@ -32,37 +35,165 @@ const TIERS = [
   {
     key: "starter",
     name: "Starter",
-    monthly: 59,
-    annual: 49,
-    annualBillNote: "Billed as £590/year · save £118",
-    href: "/signup?plan=starter",
-    cta: "Start free trial",
+    monthly: 79,
+    annual: 66,
+    annualBillNote: "Billed as £790/year · save £158",
+    cta: "Get started",
     featured: false,
-    features: ["10 AI reports / month", "3 statements / month", "1 seat"],
+    features: ["15 credits / month", "Rollover up to 30 credits", "1 seat"],
   },
   {
     key: "pro",
     name: "Pro",
-    monthly: 129,
-    annual: 107,
-    annualBillNote: "Billed as £1,290/year · save £258",
-    href: "/signup?plan=pro",
-    cta: "Start free trial",
+    monthly: 179,
+    annual: 149,
+    annualBillNote: "Billed as £1,790/year · save £358",
+    cta: "Get started",
     featured: true,
-    features: ["40 AI reports / month", "15 statements / month", "1 seat"],
+    features: ["60 credits / month", "Rollover up to 120 credits", "Priority support"],
   },
   {
     key: "agency",
     name: "Agency",
-    monthly: 299,
-    annual: 249,
-    annualBillNote: "Billed as £2,990/year · save £598",
-    href: "/contact?plan=agency",
+    monthly: 399,
+    annual: 333,
+    annualBillNote: "Billed as £3,990/year · save £798",
     cta: "Contact us",
     featured: false,
-    features: ["100 AI reports / month", "40 statements / month", "5 seats"],
+    features: ["160 credits / month", "Rollover up to 320 credits", "5 team seats + API"],
   },
 ] as const;
+
+const AGENCY_MAILTO = "mailto:hello@theplanningconsultant.com";
+
+export function BillingSubscriptionTierCards({ annual }: { annual: boolean }) {
+  const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState("");
+
+  useEffect(() => {
+    const supabase = createClient();
+    void supabase.auth.getUser().then(({ data }) => {
+      setUserEmail(data.user?.email ?? "");
+    });
+  }, []);
+
+  const handleSubscribe = async (priceId: string) => {
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      window.location.href = "/login?next=/dashboard/billing&view=signup";
+      return;
+    }
+
+    const res = await fetch("/api/create-checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        priceId,
+        mode: "subscription",
+        email: userEmail,
+        successPath: "/dashboard/billing",
+      }),
+    });
+    const data = (await res.json()) as { url?: string };
+    if (data.url) window.location.href = data.url;
+  };
+
+  return (
+    <div className="grid gap-6 md:grid-cols-3">
+      {TIERS.map((tier) => {
+        const priceId =
+          tier.key === "starter"
+            ? annual
+              ? STRIPE_PRODUCTS.subscriptions.starterAnnual
+              : STRIPE_PRODUCTS.subscriptions.starterMonthly
+            : tier.key === "pro"
+              ? annual
+                ? STRIPE_PRODUCTS.subscriptions.proAnnual
+                : STRIPE_PRODUCTS.subscriptions.proMonthly
+              : null;
+
+        const isAgency = tier.key === "agency";
+
+        return (
+          <div
+            key={tier.key}
+            className={cn(
+              "flex flex-col rounded-2xl border bg-background p-6 shadow-sm",
+              tier.featured
+                ? "border-primary ring-2 ring-primary/20 md:scale-[1.02]"
+                : "border-border",
+            )}
+          >
+            {tier.featured ? (
+              <span className="bg-brand-light text-primary mb-3 inline-flex w-fit rounded-full px-2.5 py-0.5 text-xs font-semibold">
+                Most popular
+              </span>
+            ) : (
+              <span className="mb-3 block h-5" aria-hidden />
+            )}
+            <p className="text-foreground text-lg font-bold">{tier.name}</p>
+            <div className="mt-2 flex items-baseline gap-1">
+              <span className="text-3xl font-extrabold tabular-nums text-[#0A0F0C]">
+                £{annual ? tier.annual : tier.monthly}
+              </span>
+              <span className="text-muted-foreground text-sm">/month</span>
+            </div>
+            {annual ? (
+              <p className="text-muted-brand mt-2 text-xs leading-snug">{tier.annualBillNote}</p>
+            ) : (
+              <p className="text-muted-brand mt-2 text-xs">&nbsp;</p>
+            )}
+            <ul className="mt-4 flex flex-1 flex-col gap-3">
+              {tier.features.map((f) => (
+                <li key={f} className="text-muted-foreground flex gap-2 text-sm leading-snug">
+                  <Check className="text-primary mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                  {f}
+                </li>
+              ))}
+            </ul>
+            {isAgency ? (
+              <a
+                href={AGENCY_MAILTO}
+                className={cn(
+                  "mt-6 inline-flex w-full items-center justify-center rounded-lg px-6 py-3 text-center text-sm font-semibold transition-opacity",
+                  "border border-[#C8D4CA] text-[#4A5C50] hover:bg-[#F0F4F1]",
+                )}
+              >
+                {tier.cta}
+              </a>
+            ) : (
+              <button
+                type="button"
+                disabled={loadingPriceId !== null}
+                onClick={async () => {
+                  if (!priceId) return;
+                  setLoadingPriceId(priceId);
+                  try {
+                    await handleSubscribe(priceId);
+                  } finally {
+                    setLoadingPriceId(null);
+                  }
+                }}
+                className={cn(
+                  "mt-6 inline-flex w-full items-center justify-center rounded-lg px-6 py-3 text-center text-sm font-semibold transition-opacity disabled:opacity-60",
+                  tier.featured
+                    ? "bg-gradient-to-br from-primary to-accent text-white shadow-md hover:opacity-90"
+                    : "border border-[#C8D4CA] text-[#4A5C50] hover:bg-[#F0F4F1]",
+                )}
+              >
+                {loadingPriceId === priceId ? "Loading…" : tier.cta}
+              </button>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 function StatusBadge({ status }: { status: string | null }) {
   if (!status) return null;
@@ -209,64 +340,13 @@ export function BillingDashboardContent({
                     annual ? "bg-white/20 text-white" : "bg-brand-light text-accent",
                   )}
                 >
-                  Save 2 months
+                  Best value
                 </span>
               </button>
             </div>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            {TIERS.map((tier) => (
-              <div
-                key={tier.key}
-                className={cn(
-                  "flex flex-col rounded-2xl border bg-background p-6 shadow-sm",
-                  tier.featured
-                    ? "border-primary ring-2 ring-primary/20 md:scale-[1.02]"
-                    : "border-border",
-                )}
-              >
-                {tier.featured ? (
-                  <span className="bg-brand-light text-primary mb-3 inline-flex w-fit rounded-full px-2.5 py-0.5 text-xs font-semibold">
-                    Most popular
-                  </span>
-                ) : (
-                  <span className="mb-3 block h-5" aria-hidden />
-                )}
-                <p className="text-foreground text-lg font-bold">{tier.name}</p>
-                <div className="mt-2 flex items-baseline gap-1">
-                  <span className="text-3xl font-extrabold tabular-nums text-[#0A0F0C]">
-                    £{annual ? tier.annual : tier.monthly}
-                  </span>
-                  <span className="text-muted-foreground text-sm">/month</span>
-                </div>
-                {annual ? (
-                  <p className="text-muted-brand mt-2 text-xs leading-snug">{tier.annualBillNote}</p>
-                ) : (
-                  <p className="text-muted-brand mt-2 text-xs">&nbsp;</p>
-                )}
-                <ul className="mt-4 flex flex-1 flex-col gap-3">
-                  {tier.features.map((f) => (
-                    <li key={f} className="text-muted-foreground flex gap-2 text-sm leading-snug">
-                      <Check className="text-primary mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href={tier.href}
-                  className={cn(
-                    "mt-6 inline-flex w-full items-center justify-center rounded-lg px-6 py-3 text-center text-sm font-semibold transition-opacity",
-                    tier.featured
-                      ? "bg-gradient-to-br from-primary to-accent text-white shadow-md hover:opacity-90"
-                      : "border border-[#C8D4CA] text-[#4A5C50] hover:bg-[#F0F4F1]",
-                  )}
-                >
-                  {tier.cta}
-                </Link>
-              </div>
-            ))}
-          </div>
+          <BillingSubscriptionTierCards annual={annual} />
 
           <p className="text-muted-brand mt-6 text-center text-xs">
             Prefer to compare on the homepage?{" "}
@@ -383,15 +463,27 @@ export function BillingDashboardContent({
                         </div>
                         <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
                           <span className="text-muted-brand text-sm tabular-nums">{row.dateLabel}</span>
-                          {row.paid ? (
-                            <span className="inline-flex rounded-full bg-[#EDFAF3] px-2.5 py-1 text-xs font-semibold text-[#0F7040]">
-                              Paid
-                            </span>
-                          ) : (
-                            <span className="inline-flex rounded-full bg-[#FDECEA] px-2.5 py-1 text-xs font-semibold text-[#991818]">
-                              Failed
-                            </span>
-                          )}
+                          <div className="flex flex-wrap items-center justify-end gap-2">
+                            {row.paid ? (
+                              <span className="inline-flex rounded-full bg-[#EDFAF3] px-2.5 py-1 text-xs font-semibold text-[#0F7040]">
+                                Paid
+                              </span>
+                            ) : (
+                              <span className="inline-flex rounded-full bg-[#FDECEA] px-2.5 py-1 text-xs font-semibold text-[#991818]">
+                                Failed
+                              </span>
+                            )}
+                            {row.url ? (
+                              <Link
+                                href={row.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm font-medium text-accent hover:underline"
+                              >
+                                View →
+                              </Link>
+                            ) : null}
+                          </div>
                         </div>
                       </div>
                     </div>

@@ -1,5 +1,6 @@
 import { ConstraintTable } from "@/components/report/ConstraintTable"
 import { DownloadPDFButton } from "@/components/report/DownloadPDFButton"
+import { ReportUpgradeCTA } from "@/components/report/ReportUpgradeCTA"
 import { ScoreGauge } from "@/components/report/ScoreGauge"
 import { ShareLinkCopyButton } from "@/components/report/ShareLinkCopyButton"
 import { Footer } from "@/components/layout/Footer"
@@ -7,6 +8,7 @@ import { createClient } from "@/lib/supabase/server"
 import type { Tables } from "@/types/database"
 import type { ConstraintResult } from "@/types/planning"
 import Image from "next/image"
+import Link from "next/link"
 import { Sparkles } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import { z } from "zod"
@@ -58,9 +60,14 @@ export default async function SharedReportPage({
     : query.session_id
 
   const supabase = await createClient()
-  const { data: report, error } = await supabase
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  const { data: reportRow, error } = await supabase
     .from("reports")
-    .select("id, address, postcode, lpa_name, approval_score, constraint_data, ai_assessment")
+    .select(
+      "id, user_id, address, postcode, lpa_name, approval_score, constraint_data, ai_assessment, report_type",
+    )
     .eq("share_token", shareToken)
     .maybeSingle()
 
@@ -85,7 +92,7 @@ export default async function SharedReportPage({
     )
   }
 
-  if (!report) {
+  if (!reportRow) {
     return (
       <>
         <main className="min-h-screen bg-background">
@@ -106,6 +113,33 @@ export default async function SharedReportPage({
     )
   }
 
+  let report = reportRow
+  let claimedThisRequest = false
+
+  if (report.user_id === null && user?.id) {
+    const { data: updated, error: claimError } = await supabase
+      .from("reports")
+      .update({ user_id: user.id })
+      .eq("share_token", shareToken)
+      .is("user_id", null)
+      .select("id")
+
+    if (!claimError && updated && updated.length > 0) {
+      claimedThisRequest = true
+      report = { ...report, user_id: user.id }
+    }
+  }
+
+  const isOwner = Boolean(
+    user?.id && report.user_id && user.id === report.user_id,
+  )
+  const showUpgrade =
+    report.report_type?.toLowerCase() === "basic" && isOwner
+
+  const canDownloadPdf =
+    Boolean(sessionId) ||
+    Boolean(user?.id && report.user_id && user.id === report.user_id)
+
   const constraints = parseConstraintData(report.constraint_data)
 
   return (
@@ -123,10 +157,10 @@ export default async function SharedReportPage({
                 {String((report as Record<string, unknown>).lpa_name ?? "Unknown LPA")}
               </p>
               <div className="mt-2 flex gap-3">
-                {sessionId ? (
+                <ShareLinkCopyButton />
+                {canDownloadPdf ? (
                   <DownloadPDFButton reportId={report.id} />
                 ) : null}
-                <ShareLinkCopyButton />
               </div>
             </div>
             <div className="hidden md:block">
@@ -140,6 +174,14 @@ export default async function SharedReportPage({
             </div>
           </div>
         </section>
+
+        {showUpgrade ? (
+          <section className="border-b border-border bg-background">
+            <div className="mx-auto max-w-5xl px-6 py-8 md:px-8">
+              <ReportUpgradeCTA reportId={report.id} email={user?.email} />
+            </div>
+          </section>
+        ) : null}
 
         <section className="bg-background py-10">
           <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 px-6 md:grid-cols-4">
@@ -240,6 +282,40 @@ export default async function SharedReportPage({
               ) : (
                 <ConstraintTable constraints={constraints} showAll={true} />
               )}
+
+              {claimedThisRequest ? (
+                <div className="mt-6 rounded-2xl border border-border bg-brand-light p-6">
+                  <p className="font-semibold text-foreground">
+                    This report has been saved to your account
+                  </p>
+                  <Link
+                    href="/dashboard/reports"
+                    className="mt-3 inline-block font-semibold text-primary hover:opacity-90"
+                  >
+                    View in dashboard
+                  </Link>
+                </div>
+              ) : null}
+
+              {report.user_id === null && !user ? (
+                <div className="mt-6 rounded-2xl border border-border bg-secondary p-6">
+                  <p className="mb-2 text-xs font-bold uppercase tracking-widest text-accent">
+                    Save this report
+                  </p>
+                  <h3 className="mb-2 font-bold text-foreground">
+                    Create a free account to save this report
+                  </h3>
+                  <p className="mb-4 text-sm text-muted-foreground">
+                    Sign up to access this report anytime from your dashboard.
+                  </p>
+                  <Link
+                    href={`/login?next=/report/${shareToken}`}
+                    className="inline-block rounded-lg bg-gradient-to-br from-primary to-accent px-6 py-3 font-semibold text-white shadow-md transition-opacity hover:opacity-90"
+                  >
+                    Save to my account
+                  </Link>
+                </div>
+              ) : null}
             </div>
           </div>
         </section>
@@ -293,21 +369,28 @@ export default async function SharedReportPage({
                 Professional help
               </p>
               <h3 className="mb-2 text-lg font-bold text-white">
-                Speak to a planning consultant
+                Expert planning advice
               </h3>
               <p className="flex-1 text-sm text-white/60">
-                Get matched with an RTPI-accredited planning consultant in your
-                area.
+                Get in touch and we&apos;ll connect you with an RTPI-accredited
+                consultant in your area.
               </p>
               <a
-                href="/professionals"
+                href="mailto:hello@theplanningconsultant.com"
                 className="mt-4 inline-block rounded-lg border border-white/30 px-4 py-2 text-sm font-semibold text-white"
               >
-                Find a consultant
+                Speak to a planning consultant
               </a>
             </div>
           </div>
         </section>
+
+        <p className="text-center text-xs text-muted-brand py-4 border-t border-border">
+          For guidance only — not professional planning advice.{" "}
+          <Link href="/terms" className="underline">
+            View terms
+          </Link>
+        </p>
       </main>
       <Footer />
     </>

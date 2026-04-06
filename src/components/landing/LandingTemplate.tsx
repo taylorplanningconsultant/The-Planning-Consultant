@@ -2,9 +2,35 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Footer } from "@/components/layout/Footer";
+import { STRIPE_PRODUCTS } from "@/lib/stripe/products";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/utils/cn";
+
+const LPA_CAROUSEL_NAMES = [
+  "Westminster",
+  "Manchester City",
+  "Birmingham City",
+  "Leeds City",
+  "Bristol City",
+  "Sheffield City",
+  "Liverpool City",
+  "Newcastle City",
+  "Hackney",
+  "Islington",
+  "Camden",
+  "Southwark",
+  "Brighton & Hove",
+  "Oxford City",
+  "Cambridge City",
+  "Wigan Council",
+  "Tewkesbury Borough",
+  "Cheltenham Borough",
+  "Bath & NE Somerset",
+  "Exeter City",
+] as const;
 
 export function LandingTemplate() {
   const router = useRouter();
@@ -29,6 +55,33 @@ export function LandingTemplate() {
     router.push(`/check?postcode=${encodeURIComponent(value)}`);
   }
 
+  async function handleSubscribe(priceId: string, isAnnual: boolean) {
+    console.log('handleSubscribe called', priceId);
+    void isAnnual;
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      window.location.href = "/login?next=/dashboard/billing&view=signup";
+      return;
+    }
+
+    const res = await fetch("/api/create-checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        priceId,
+        mode: "subscription",
+        successPath: "/dashboard/billing",
+      }),
+    });
+    const data = await res.json();
+    console.log('checkout response', data);
+    if (data.url) window.location.href = data.url;
+  }
+
   useEffect(() => {
     // Scroll-reveal animation for "card" blocks.
     const obs = new IntersectionObserver(
@@ -45,7 +98,7 @@ export function LandingTemplate() {
 
     document
       .querySelectorAll(
-        ".step,.tes-card,.blog-card,.price-card,.b2b-card,.pm-card",
+        ".step,.price-card,.b2b-card",
       )
       .forEach((el) => {
         const node = el as HTMLElement;
@@ -58,43 +111,36 @@ export function LandingTemplate() {
     return () => obs.disconnect();
   }, []);
 
-  const trustedLogos = [
-    "Apex Architecture",
-    "Redfield Planning",
-    "Urban Form Studio",
-    "Meridian Developments",
-    "Cornerstone Surveyors",
-    "Northbank Planning",
-    "Cedar & Co Consulting",
-    "Beacon Design Partners",
-    "Horizon Planning Group",
-    "Maple Street Architects",
-    "Stonebridge Surveying",
-    "Linden Planning Services",
-  ];
+  const inputClassName =
+    "w-full border border-border rounded-lg px-4 py-3 text-foreground placeholder:text-muted-brand focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-background";
 
   return (
     <>
-      <div className="hero-wrap">
+      <div className="hero-wrap dot-bg">
         <div className="hero-gradient" />
         <div className="hero-dot" />
-        <div className="hero">
+        <div
+          className={cn(
+            "hero",
+            "!min-h-0 !pt-10 !pb-8 !px-7 md:!pt-12 md:!pb-10 md:!px-7",
+          )}
+        >
           <div>
-            <div className="hero-badge fi-anim">
-              <span className="badge-dot" />
+            <div className="hero-badge fi-anim border border-white/20 bg-white/10 text-white">
+              <span className="badge-dot bg-white" />
               AI-powered planning guidance
             </div>
-            <h1 className="hero-headline fi-anim d1">
+            <h1 className="hero-headline fi-anim d1 text-white">
               Know your planning
               <br />
               chances{" "}
-              <span className="hl">
+              <span className="hl text-white bg-none [-webkit-text-fill-color:white] [background-clip:unset] [-webkit-background-clip:unset]">
                 before you
                 <br />
                 spend a penny
               </span>
             </h1>
-            <p className="hero-sub fi-anim d2">
+            <p className="hero-sub fi-anim d2 text-white">
               Instant planning constraint reports for any UK postcode. Check
               conservation areas, permitted development rights, flood zones, and
               more — in under 60 seconds.
@@ -133,7 +179,7 @@ export function LandingTemplate() {
                 </svg>
               </button>
             </div>
-            <p className="hero-note fi-anim d4">
+            <p className="hero-note fi-anim d4 text-white/60">
               <svg
                 width="13"
                 height="13"
@@ -151,7 +197,7 @@ export function LandingTemplate() {
             </p>
           </div>
 
-          <div className="hero-visual">
+          <div className="hero-visual !py-6 !px-6 md:!py-8 md:!px-8">
             <div className="chip chip-a">
               <div className="chip-icon ci-green">
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -235,7 +281,7 @@ export function LandingTemplate() {
                 </div>
               </div>
               <div className="rc-footer">
-                <span className="rc-footer-txt">MyPlanningGuide</span>
+                <span className="rc-footer-txt">The Planning Consultant</span>
                 <a href="#" className="rc-footer-link">
                   Full report
                   <svg
@@ -256,37 +302,52 @@ export function LandingTemplate() {
               </div>
             </div>
           </div>
-          <div className="hero-stats fi-anim d4">
-            <div>
-              <div className="stat-val">12,400+</div>
-              <div className="stat-lbl">Reports generated</div>
+        </div>
+
+        <div className="max-w-[1180px] mx-auto px-7 pb-8 md:pb-10 w-full">
+          <div className="hero-stats flex-wrap justify-center gap-x-9 gap-y-8 !mt-6 !pt-5 max-[920px]:!mt-5 max-[920px]:!pt-4">
+            <div className="text-center min-w-[min(100%,160px)]">
+              <div className="stat-val">45 min</div>
+              <div className="stat-lbl">Saved per site assessment</div>
             </div>
-            <div>
-              <div className="stat-val">98%</div>
-              <div className="stat-lbl">Data accuracy</div>
+            <div className="text-center min-w-[min(100%,160px)]">
+              <div className="stat-val">8</div>
+              <div className="stat-lbl">Constraint categories checked</div>
             </div>
-            <div>
-              <div className="stat-val">340+</div>
-              <div className="stat-lbl">Architects on Pro</div>
+            <div className="text-center min-w-[min(100%,160px)]">
+              <div className="stat-val">337</div>
+              <div className="stat-lbl">Local authorities covered</div>
+            </div>
+            <div className="text-center min-w-[min(100%,160px)]">
+              <div className="stat-val">{"< 60s"}</div>
+              <div className="stat-lbl">Results in under 60 seconds</div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* LOGOS */}
-      <div className="flex w-full justify-center px-6 text-center md:px-8">
-        <span className="logos-lbl">Trusted by</span>
+      <div className="bg-background">
+        <div className="max-w-[1180px] mx-auto px-6 md:px-8 pt-5 pb-2 text-center">
+          <span className="logos-lbl">Serving homeowners across</span>
+        </div>
       </div>
       <div className="logos">
-        <div className="logos-carousel-full">
-          <div className="logos-carousel">
-            <div className="logos-viewport">
-              <div className="logos-track">
-                {[...trustedLogos, ...trustedLogos].map((name, idx) => (
-                  <span key={`${name}-${idx}`} className="logo-item">
-                    {name}
-                  </span>
-                ))}
+        <div className="logos-inner">
+          <div className="logos-carousel-full">
+            <div className="logos-carousel w-full min-w-0">
+              <div className="logos-viewport">
+                <div className="logos-track">
+                  {LPA_CAROUSEL_NAMES.map((name) => (
+                    <span key={`a-${name}`} className="logo-item">
+                      {name}
+                    </span>
+                  ))}
+                  {LPA_CAROUSEL_NAMES.map((name) => (
+                    <span key={`b-${name}`} className="logo-item">
+                      {name}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -427,7 +488,9 @@ export function LandingTemplate() {
                   <div className="tl tl-y" />
                   <div className="tl tl-g" />
                 </div>
-                <div className="fv-url">myplanningguide.co.uk/report/SE5-8RB</div>
+                <div className="fv-url">
+                  theplanningconsultant.co.uk/report/SE5-8RB
+                </div>
               </div>
               <div className="ct-table">
                 <div className="ct-head">
@@ -604,84 +667,137 @@ export function LandingTemplate() {
         </div>
       </div>
 
-      {/* TESTIMONIALS */}
-      <div className="tes-wrap dot-bg-lg">
-        <div className="section">
-          <div
-            className="sec-head"
-            style={{
-              textAlign: "center",
-              maxWidth: 500,
-              marginLeft: "auto",
-              marginRight: "auto",
-            }}
-          >
-            <div className="sec-label">Trusted by thousands</div>
-            <h2 className="sec-h">What our users say</h2>
-          </div>
-          <div className="tes-grid">
-            <div className="tes-card">
-              <div className="tes-stars">
-                <span className="star">★</span>
-                <span className="star">★</span>
-                <span className="star">★</span>
-                <span className="star">★</span>
-                <span className="star">★</span>
-              </div>
-              <p className="tes-quote">
-                &ldquo;Saved me £400 in pre-application fees before I even knew if the project was
-                viable. Found out about an Article 4 direction that would have caused issues —
-                checked in two minutes.&rdquo;
-              </p>
-              <div className="tes-author">
-                <div className="t-avatar">S</div>
-                <div>
-                  <div className="t-name">Sarah M.</div>
-                  <div className="t-role">Homeowner, South London</div>
-                </div>
-              </div>
+      {/* PLANNING STATEMENT */}
+      <div
+        className="dot-bg border-y border-border bg-secondary"
+        id="planning-statement"
+      >
+        <div className="mx-auto max-w-[1180px] px-5 py-[72px] md:px-7 md:py-[92px]">
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
+            <div className="order-1 flex w-full items-center justify-center px-1 sm:px-2">
+              <Image
+                src="/illustrations/agreement.svg"
+                alt=""
+                width={480}
+                height={240}
+                className="mx-auto h-auto w-full max-w-[min(100%,280px)] object-contain object-center opacity-90 sm:max-w-[min(100%,340px)] md:max-w-[min(100%,400px)] lg:max-w-[min(100%,440px)]"
+              />
             </div>
-            <div className="tes-card">
-              <div className="tes-stars">
-                <span className="star">★</span>
-                <span className="star">★</span>
-                <span className="star">★</span>
-                <span className="star">★</span>
-                <span className="star">★</span>
-              </div>
-              <p className="tes-quote">
-                &ldquo;I run preliminary site assessments for every project. This cuts my constraint
-                research from 45 minutes to under two. The Pro tier pays for itself on the first
-                project of the month.&rdquo;
+            <div className="order-2 mx-auto max-w-[520px] text-center lg:order-none lg:mx-0 lg:max-w-none lg:text-left">
+              <p className="mb-3.5 text-xs font-bold uppercase tracking-widest text-accent">
+                Planning statement
               </p>
-              <div className="tes-author">
-                <div className="t-avatar">J</div>
-                <div>
-                  <div className="t-name">James T.</div>
-                  <div className="t-role">Architect, Manchester</div>
-                </div>
-              </div>
-            </div>
-            <div className="tes-card">
-              <div className="tes-stars">
-                <span className="star">★</span>
-                <span className="star">★</span>
-                <span className="star">★</span>
-                <span className="star">★</span>
-                <span className="star">★</span>
-              </div>
-              <p className="tes-quote">
-                &ldquo;The planning statement generator is the standout feature. First draft in 10
-                minutes, accurately citing our LPA&apos;s local plan. Quality is better than I expected at
-                this price point.&rdquo;
+              <h2 className="mb-3.5 text-[clamp(30px,4vw,44px)] font-extrabold leading-[1.1] tracking-tight text-foreground">
+                The words that go
+                <br />
+                with your drawings
+              </h2>
+              <p className="mb-3.5 max-w-[520px] text-[15.5px] font-normal leading-relaxed text-muted-foreground lg:mx-0">
+                Many applications need a short written explanation — what you want to do, how it
+                affects the area, and which local policies it meets. That&apos;s a{" "}
+                <span className="font-semibold text-foreground">planning statement</span>: the story
+                behind your plans, in the format councils expect.
               </p>
-              <div className="tes-author">
-                <div className="t-avatar">R</div>
-                <div>
-                  <div className="t-name">Rebecca H.</div>
-                  <div className="t-role">Planning Consultant, Bristol</div>
+              <p className="mb-8 max-w-[520px] text-[15.5px] font-normal leading-relaxed text-muted-foreground lg:mx-0">
+                We draft one tailored to your authority, citing the right policies so you start from
+                something solid — not a blank page — for a one-off fee.
+              </p>
+              <ul className="mb-8 flex list-none flex-col gap-[18px] p-0 text-left">
+                <li className="flex items-start gap-[13px]">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-brand-light">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 14 14"
+                      fill="none"
+                    >
+                      <path
+                        d="M2 7l3.5 3.5 6.5-7"
+                        stroke="#126B3A"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="mb-0.5 text-[14.5px] font-semibold tracking-tight text-foreground">
+                      Written for homeowners
+                    </div>
+                    <div className="text-[13.5px] leading-[1.55] text-muted-foreground">
+                      Plain-English structure you can review with your family or builder before
+                      anything is submitted.
+                    </div>
+                  </div>
+                </li>
+                <li className="flex items-start gap-[13px]">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-brand-light">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 14 14"
+                      fill="none"
+                    >
+                      <path
+                        d="M2 7l3.5 3.5 6.5-7"
+                        stroke="#126B3A"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="mb-0.5 text-[14.5px] font-semibold tracking-tight text-foreground">
+                      Grounded in your local plan
+                    </div>
+                    <div className="text-[13.5px] leading-[1.55] text-muted-foreground">
+                      References the policies your LPA actually uses — so the narrative matches what
+                      officers look for.
+                    </div>
+                  </div>
+                </li>
+                <li className="flex items-start gap-[13px]">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-brand-light">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 14 14"
+                      fill="none"
+                    >
+                      <path
+                        d="M2 7l3.5 3.5 6.5-7"
+                        stroke="#126B3A"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="mb-0.5 text-[14.5px] font-semibold tracking-tight text-foreground">
+                      Editable Word output
+                    </div>
+                    <div className="text-[13.5px] leading-[1.55] text-muted-foreground">
+                      Tweak wording with your architect or planning consultant, then attach it to
+                      your application pack.
+                    </div>
+                  </div>
+                </li>
+              </ul>
+              <div className="mb-6 flex flex-wrap items-baseline justify-center gap-3 lg:justify-start">
+                <div className="text-5xl font-extrabold leading-none tracking-tight text-foreground">
+                  <span className="align-super text-2xl font-semibold">£</span>
+                  79
                 </div>
+                <div className="text-[13px] text-muted-brand">One-off</div>
               </div>
+              <Link
+                href="/statement"
+                className="inline-block w-full rounded-lg bg-gradient-to-br from-primary to-accent px-6 py-3 text-center text-sm font-semibold text-white shadow-md transition-opacity hover:opacity-90 sm:w-auto"
+              >
+                Get planning statement
+              </Link>
             </div>
           </div>
         </div>
@@ -808,16 +924,16 @@ export function LandingTemplate() {
                 <div className="pm-lbl">Saved per site assessment</div>
               </div>
               <div className="pm-card">
-                <div className="pm-val">340+</div>
-                <div className="pm-lbl">Architects &amp; agents on Pro</div>
-              </div>
-              <div className="pm-card">
                 <div className="pm-val">8</div>
                 <div className="pm-lbl">Constraint categories checked</div>
               </div>
               <div className="pm-card">
-                <div className="pm-val">£0</div>
-                <div className="pm-lbl">Setup cost. Cancel anytime.</div>
+                <div className="pm-val">337</div>
+                <div className="pm-lbl">Local authorities covered</div>
+              </div>
+              <div className="pm-card">
+                <div className="pm-val">{"< 60s"}</div>
+                <div className="pm-lbl">Results in under 60 seconds</div>
               </div>
             </div>
           </div>
@@ -844,7 +960,11 @@ export function LandingTemplate() {
             </p>
           </div>
 
-          <div className="price-grid">
+          <div
+            className={cn(
+              "price-grid min-[921px]:!grid-cols-4 max-[920px]:!grid-cols-1",
+            )}
+          >
             <div className="price-card">
               <div className="price-tier">Free</div>
               <div className="price-amount">£0</div>
@@ -866,7 +986,7 @@ export function LandingTemplate() {
                       />
                     </svg>
                   </div>
-                  Basic constraint check (5 categories)
+                  Basic constraint check (3 categories)
                 </li>
                 <li className="pf-row">
                   <div className="pf-chk">
@@ -922,7 +1042,7 @@ export function LandingTemplate() {
               <div className="price-amount">
                 <span className="price-cur">£</span>29
               </div>
-              <div className="price-per">One-off, per report</div>
+              <div className="price-per">One-off</div>
               <p className="price-desc">
                 Full constraint analysis, approval likelihood score, and next steps. Everything before
                 speaking to an architect.
@@ -1005,29 +1125,15 @@ export function LandingTemplate() {
             </div>
 
             <div className="price-card">
-              <div className="price-tier">Report + Statement</div>
+              <div className="price-tier">Planning Statement</div>
               <div className="price-amount">
                 <span className="price-cur">£</span>79
               </div>
-              <div className="price-per">One-off bundle</div>
+              <div className="price-per">One-off</div>
               <p className="price-desc">
-                AI personalised report + planning statement draft citing your local planning policies.
+                AI planning statement draft citing your local planning policies. Editable Word output.
               </p>
               <ul className="price-feats">
-                <li className="pf-row">
-                  <div className="pf-chk">
-                    <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
-                      <path
-                        d="M1.5 4.5l2 2 4-4"
-                        stroke="#126B3A"
-                        strokeWidth="1.3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-                  Everything in Full Report
-                </li>
                 <li className="pf-row">
                   <div className="pf-chk">
                     <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
@@ -1086,6 +1192,78 @@ export function LandingTemplate() {
                 </li>
               </ul>
               <a href="/check" className="btn-price-main">
+                Get planning statement
+              </a>
+            </div>
+
+            <div className="price-card">
+              <div className="price-tier">Bundle</div>
+              <div className="price-amount">
+                <span className="price-cur">£</span>99
+              </div>
+              <div className="price-per">Report + statement</div>
+              <p className="price-desc">
+                Save £9 — get both your constraint report and planning statement
+              </p>
+              <ul className="price-feats">
+                <li className="pf-row">
+                  <div className="pf-chk">
+                    <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
+                      <path
+                        d="M1.5 4.5l2 2 4-4"
+                        stroke="#126B3A"
+                        strokeWidth="1.3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  Full constraint report (all 8 categories)
+                </li>
+                <li className="pf-row">
+                  <div className="pf-chk">
+                    <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
+                      <path
+                        d="M1.5 4.5l2 2 4-4"
+                        stroke="#126B3A"
+                        strokeWidth="1.3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  Approval likelihood &amp; PDF + link
+                </li>
+                <li className="pf-row">
+                  <div className="pf-chk">
+                    <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
+                      <path
+                        d="M1.5 4.5l2 2 4-4"
+                        stroke="#126B3A"
+                        strokeWidth="1.3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  AI planning statement draft
+                </li>
+                <li className="pf-row">
+                  <div className="pf-chk">
+                    <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
+                      <path
+                        d="M1.5 4.5l2 2 4-4"
+                        stroke="#126B3A"
+                        strokeWidth="1.3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  Cites your LPA&apos;s local plan policies
+                </li>
+              </ul>
+              <a href="/check" className="btn-price-outline">
                 Get bundle
               </a>
             </div>
@@ -1151,7 +1329,7 @@ export function LandingTemplate() {
                         : "bg-brand-light text-accent",
                     )}
                   >
-                    Save 2 months
+                    Best value
                   </span>
                 </button>
               </div>
@@ -1159,14 +1337,22 @@ export function LandingTemplate() {
             <div className="b2b-grid">
               <div className="b2b-card">
                 <div className="b2b-plan">Starter</div>
-                <div className="b2b-amt">{annual ? "£49" : "£59"}</div>
+                <div className="b2b-amt">{annual ? "£66" : "£79"}</div>
                 <div className="b2b-per">/month</div>
+                <p
+                  className={cn(
+                    "m-0 text-[13px] text-muted-foreground",
+                    annual ? "mb-1" : "mb-4",
+                  )}
+                >
+                  15 credits/month · Rollover up to 30 credits
+                </p>
                 {annual ? (
                   <div className="mb-4 flex flex-col gap-1">
                     <p className="m-0 text-[12.5px] text-muted-foreground">
-                      billed as £590/year
+                      billed as £790/year
                     </p>
-                    <p className="m-0 text-[12.5px] font-semibold text-accent">Save £118</p>
+                    <p className="m-0 text-[12.5px] font-semibold text-accent">Save £158</p>
                   </div>
                 ) : null}
                 <div className="b2b-div" />
@@ -1186,7 +1372,7 @@ export function LandingTemplate() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    10 AI reports / month
+                    1 credit = 1 AI Report (£29 value)
                   </li>
                   <li className="b2b-feat">
                     <svg
@@ -1203,7 +1389,7 @@ export function LandingTemplate() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    3 statements / month
+                    3 credits = 1 Planning Statement (£79 value)
                   </li>
                   <li className="b2b-feat">
                     <svg
@@ -1220,23 +1406,76 @@ export function LandingTemplate() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    1 seat
+                    Credits roll over up to 30
+                  </li>
+                  <li className="b2b-feat">
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 13 13"
+                      fill="none"
+                    >
+                      <path
+                        d="M2 6.5l3 3 6-6"
+                        stroke="#126B3A"
+                        strokeWidth="1.4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    Top-up credits available
+                  </li>
+                  <li className="b2b-feat">
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 13 13"
+                      fill="none"
+                    >
+                      <path
+                        d="M2 6.5l3 3 6-6"
+                        stroke="#126B3A"
+                        strokeWidth="1.4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    1 user seat
                   </li>
                 </ul>
-                <a href="/signup?plan=starter" className="btn-price-outline">
-                  Start free trial
-                </a>
+                <button
+                  type="button"
+                  onClick={() =>
+                    void handleSubscribe(
+                      annual
+                        ? STRIPE_PRODUCTS.subscriptions.starterAnnual
+                        : STRIPE_PRODUCTS.subscriptions.starterMonthly,
+                      annual,
+                    )
+                  }
+                  className="btn-price-outline"
+                >
+                  Get started
+                </button>
               </div>
               <div className="b2b-card b2b-card-mid">
                 <div className="b2b-plan">Pro</div>
-                <div className="b2b-amt">{annual ? "£107" : "£129"}</div>
+                <div className="b2b-amt">{annual ? "£149" : "£179"}</div>
                 <div className="b2b-per">/month</div>
+                <p
+                  className={cn(
+                    "m-0 text-[13px] text-muted-foreground",
+                    annual ? "mb-1" : "mb-4",
+                  )}
+                >
+                  60 credits/month · Rollover up to 120 credits
+                </p>
                 {annual ? (
                   <div className="mb-4 flex flex-col gap-1">
                     <p className="m-0 text-[12.5px] text-muted-foreground">
-                      billed as £1,290/year
+                      billed as £1,790/year
                     </p>
-                    <p className="m-0 text-[12.5px] font-semibold text-accent">Save £258</p>
+                    <p className="m-0 text-[12.5px] font-semibold text-accent">Save £358</p>
                   </div>
                 ) : null}
                 <div className="b2b-div" />
@@ -1256,7 +1495,7 @@ export function LandingTemplate() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    40 AI reports / month
+                    Everything in Starter
                   </li>
                   <li className="b2b-feat">
                     <svg
@@ -1273,7 +1512,7 @@ export function LandingTemplate() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    15 statements / month
+                    60 credits/month
                   </li>
                   <li className="b2b-feat">
                     <svg
@@ -1290,23 +1529,76 @@ export function LandingTemplate() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    1 seat
+                    Credits roll over up to 120
+                  </li>
+                  <li className="b2b-feat">
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 13 13"
+                      fill="none"
+                    >
+                      <path
+                        d="M2 6.5l3 3 6-6"
+                        stroke="#126B3A"
+                        strokeWidth="1.4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    Priority support
+                  </li>
+                  <li className="b2b-feat">
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 13 13"
+                      fill="none"
+                    >
+                      <path
+                        d="M2 6.5l3 3 6-6"
+                        stroke="#126B3A"
+                        strokeWidth="1.4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    Lead referrals from homeowners
                   </li>
                 </ul>
-                <a href="/signup?plan=pro" className="btn-price-main">
-                  Start free trial
-                </a>
+                <button
+                  type="button"
+                  onClick={() =>
+                    void handleSubscribe(
+                      annual
+                        ? STRIPE_PRODUCTS.subscriptions.proAnnual
+                        : STRIPE_PRODUCTS.subscriptions.proMonthly,
+                      annual,
+                    )
+                  }
+                  className="btn-price-main"
+                >
+                  Get started
+                </button>
               </div>
               <div className="b2b-card">
                 <div className="b2b-plan">Agency</div>
-                <div className="b2b-amt">{annual ? "£249" : "£299"}</div>
+                <div className="b2b-amt">{annual ? "£333" : "£399"}</div>
                 <div className="b2b-per">/month</div>
+                <p
+                  className={cn(
+                    "m-0 text-[13px] text-muted-foreground",
+                    annual ? "mb-1" : "mb-4",
+                  )}
+                >
+                  160 credits/month · Rollover up to 320 credits
+                </p>
                 {annual ? (
                   <div className="mb-4 flex flex-col gap-1">
                     <p className="m-0 text-[12.5px] text-muted-foreground">
-                      billed as £2,990/year
+                      billed as £3,990/year
                     </p>
-                    <p className="m-0 text-[12.5px] font-semibold text-accent">Save £598</p>
+                    <p className="m-0 text-[12.5px] font-semibold text-accent">Save £798</p>
                   </div>
                 ) : null}
                 <div className="b2b-div" />
@@ -1326,7 +1618,7 @@ export function LandingTemplate() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    100 AI reports / month
+                    Everything in Pro
                   </li>
                   <li className="b2b-feat">
                     <svg
@@ -1343,7 +1635,7 @@ export function LandingTemplate() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    40 statements / month
+                    160 credits/month
                   </li>
                   <li className="b2b-feat">
                     <svg
@@ -1360,88 +1652,112 @@ export function LandingTemplate() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    5 seats
+                    Credits roll over up to 320
+                  </li>
+                  <li className="b2b-feat">
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 13 13"
+                      fill="none"
+                    >
+                      <path
+                        d="M2 6.5l3 3 6-6"
+                        stroke="#126B3A"
+                        strokeWidth="1.4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    5 team seats
+                  </li>
+                  <li className="b2b-feat">
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 13 13"
+                      fill="none"
+                    >
+                      <path
+                        d="M2 6.5l3 3 6-6"
+                        stroke="#126B3A"
+                        strokeWidth="1.4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    API access
+                  </li>
+                  <li className="b2b-feat">
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 13 13"
+                      fill="none"
+                    >
+                      <path
+                        d="M2 6.5l3 3 6-6"
+                        stroke="#126B3A"
+                        strokeWidth="1.4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    Top-up credits available
                   </li>
                 </ul>
-                <a href="/contact?plan=agency" className="btn-price-outline">
-                  Contact us
+                <a
+                  href="mailto:hello@theplanningconsultant.com"
+                  className="btn-price-outline"
+                >
+                  Get started
                 </a>
               </div>
             </div>
+            <p className="mt-6 text-[12.5px] text-muted-foreground text-center max-w-2xl mx-auto leading-relaxed">
+              Top-up credit packs available for subscribers:
+              <br className="hidden sm:inline" />{" "}
+              <span className="sm:whitespace-nowrap">
+                5 credits £35 · 15 credits £95 · 40 credits £219
+              </span>
+            </p>
             <p className="mt-4 text-[12.5px] text-muted-brand text-center">
-              All professional plans include a 14-day free trial. No credit card
-              required to start.
+              No commitment. Cancel anytime.
             </p>
           </div>
         </div>
       </div>
 
-      {/* BLOG */}
-      <div className="blog-wrap" id="guides">
-        <div className="section">
-          <div className="blog-header">
-            <div>
-              <div className="sec-label">Planning guides</div>
-              <h2 className="sec-h" style={{ marginBottom: 0 }}>
-                Free guides from planning experts
-              </h2>
-            </div>
-            <a href="/blog" className="btn-outline-sm">
-              All guides
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path
-                  d="M2.5 6H9.5M6.5 3L9.5 6L6.5 9"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </a>
-          </div>
-          <div className="blog-grid">
-            <a
-              href="/blog/planning-permission-rear-extension"
-              className="blog-card"
+      {/* PLANNING GUIDES — COMING SOON */}
+      <div
+        className="bg-secondary border-t border-border py-12"
+        id="guides"
+      >
+        <div className="max-w-5xl mx-auto px-6 md:px-8 text-center">
+          <p className="text-accent text-xs font-bold uppercase tracking-widest mb-3">
+            Planning guides
+          </p>
+          <h2 className="text-2xl font-bold text-foreground mb-3">
+            Expert planning guides coming soon
+          </h2>
+          <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
+            We&apos;re publishing free planning guides covering permitted
+            development, planning applications, and everything in between. Sign
+            up to be notified when they launch.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <input
+              type="email"
+              placeholder="your@email.com"
+              autoComplete="email"
+              className={cn(inputClassName, "max-w-xs")}
+            />
+            <button
+              type="button"
+              className="bg-gradient-to-br from-primary to-accent text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:opacity-90 transition-opacity whitespace-nowrap"
             >
-              <div className="blog-cat">Extensions</div>
-              <div className="blog-title">
-                Do I Need Planning Permission for a Rear Extension?
-              </div>
-              <div className="blog-exc">
-                Permitted development rules, size limits, and when you&apos;ll need a full application
-                — explained in plain English.
-              </div>
-              <div className="blog-meta">5 min read · John Smith, MRTPI</div>
-            </a>
-            <a
-              href="/blog/planning-constraints-explained"
-              className="blog-card"
-            >
-              <div className="blog-cat">Constraints</div>
-              <div className="blog-title">
-                How to Check Planning Constraints on Any UK Property
-              </div>
-              <div className="blog-exc">
-                Conservation areas, Article 4 directions, flood zones — what they mean and how to
-                check before you start.
-              </div>
-              <div className="blog-meta">7 min read · John Smith, MRTPI</div>
-            </a>
-            <a
-              href="/blog/what-is-a-planning-statement"
-              className="blog-card"
-            >
-              <div className="blog-cat">Applications</div>
-              <div className="blog-title">
-                What is a Planning Statement and Do You Need One?
-              </div>
-              <div className="blog-exc">
-                When it&apos;s required, what it should include, and how AI is making them accessible to
-                everyone.
-              </div>
-              <div className="blog-meta">6 min read · John Smith, MRTPI</div>
-            </a>
+              Notify me
+            </button>
           </div>
         </div>
       </div>

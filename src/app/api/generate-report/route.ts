@@ -1,5 +1,15 @@
 import Anthropic from "@anthropic-ai/sdk"
+import {
+  deductCredits,
+  getSubscriptionTier,
+  hasEnoughCredits,
+} from "@/lib/credits"
+import {
+  checkRateLimit,
+  generateReportLimiter,
+} from "@/lib/ratelimit"
 import { createClient } from "@/lib/supabase/server"
+import { sanitiseText } from "@/lib/validation"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
@@ -10,6 +20,20 @@ const bodySchema = z.object({
 })
 
 export async function POST(request: Request) {
+  const { success, reset } = await checkRateLimit(
+    generateReportLimiter,
+    request,
+  )
+  if (!success) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      {
+        status: 429,
+        headers: { "X-RateLimit-Reset": reset.toString() },
+      },
+    )
+  }
+
   let json: unknown
   try {
     json = await request.json()
@@ -23,18 +47,48 @@ export async function POST(request: Request) {
   }
 
   const { reportId, projectType, description } = parsed.data
+  const safeDescription = sanitiseText(description)
 
   try {
     const supabase = await createClient()
     const { data: report, error } = await supabase
       .from("reports")
-      .select("constraint_data, lpa_name")
+      .select("constraint_data, lpa_name, report_type, ai_assessment")
       .eq("id", reportId)
       .maybeSingle()
 
     if (error || !report) {
       console.error("generate-report fetch error", error)
       return NextResponse.json({ error: "Generation failed" }, { status: 500 })
+    }
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    let tier: Awaited<ReturnType<typeof getSubscriptionTier>> = "free"
+
+    if (user) {
+      tier = await getSubscriptionTier(user.id)
+
+      if (tier !== "free") {
+        const hasCredits = await hasEnoughCredits(user.id, "report")
+        if (!hasCredits) {
+          return NextResponse.json(
+            { error: "Insufficient credits" },
+            { status: 402 },
+          )
+        }
+      }
+    } else {
+      const isFull = report.report_type === "full"
+      const firstGen = report.ai_assessment == null
+      if (!isFull && !firstGen) {
+        return NextResponse.json(
+          { error: "Insufficient credits" },
+          { status: 402 },
+        )
+      }
     }
 
     const lpaName = report.lpa_name ?? "Unknown"
@@ -44,7 +98,7 @@ export async function POST(request: Request) {
 
     const message = await client.messages.create({
       model: "claude-sonnet-4-5",
-      max_tokens: 1024,
+      max_tokens: 4096,
       messages: [
         {
           role: "user",
@@ -52,7 +106,7 @@ export async function POST(request: Request) {
 
 Location: ${lpaName}
 Project type: ${projectType}
-Client description: ${description}
+Client description: ${safeDescription}
 Constraints found: ${JSON.stringify(constraintData)}
 
 Rules:
@@ -89,6 +143,20 @@ Structure your response with these exact sections:
     if (updateError) {
       console.error("generate-report update error", updateError)
       return NextResponse.json({ error: "Generation failed" }, { status: 500 })
+    }
+
+    if (user && tier !== "free") {
+      const deducted = await deductCredits(user.id, "report", reportId)
+      if (!deducted) {
+        console.error("generate-report: deductCredits returned false", {
+          reportId,
+          userId: user.id,
+        })
+        return NextResponse.json(
+          { error: "Insufficient credits" },
+          { status: 402 },
+        )
+      }
     }
 
     return NextResponse.json({ assessment })

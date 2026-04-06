@@ -1,5 +1,11 @@
+import { addCredits, getSubscriptionTier } from "@/lib/credits";
 import { stripe } from "@/lib/stripe/client";
-import { planFromStripePriceId } from "@/lib/stripe/products";
+import {
+  planFromStripePriceId,
+  STRIPE_PRODUCTS,
+  SUBSCRIPTION_CREDITS,
+  TOPUP_CREDITS,
+} from "@/lib/stripe/products";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { TablesInsert, TablesUpdate } from "@/types/database";
 import { NextResponse } from "next/server";
@@ -53,10 +59,20 @@ export async function POST(request: Request) {
       session.customer_details?.email ??
       null;
 
+    const lineItems = session.line_items?.data;
+    const priceIdFromLineItems = lineItems?.[0]?.price;
+    const priceId =
+      (typeof priceIdFromLineItems === "object" && priceIdFromLineItems?.id
+        ? priceIdFromLineItems.id
+        : undefined) ??
+      session.metadata?.priceId ??
+      null;
+
     console.log("Webhook received:", {
       sessionId: session.id,
       reportId,
       customerEmail,
+      priceId,
       metadata: session.metadata,
     });
 
@@ -77,8 +93,196 @@ export async function POST(request: Request) {
         console.error("checkout.session.completed reports update:", error);
         return NextResponse.json({ error: "Database error" }, { status: 500 });
       }
+
+      if (reportId && customerEmail) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("email", customerEmail)
+          .maybeSingle();
+
+        if (profile) {
+          await supabase
+            .from("reports")
+            .update({ user_id: profile.id })
+            .eq("id", reportId)
+            .is("user_id", null);
+        }
+      }
     } else {
-      console.log("No reportId in metadata - skipping update");
+      console.log("No reportId in metadata - skipping report update");
+    }
+
+    if (priceId === STRIPE_PRODUCTS.oneOff.bundle && reportId) {
+      const { error: bundleReportError } = await supabase
+        .from("reports")
+        .update({
+          has_bundle: true,
+          bundle_statement_used: false,
+        })
+        .eq("id", reportId);
+
+      if (bundleReportError) {
+        console.error("checkout.session.completed bundle report update:", bundleReportError);
+        return NextResponse.json({ error: "Database error" }, { status: 500 });
+      }
+    }
+
+    if (priceId) {
+      const { oneOff, topUp } = STRIPE_PRODUCTS;
+
+      const isOneOffPurchase =
+        priceId === oneOff.fullReport ||
+        priceId === oneOff.statement ||
+        priceId === oneOff.bundle;
+
+      if (isOneOffPurchase) {
+        // Paid product unlock — credits not used for these checkouts.
+      } else if (customerEmail) {
+        const { data: topUpProfile, error: topUpProfileError } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("email", customerEmail)
+          .maybeSingle();
+
+        if (topUpProfileError) {
+          console.error(
+            "checkout.session.completed top-up profile lookup:",
+            topUpProfileError,
+          );
+          return NextResponse.json({ error: "Database error" }, { status: 500 });
+        }
+
+        const topUpUserId = topUpProfile?.id;
+
+        if (topUpUserId) {
+          let topUpAmount: number | null = null;
+          if (priceId === topUp.small) {
+            topUpAmount = TOPUP_CREDITS.small;
+          } else if (priceId === topUp.medium) {
+            topUpAmount = TOPUP_CREDITS.medium;
+          } else if (priceId === topUp.large) {
+            topUpAmount = TOPUP_CREDITS.large;
+          }
+
+          if (topUpAmount !== null) {
+            try {
+              await addCredits(topUpUserId, topUpAmount, "topup");
+            } catch (err) {
+              console.error("checkout.session.completed addCredits topup:", err);
+              return NextResponse.json(
+                { error: "Credits error" },
+                { status: 500 },
+              );
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (event.type === "customer.subscription.created") {
+    const subscription = event.data.object as Stripe.Subscription;
+    const customerId =
+      typeof subscription.customer === "string"
+        ? subscription.customer
+        : subscription.customer.id;
+    const priceId = subscription.items.data[0]?.price.id;
+    const plan = planFromStripePriceId(priceId ?? "");
+
+    console.log("subscription.created event:", {
+      customerId,
+      priceId,
+      plan,
+    });
+
+    if (plan) {
+      const credits = SUBSCRIPTION_CREDITS[plan];
+
+      const customer = (await stripe.customers.retrieve(
+        customerId,
+      )) as Stripe.Customer;
+
+      const customerEmail = customer.email;
+
+      console.log("customer email:", customerEmail);
+
+      const { data: profile } = customerEmail
+        ? await supabase
+            .from("profiles")
+            .select("id")
+            .eq("email", customerEmail)
+            .maybeSingle()
+        : { data: null };
+
+      const userId = profile?.id;
+
+      console.log("found userId:", userId);
+
+      if (userId) {
+        const { error: profileUpdateError } = await supabase
+          .from("profiles")
+          .update({
+            subscription_tier: plan,
+            stripe_customer_id: customerId,
+          })
+          .eq("id", userId);
+
+        if (profileUpdateError) {
+          console.error(
+            "customer.subscription.created profile update:",
+            profileUpdateError,
+          );
+          return NextResponse.json({ error: "Database error" }, { status: 500 });
+        }
+
+        try {
+          await addCredits(userId, credits, "subscription");
+        } catch (err) {
+          console.error("customer.subscription.created addCredits:", err);
+          return NextResponse.json({ error: "Credits error" }, { status: 500 });
+        }
+
+        const firstItem = subscription.items.data[0];
+        const periodEndUnix = firstItem?.current_period_end;
+        const currentPeriodEnd =
+          periodEndUnix != null
+            ? new Date(periodEndUnix * 1000).toISOString()
+            : null;
+        const status = mapSubscriptionStatus(subscription.status);
+
+        const annualPriceIds = [
+          STRIPE_PRODUCTS.subscriptions.starterAnnual,
+          STRIPE_PRODUCTS.subscriptions.proAnnual,
+          STRIPE_PRODUCTS.subscriptions.agencyAnnual,
+        ];
+
+        const billingInterval = annualPriceIds.includes(priceId ?? "")
+          ? "annual"
+          : "monthly";
+
+        const insert: TablesInsert<"subscriptions"> = {
+          user_id: userId,
+          stripe_customer_id: customerId,
+          stripe_subscription_id: subscription.id,
+          plan,
+          status,
+          billing_interval: billingInterval,
+          ...(currentPeriodEnd ? { current_period_end: currentPeriodEnd } : {}),
+        };
+
+        const { error: subInsertError } = await supabase
+          .from("subscriptions")
+          .insert(insert);
+
+        if (subInsertError) {
+          console.error(
+            "customer.subscription.created subscriptions insert:",
+            subInsertError,
+          );
+          return NextResponse.json({ error: "Database error" }, { status: 500 });
+        }
+      }
     }
   }
 
@@ -153,6 +357,70 @@ export async function POST(request: Request) {
           console.error("subscription.updated upsert:", upsertError);
           return NextResponse.json({ error: "Database error" }, { status: 500 });
         }
+      }
+    }
+
+    const { data: tierProfile, error: tierProfileError } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("stripe_customer_id", customerId)
+      .maybeSingle();
+
+    if (tierProfileError) {
+      console.error("subscription.updated tier profile lookup:", tierProfileError);
+      return NextResponse.json({ error: "Database error" }, { status: 500 });
+    }
+
+    const userIdForSubscription = tierProfile?.id;
+    const isStripeSubscriptionActive =
+      subscription.status === "active" || subscription.status === "trialing";
+    const prevAttrs = event.data.previous_attributes as
+      | Record<string, unknown>
+      | undefined;
+
+    const shouldGrantSubscriptionCredits =
+      prevAttrs !== undefined &&
+      prevAttrs !== null &&
+      (prevAttrs.status !== undefined ||
+        prevAttrs.items !== undefined ||
+        prevAttrs.current_period_end !== undefined);
+
+    if (
+      userIdForSubscription &&
+      planName &&
+      isStripeSubscriptionActive
+    ) {
+      const oldTier = shouldGrantSubscriptionCredits
+        ? await getSubscriptionTier(userIdForSubscription)
+        : undefined;
+
+      const { error: tierUpdateError } = await supabase
+        .from("profiles")
+        .update({ subscription_tier: planName })
+        .eq("id", userIdForSubscription);
+
+      if (tierUpdateError) {
+        console.error("subscription.updated subscription_tier:", tierUpdateError);
+        return NextResponse.json({ error: "Database error" }, { status: 500 });
+      }
+
+      if (shouldGrantSubscriptionCredits) {
+        try {
+          await addCredits(
+            userIdForSubscription,
+            SUBSCRIPTION_CREDITS[planName],
+            "subscription",
+          );
+        } catch (err) {
+          console.error("subscription.updated addCredits:", err);
+          return NextResponse.json({ error: "Credits error" }, { status: 500 });
+        }
+
+        console.log("subscription.updated credits", {
+          userId: userIdForSubscription,
+          oldTier,
+          newTier: planName,
+        });
       }
     }
   }

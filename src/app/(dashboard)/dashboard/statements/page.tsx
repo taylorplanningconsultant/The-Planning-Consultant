@@ -1,57 +1,16 @@
+import { DashboardStatementsList } from "@/components/dashboard/DashboardStatementsList"
 import { DashboardShell } from "@/components/dashboard/DashboardShell"
 import { Footer } from "@/components/layout/Footer"
 import { Nav } from "@/components/layout/Nav"
 import { createClient } from "@/lib/supabase/server"
 import type { Tables } from "@/types/database"
-import { cn } from "@/utils/cn"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
 type StatementRow = Pick<
   Tables<"statements">,
   "id" | "address" | "proposal_text" | "lpa_name" | "status" | "created_at"
->
-
-function formatDate(dateString: string | null): string {
-  if (!dateString) return "—"
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(dateString))
-}
-
-function truncateProposal(text: string, max = 90): string {
-  const t = text.trim()
-  if (t.length <= max) return t
-  return `${t.slice(0, max).trim()}…`
-}
-
-function statusBadgeClasses(status: string): { label: string; className: string } {
-  const s = status.toLowerCase()
-  if (s === "draft") {
-    return {
-      label: "Draft",
-      className: "bg-secondary text-muted-foreground",
-    }
-  }
-  if (s === "complete" || s === "completed" || s === "ready") {
-    return {
-      label: status.charAt(0).toUpperCase() + status.slice(1).toLowerCase(),
-      className: "bg-[#EDFAF3] text-[#0F7040]",
-    }
-  }
-  if (s === "failed" || s === "error") {
-    return {
-      label: status.charAt(0).toUpperCase() + status.slice(1).toLowerCase(),
-      className: "bg-[#FDECEA] text-[#991818]",
-    }
-  }
-  return {
-    label: status.replace(/_/g, " "),
-    className: "bg-[#FEF7E6] text-[#8A6010]",
-  }
-}
+> & { project_type?: string | null }
 
 export default async function DashboardStatementsPage() {
   const supabase = await createClient()
@@ -67,11 +26,11 @@ export default async function DashboardStatementsPage() {
 
   const { data: statementsData, error } = await supabase
     .from("statements")
-    .select("id, address, proposal_text, lpa_name, status, created_at")
+    .select("id, address, proposal_text, lpa_name, status, created_at, project_type")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
 
-  const statements: StatementRow[] = statementsData ?? []
+  const statements: StatementRow[] = (statementsData ?? []) as StatementRow[]
   const count = statements.length
 
   return (
@@ -184,94 +143,7 @@ export default async function DashboardStatementsPage() {
             </div>
           </div>
         ) : (
-          <div className="space-y-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-muted-brand text-xs font-medium uppercase tracking-wider">
-                  Library
-                </p>
-                <p className="text-foreground text-2xl font-extrabold tabular-nums tracking-tight md:text-3xl">
-                  {count}
-                  <span className="text-muted-foreground ml-2 text-base font-semibold md:text-lg">
-                    {count === 1 ? "statement" : "statements"}
-                  </span>
-                </p>
-              </div>
-              <Link
-                href="/statement"
-                className="inline-flex items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent px-5 py-2.5 text-center text-sm font-semibold text-white shadow-md transition-opacity hover:opacity-90"
-              >
-                New statement
-              </Link>
-            </div>
-
-            <div className="overflow-hidden rounded-xl border border-border bg-background shadow-sm">
-              <div className="hidden border-b border-border bg-secondary/80 px-4 py-2.5 md:grid md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,6.5rem)_minmax(0,6rem)] md:items-center md:gap-3 md:px-5">
-                <span className="text-muted-brand text-xs font-semibold uppercase tracking-wider">
-                  Summary
-                </span>
-                <span className="text-muted-brand text-xs font-semibold uppercase tracking-wider">
-                  LPA
-                </span>
-                <span className="text-muted-brand text-xs font-semibold uppercase tracking-wider">
-                  Status
-                </span>
-                <span className="text-muted-brand text-xs font-semibold uppercase tracking-wider">
-                  Created
-                </span>
-              </div>
-              <ul className="divide-y divide-border">
-                {statements.map((row) => {
-                  const title =
-                    row.address?.trim() ||
-                    truncateProposal(row.proposal_text, 72) ||
-                    "Statement"
-                  const badge = statusBadgeClasses(row.status)
-                  return (
-                    <li
-                      key={row.id}
-                      className="px-4 py-4 transition-colors hover:bg-secondary md:px-5"
-                    >
-                      <div className="md:grid md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,6.5rem)_minmax(0,6rem)] md:items-center md:gap-3">
-                        <div className="min-w-0">
-                          <p className="text-foreground text-sm font-semibold leading-snug">{title}</p>
-                          {row.address?.trim() ? (
-                            <p className="text-muted-brand mt-1 line-clamp-2 text-xs md:hidden">
-                              {truncateProposal(row.proposal_text, 100)}
-                            </p>
-                          ) : null}
-                        </div>
-                        <p className="text-muted-foreground mt-2 text-sm md:mt-0">
-                          {row.lpa_name ?? "—"}
-                        </p>
-                        <div className="mt-2 flex flex-wrap items-center gap-2 md:mt-0">
-                          <span
-                            className={cn(
-                              "inline-flex rounded-md px-2 py-0.5 text-xs font-semibold",
-                              badge.className,
-                            )}
-                          >
-                            {badge.label}
-                          </span>
-                        </div>
-                        <p className="text-muted-brand mt-2 text-sm tabular-nums md:mt-0 md:text-right">
-                          {formatDate(row.created_at)}
-                        </p>
-                      </div>
-                    </li>
-                  )
-                })}
-              </ul>
-            </div>
-
-            <p className="text-muted-brand text-center text-xs md:text-left">
-              Refine and export options are expanding — open the generator anytime from{" "}
-              <Link href="/statement" className="text-primary font-medium hover:underline">
-                /statement
-              </Link>
-              .
-            </p>
-          </div>
+          <DashboardStatementsList statements={statements} />
         )}
       </DashboardShell>
       <Footer />

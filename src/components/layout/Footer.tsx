@@ -7,7 +7,7 @@ export function Footer() {
         <div className="mb-7 grid grid-cols-1 gap-12 border-b border-white/[0.08] pb-11 md:grid-cols-[2fr_1fr_1fr_1fr]">
           <div>
             <p className="mb-2.5 text-[17px] font-bold tracking-tight text-white">
-              MyPlanningGuide
+              The Planning Consultant
             </p>
             <p className="mb-[22px] max-w-[240px] text-[13px] leading-relaxed text-white/[0.38]">
               AI-powered planning guidance for homeowners, architects, and
@@ -52,7 +52,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/pricing"
+                  href="/#professional-pricing"
                   className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
                 >
                   Pricing
@@ -76,7 +76,7 @@ export function Footer() {
             <ul className="flex list-none flex-col gap-2.5">
               <li>
                 <Link
-                  href="/blog"
+                  href="/guides"
                   className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
                 >
                   Planning guides
@@ -116,7 +116,7 @@ export function Footer() {
             <ul className="flex list-none flex-col gap-2.5">
               <li>
                 <Link
-                  href="/about"
+                  href="/#"
                   className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
                 >
                   About
@@ -124,7 +124,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/contact"
+                  href="mailto:hello@theplanningconsultant.com"
                   className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
                 >
                   Contact
@@ -132,7 +132,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/professionals"
+                  href="/#professional-pricing"
                   className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
                 >
                   For professionals
@@ -140,7 +140,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/api"
+                  href="/#"
                   className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
                 >
                   API
@@ -152,7 +152,9 @@ export function Footer() {
 
         <div className="flex flex-wrap items-center justify-between gap-4">
           <span className="text-[12px] text-white/25">
-            © 2025 MyPlanningGuide Ltd. All rights reserved.
+            © 2026 The Planning Consultant.
+            <br />
+            All rights reserved.
           </span>
           <div className="flex gap-[22px]">
             <Link

@@ -1,7 +1,12 @@
+import {
+  checkConstraintsLimiter,
+  checkRateLimit,
+} from "@/lib/ratelimit"
 import { checkConstraints } from "@/lib/planning/constraints"
 import { getLpaFromPostcode } from "@/lib/planning/lpa"
 import { calculateApprovalScore } from "@/lib/planning/score"
 import { createClient } from "@/lib/supabase/server"
+import { isValidUKPostcode, normalisePostcode } from "@/lib/validation"
 import type { Json, TablesInsert } from "@/types/database"
 import { NextResponse } from "next/server"
 import { z } from "zod"
@@ -13,6 +18,20 @@ const bodySchema = z.object({
 })
 
 export async function POST(request: Request) {
+  const { success, reset } = await checkRateLimit(
+    checkConstraintsLimiter,
+    request,
+  )
+  if (!success) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      {
+        status: 429,
+        headers: { "X-RateLimit-Reset": reset.toString() },
+      },
+    )
+  }
+
   try {
     let json: unknown
     try {
@@ -26,19 +45,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 })
     }
 
-    const { postcode, address } = parsed.data
-    const postcodeNorm = postcode.toUpperCase().replace(/\s+/g, " ").trim()
+    const body = parsed.data
+    if (!isValidUKPostcode(body.postcode)) {
+      return NextResponse.json(
+        { error: "Invalid UK postcode" },
+        { status: 400 },
+      )
+    }
+    const postcode = normalisePostcode(body.postcode)
+    const { address } = body
     const addressLine =
       address?.trim() && address.trim().length >= 5
         ? address.trim()
-        : `Property in ${postcodeNorm}`
+        : `Property in ${postcode}`
 
-    let lpa = await getLpaFromPostcode(postcodeNorm)
+    let lpa = await getLpaFromPostcode(postcode)
     if (!lpa) {
       lpa = { lpaName: "Unknown LPA", lpaCode: "unknown" }
     }
 
-    const constraints = await checkConstraints(postcodeNorm, lpa.lpaCode)
+    const constraints = await checkConstraints(postcode, lpa.lpaCode)
     const score = calculateApprovalScore(constraints)
 
     const supabase = await createClient()
@@ -50,7 +76,7 @@ export async function POST(request: Request) {
       user_id: session?.user?.id ?? null,
       email: null,
       address: addressLine,
-      postcode: postcodeNorm,
+      postcode,
       lpa_name: lpa.lpaName,
       lpa_code: lpa.lpaCode,
       constraint_data: constraints as unknown as Json,

@@ -11,8 +11,12 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "MyPlanningGuide",
-  description: "AI-powered UK planning guidance",
+  title: {
+    default: "The Planning Consultant",
+    template: "%s | The Planning Consultant",
+  },
+  description:
+    "Instant planning constraint reports for any UK address. Check conservation areas, permitted development rights, flood zones and more in under 60 seconds.",
 };
 
 export default function RootLayout({

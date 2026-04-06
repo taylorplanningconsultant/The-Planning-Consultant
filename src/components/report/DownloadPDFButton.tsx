@@ -1,8 +1,21 @@
 'use client'
 
+import { Download, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 
-export function DownloadPDFButton({ reportId }: { reportId: string }) {
+import { cn } from '@/utils/cn'
+
+type DownloadPDFButtonProps = {
+  reportId: string
+  className?: string
+  variant?: 'default' | 'icon'
+}
+
+export function DownloadPDFButton({
+  reportId,
+  className,
+  variant = 'default',
+}: DownloadPDFButtonProps) {
   const [loading, setLoading] = useState(false)
 
   async function handleDownload() {
@@ -25,13 +38,33 @@ export function DownloadPDFButton({ reportId }: { reportId: string }) {
     }
   }
 
+  const isIcon = variant === 'icon'
+
   return (
     <button
+      type="button"
       onClick={handleDownload}
       disabled={loading}
-      className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-brand-dark hover:opacity-90 transition-opacity disabled:opacity-60"
+      aria-label={loading ? 'Generating PDF' : 'Download PDF report'}
+      title="Download PDF report"
+      className={cn(
+        isIcon
+          ? 'inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition-colors hover:bg-muted disabled:opacity-60'
+          : 'rounded-lg bg-white px-4 py-2 text-sm font-semibold text-brand-dark transition-opacity hover:opacity-90 disabled:opacity-60',
+        className,
+      )}
     >
-      {loading ? 'Generating...' : 'Download PDF report'}
+      {loading ? (
+        isIcon ? (
+          <Loader2 className="size-4 animate-spin text-muted-foreground" aria-hidden />
+        ) : (
+          'Generating...'
+        )
+      ) : isIcon ? (
+        <Download className="size-4" aria-hidden />
+      ) : (
+        'Download PDF report'
+      )}
     </button>
   )
 }

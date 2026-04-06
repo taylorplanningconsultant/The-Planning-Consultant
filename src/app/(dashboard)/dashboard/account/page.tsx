@@ -70,24 +70,24 @@ export default function AccountPage() {
 
     async function load() {
       const {
-        data: { session },
-      } = await supabase.auth.getSession()
+        data: { user },
+      } = await supabase.auth.getUser()
 
       if (cancelled) return
 
-      if (!session) {
+      if (!user) {
         router.replace("/login")
         return
       }
 
-      setNavUser(session.user)
-      setSessionEmail(session.user.email ?? "")
-      setUserId(session.user.id)
+      setNavUser(user)
+      setSessionEmail(user.email ?? "")
+      setUserId(user.id)
 
       const { data, error } = await supabase
         .from("profiles")
         .select("full_name, email, phone, created_at")
-        .eq("id", session.user.id)
+        .eq("id", user.id)
         .maybeSingle()
 
       if (cancelled) return

@@ -4,10 +4,30 @@ import { createClient } from "@/lib/supabase/client"
 import { ArrowLeft, Check, Mail } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { FormEvent, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { FormEvent, Suspense, useState } from "react"
 
 type AuthView = "signin" | "signup" | "forgot"
+
+function redirectAfterLogin(
+  next: string,
+  router: { push: (href: string) => void },
+) {
+  if (next.startsWith("/") && !next.startsWith("//")) {
+    router.push(next)
+    return
+  }
+  try {
+    const u = new URL(next)
+    if (u.origin === window.location.origin) {
+      router.push(u.pathname + u.search + u.hash)
+      return
+    }
+  } catch {
+    // ignore invalid URL
+  }
+  router.push("/dashboard")
+}
 
 const inputClassName =
   "w-full rounded-lg border border-border bg-background px-4 py-2.5 text-foreground placeholder:text-muted-brand focus:border-transparent focus:outline-none focus:ring-2 focus:ring-accent"
@@ -15,11 +35,18 @@ const inputClassName =
 const primaryCtaClassName =
   "inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const plan = searchParams.get("plan")
+  const rawNext = searchParams.get("next")
+  const nextFromUrl = rawNext === "/pricing" ? "/dashboard/billing" : rawNext
+  const next = nextFromUrl ?? (plan ? "/dashboard/billing" : "/dashboard")
   const supabase = createClient()
 
-  const [view, setView] = useState<AuthView>("signin")
+  const initialView: AuthView =
+    searchParams.get("view") === "signup" ? "signup" : "signin"
+  const [view, setView] = useState<AuthView>(initialView)
   const [fullName, setFullName] = useState("")
   const [phone, setPhone] = useState("")
   const [email, setEmail] = useState("")
@@ -49,7 +76,7 @@ export default function LoginPage() {
       return
     }
 
-    router.push("/dashboard")
+    redirectAfterLogin(next, router)
   }
 
   async function handleSignUp(event: FormEvent<HTMLFormElement>) {
@@ -93,7 +120,7 @@ export default function LoginPage() {
       return
     }
 
-    router.push("/dashboard")
+    redirectAfterLogin(next, router)
   }
 
   async function handleMagicLinkSignIn() {
@@ -109,7 +136,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: window.location.origin + "/dashboard",
+        emailRedirectTo: window.location.origin + "/auth/callback?next=/dashboard",
       },
     })
     setIsSubmitting(false)
@@ -146,7 +173,10 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin + "/dashboard",
+        redirectTo:
+          window.location.origin +
+          "/auth/callback?next=" +
+          encodeURIComponent(next),
       },
     })
 
@@ -528,6 +558,17 @@ export default function LoginPage() {
                   <button type="submit" className={`${primaryCtaClassName} mt-2`} disabled={isSubmitting}>
                     {isSubmitting ? "Creating account..." : "Create account"}
                   </button>
+                  <p className="text-xs text-muted-brand text-center mt-3 leading-relaxed">
+                    By creating an account you agree to our{" "}
+                    <Link href="/terms" className="underline hover:text-foreground">
+                      Terms of Service
+                    </Link>{" "}
+                    and{" "}
+                    <Link href="/privacy" className="underline hover:text-foreground">
+                      Privacy Policy
+                    </Link>
+                    .
+                  </p>
                     </form>
                   )}
                 </>
@@ -585,5 +626,19 @@ export default function LoginPage() {
         </section>
       </div>
     </main>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-background">
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        </main>
+      }
+    >
+      <LoginPageContent />
+    </Suspense>
   )
 }
