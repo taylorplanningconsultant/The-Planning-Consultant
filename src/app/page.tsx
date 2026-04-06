@@ -1,4 +1,6 @@
 import "./landing-template.css";
+import { Footer } from "@/components/layout/Footer";
+import { Nav } from "@/components/layout/Nav";
 import { LandingTemplate } from "@/components/landing/LandingTemplate";
 import type { Metadata } from "next";
 
@@ -9,5 +11,11 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  return <LandingTemplate />;
+  return (
+    <>
+      <Nav />
+      <LandingTemplate />
+      <Footer />
+    </>
+  );
 }

@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Footer } from "@/components/layout/Footer";
 import { STRIPE_PRODUCTS } from "@/lib/stripe/products";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/utils/cn";
@@ -1790,8 +1789,6 @@ export function LandingTemplate() {
           </div>
         </div>
       </div>
-
-      <Footer />
     </>
   );
 }
