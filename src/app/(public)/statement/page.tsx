@@ -210,7 +210,7 @@ function StatementPageContent() {
           reportId: result?.reportId,
           email: leadEmail.trim() || undefined,
           statementId,
-          successPath: "/statement",
+          successPath: `/statement/${statementId}`,
         }),
       })
       const data = (await res.json()) as { url?: string; error?: string }
@@ -577,7 +577,7 @@ function StatementPageContent() {
                     className="h-28 w-auto object-contain opacity-90"
                   />
                   <h3 className="text-lg font-bold text-foreground">
-                    £59 one-off
+                    £79 one-off
                   </h3>
                   <p className="text-sm leading-relaxed text-muted-foreground">
                     A single payment for your generated draft. No subscription
@@ -794,7 +794,7 @@ function StatementPageContent() {
                           Redirecting to secure payment…
                         </>
                       ) : (
-                        "Generate my statement — £59"
+                        "Generate my statement — £79"
                       )}
                     </button>
                   )}

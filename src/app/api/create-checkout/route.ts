@@ -97,6 +97,10 @@ export async function POST(request: Request) {
         successPath === "/statement"
           ? `${appUrl}/statement`
           : `${appUrl}/report/${shareToken}`
+    } else if (statementId) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? ""
+      successUrl = `${appUrl}/statement/${statementId}?session_id={CHECKOUT_SESSION_ID}`
+      cancelUrl = `${appUrl}/statement`
     } else {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? ""
       const pathRaw = successPathBody ?? "/check"
@@ -113,7 +117,7 @@ export async function POST(request: Request) {
       metadata: {
         reportId: reportId ?? "",
         statementId: statementId ?? "",
-        priceId,
+        priceId: priceId,
       },
     }
 
