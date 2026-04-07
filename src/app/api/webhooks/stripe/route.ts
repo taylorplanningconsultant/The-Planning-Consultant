@@ -54,6 +54,7 @@ export async function POST(request: Request) {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const reportId = session.metadata?.reportId?.trim();
+    const statementId = session.metadata?.statementId;
     const customerEmail =
       session.customer_email ??
       session.customer_details?.email ??
@@ -128,6 +129,21 @@ export async function POST(request: Request) {
       }
     }
 
+    if (priceId === STRIPE_PRODUCTS.oneOff.statement && statementId) {
+      const { error: statementUpdateError } = await supabase
+        .from("statements")
+        .update({ status: "paid" })
+        .eq("id", statementId);
+
+      if (statementUpdateError) {
+        console.error(
+          "checkout.session.completed statement status update:",
+          statementUpdateError,
+        );
+        return NextResponse.json({ error: "Database error" }, { status: 500 });
+      }
+    }
+
     if (priceId) {
       const { oneOff, topUp } = STRIPE_PRODUCTS;
 
@@ -189,6 +205,11 @@ export async function POST(request: Request) {
         : subscription.customer.id;
     const priceId = subscription.items.data[0]?.price.id;
     const plan = planFromStripePriceId(priceId ?? "");
+    console.log("Price ID from Stripe:", priceId);
+    console.log(
+      "Known price IDs:",
+      Object.values(STRIPE_PRODUCTS.subscriptions),
+    );
 
     console.log("subscription.created event:", {
       customerId,
@@ -233,7 +254,10 @@ export async function POST(request: Request) {
             "customer.subscription.created profile update:",
             profileUpdateError,
           );
-          return NextResponse.json({ error: "Database error" }, { status: 500 });
+          return NextResponse.json(
+            { error: "Database error", location: "sub_created_1" },
+            { status: 500 },
+          );
         }
 
         try {
@@ -268,21 +292,20 @@ export async function POST(request: Request) {
           stripe_customer_id: customerId,
           stripe_subscription_id: subscription.id,
           plan,
-          status,
+          status: "active",
           billing_interval: billingInterval,
           ...(currentPeriodEnd ? { current_period_end: currentPeriodEnd } : {}),
         };
 
         const { error: subInsertError } = await supabase
           .from("subscriptions")
-          .insert(insert);
+          .upsert(insert, { onConflict: "user_id" });
 
         if (subInsertError) {
           console.error(
-            "customer.subscription.created subscriptions insert:",
+            "customer.subscription.created subscriptions upsert:",
             subInsertError,
           );
-          return NextResponse.json({ error: "Database error" }, { status: 500 });
         }
       }
     }

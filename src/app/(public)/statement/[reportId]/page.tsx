@@ -176,7 +176,7 @@ function StatementPageInner() {
   useEffect(() => {
     if (!allowStream || !statementId || !segment) return
     if (streamStarted.current) return
-    if (!sessionIdRaw) return
+    if (!sessionId) return
     if (hasExistingGeneratedContent) return
     streamStarted.current = true
 
@@ -197,7 +197,7 @@ function StatementPageInner() {
           signal: abortController.signal,
           body: JSON.stringify({
             statementId: segment,
-            sessionId: sessionIdRaw,
+            sessionId,
           }),
         })
 
@@ -281,7 +281,7 @@ function StatementPageInner() {
     allowStream,
     hasExistingGeneratedContent,
     segment,
-    sessionIdRaw,
+    sessionId,
     statementId,
   ])
 
@@ -414,8 +414,8 @@ function StatementPageInner() {
           ) : null}
         </div>
 
-        <p className="text-center text-xs text-muted-brand py-4 border-t border-border">
-          For guidance only — not professional planning advice.{" "}
+        <p className="border-t border-border py-4 text-center text-xs text-muted-brand/50">
+          Guidance only ·{" "}
           <Link href="/terms" className="underline">
             View terms
           </Link>
@@ -441,8 +441,8 @@ function StatementPageFallback() {
           <SparkleLoader message="Loading" />
         </div>
 
-        <p className="text-center text-xs text-muted-brand py-4 border-t border-border">
-          For guidance only — not professional planning advice.{" "}
+        <p className="border-t border-border py-4 text-center text-xs text-muted-brand/50">
+          Guidance only ·{" "}
           <Link href="/terms" className="underline">
             View terms
           </Link>

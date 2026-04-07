@@ -135,6 +135,7 @@ export default async function SharedReportPage({
   )
   const showUpgrade =
     report.report_type?.toLowerCase() === "basic" && isOwner
+  const isFullReport = report.report_type?.toLowerCase() === "full"
 
   const canDownloadPdf =
     Boolean(sessionId) ||
@@ -283,6 +284,43 @@ export default async function SharedReportPage({
                 <ConstraintTable constraints={constraints} showAll={true} />
               )}
 
+              {!user && isFullReport ? (
+                <div className="mt-6 rounded-2xl border border-border bg-secondary p-6">
+                  <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                    <div className="flex-1">
+                      <h3 className="mb-2 text-xl font-bold text-foreground">
+                        Save this report to your account
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Create a free account to access this report anytime from your
+                        dashboard.
+                      </p>
+                      <div className="mt-4 flex flex-wrap gap-3">
+                        <Link
+                          href={`/login?next=/report/${shareToken}`}
+                          className="inline-block rounded-lg bg-gradient-to-br from-primary to-accent px-6 py-3 font-semibold text-white shadow-md transition-opacity hover:opacity-90"
+                        >
+                          Create account
+                        </Link>
+                        <Link
+                          href={`/login?next=/report/${shareToken}`}
+                          className="inline-block rounded-lg border border-ring px-6 py-3 font-medium text-muted-foreground transition-colors hover:bg-muted"
+                        >
+                          Sign in
+                        </Link>
+                      </div>
+                    </div>
+                    <Image
+                      src="/illustrations/celebrate.svg"
+                      alt=""
+                      width={180}
+                      height={140}
+                      className="h-auto w-full max-w-[180px] self-start opacity-90 md:self-center"
+                    />
+                  </div>
+                </div>
+              ) : null}
+
               {claimedThisRequest ? (
                 <div className="mt-6 rounded-2xl border border-border bg-brand-light p-6">
                   <p className="font-semibold text-foreground">
@@ -297,7 +335,7 @@ export default async function SharedReportPage({
                 </div>
               ) : null}
 
-              {report.user_id === null && !user ? (
+              {report.user_id === null && !user && !isFullReport ? (
                 <div className="mt-6 rounded-2xl border border-border bg-secondary p-6">
                   <p className="mb-2 text-xs font-bold uppercase tracking-widest text-accent">
                     Save this report
@@ -385,8 +423,8 @@ export default async function SharedReportPage({
           </div>
         </section>
 
-        <p className="text-center text-xs text-muted-brand py-4 border-t border-border">
-          For guidance only — not professional planning advice.{" "}
+        <p className="border-t border-border py-4 text-center text-xs text-muted-brand/50">
+          Guidance only ·{" "}
           <Link href="/terms" className="underline">
             View terms
           </Link>

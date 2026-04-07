@@ -138,25 +138,22 @@ export async function POST(request: Request) {
     report = reportRow
   }
 
-  let skipCreditCheck: boolean
-  if (isBundleSession) {
-    // Bundle purchase - skip all payment checks
-    // proceed directly to generation
-    skipCreditCheck = true
-  } else {
-    skipCreditCheck =
-      sessionId === "bundle" ||
-      (report?.has_bundle === true &&
-        report?.bundle_statement_used === false)
+  const isPaidStatement = statement.status === "paid"
 
-    if (!skipCreditCheck) {
-      const hasCredits = await hasEnoughCredits(user.id, "statement")
-      if (!hasCredits) {
-        return NextResponse.json(
-          { error: "Insufficient credits" },
-          { status: 402 },
-        )
-      }
+  const skipCreditCheck =
+    isBundleSession ||
+    sessionId === "bundle" ||
+    isPaidStatement ||
+    (report?.has_bundle === true &&
+      report?.bundle_statement_used === false)
+
+  if (!skipCreditCheck) {
+    const hasCredits = await hasEnoughCredits(user.id, "statement")
+    if (!hasCredits) {
+      return NextResponse.json(
+        { error: "Insufficient credits" },
+        { status: 402 },
+      )
     }
   }
 

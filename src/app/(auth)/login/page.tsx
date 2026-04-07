@@ -120,6 +120,15 @@ function LoginPageContent() {
       return
     }
 
+    if (data.user) {
+      await supabase
+        .from("profiles")
+        .update({
+          terms_accepted_at: new Date().toISOString(),
+        })
+        .eq("id", data.user.id)
+    }
+
     redirectAfterLogin(next, router)
   }
 

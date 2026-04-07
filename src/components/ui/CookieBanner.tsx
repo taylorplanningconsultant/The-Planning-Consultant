@@ -13,6 +13,7 @@ export function CookieBanner() {
 
   function handleAccept() {
     localStorage.setItem("cookie-consent", "accepted")
+    window.dispatchEvent(new Event("cookie-accepted"))
     setShow(false)
   }
 

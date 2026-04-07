@@ -116,34 +116,10 @@ export function Footer() {
             <ul className="flex list-none flex-col gap-2.5">
               <li>
                 <Link
-                  href="/#"
-                  className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
-                >
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="mailto:hello@theplanningconsultant.com"
-                  className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
-                >
-                  Contact
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/#professional-pricing"
                   className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
                 >
                   For professionals
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/#"
-                  className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
-                >
-                  API
                 </Link>
               </li>
             </ul>

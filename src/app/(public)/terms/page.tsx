@@ -102,6 +102,21 @@ export default function TermsPage() {
                 contact us for a full refund
               </li>
               <li>Top-up credits: no refund once purchased</li>
+              <li>
+                To request a refund, email
+                hello@theplanningconsultant.com with your order reference and
+                reason. Refund requests are reviewed within 2 business days.
+              </li>
+              <li>
+                To request deletion of your personal data under UK GDPR Article
+                17, email hello@theplanningconsultant.com with the subject
+                &quot;Data Deletion Request&quot;. We will process your request
+                within 30 days.
+              </li>
+              <li>
+                You can update your cookie preferences at any time by clearing
+                your browser cookies and revisiting our site.
+              </li>
             </ul>
           </section>
 

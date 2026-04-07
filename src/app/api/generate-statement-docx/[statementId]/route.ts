@@ -1,9 +1,13 @@
 import { stripStatementAiFooter } from "@/lib/planning/statement-text"
 import { createClient } from "@/lib/supabase/server"
 import {
+  AlignmentType,
+  BorderStyle,
   Document,
+  Footer,
   HeadingLevel,
   Packer,
+  PageNumber,
   Paragraph,
   TextRun,
 } from "docx"
@@ -192,30 +196,71 @@ function blocksToDocxParagraphs(blocks: Block[]): Paragraph[] {
   const out: Paragraph[] = []
   for (const b of blocks) {
     if (b.kind === "heading") {
-      const hl =
-        b.level === 1
-          ? HeadingLevel.HEADING_1
-          : b.level === 2
-            ? HeadingLevel.HEADING_2
-            : HeadingLevel.HEADING_3
+      if (b.level === 1) {
+        out.push(
+          new Paragraph({
+            heading: HeadingLevel.HEADING_1,
+            spacing: { after: 240 },
+            children: [
+              new TextRun({
+                text: b.text,
+                font: "Calibri",
+                size: 36,
+                bold: true,
+                color: "0B4D2C",
+              }),
+            ],
+          }),
+        )
+        continue
+      }
+
+      if (b.level === 2) {
+        out.push(
+          new Paragraph({
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 360, after: 120 },
+            children: [
+              new TextRun({
+                text: b.text,
+                font: "Calibri",
+                size: 28,
+                bold: true,
+                color: "126B3A",
+              }),
+            ],
+          }),
+        )
+        continue
+      }
+
       out.push(
         new Paragraph({
-          heading: hl,
-          children: [new TextRun({ text: b.text, bold: true })],
+          heading: HeadingLevel.HEADING_3,
+          spacing: { before: 280, after: 120 },
+          children: [
+            new TextRun({
+              text: b.text,
+              font: "Calibri",
+              size: 26,
+              bold: true,
+              color: "126B3A",
+            }),
+          ],
         }),
       )
     } else if (b.kind === "bullet") {
       out.push(
         new Paragraph({
-          spacing: { after: 120 },
-          children: [new TextRun(`• ${b.text}`)],
+          spacing: { line: 276, after: 200 },
+          children: [new TextRun({ text: `• ${b.text}`, font: "Calibri", size: 24 })],
         }),
       )
     } else {
       out.push(
         new Paragraph({
-          spacing: { after: 200 },
-          children: [new TextRun(b.text)],
+          spacing: { line: 276, after: 200 },
+          children: [new TextRun({ text: b.text, font: "Calibri", size: 24 })],
         }),
       )
     }
@@ -244,23 +289,42 @@ function buildDocument(statement: {
   const children: Paragraph[] = [
     new Paragraph({
       heading: HeadingLevel.HEADING_1,
-      children: [new TextRun({ text: "Planning Statement", bold: true })],
-    }),
-    new Paragraph({
-      spacing: { after: 120 },
-      children: [new TextRun({ text: subtitle, italics: true })],
-    }),
-    new Paragraph({
       spacing: { after: 240 },
-      children: [new TextRun(`Date generated: ${dateStr}`)],
+      children: [
+        new TextRun({
+          text: "Planning Statement",
+          font: "Calibri",
+          size: 36,
+          bold: true,
+          color: "0B4D2C",
+        }),
+      ],
     }),
     new Paragraph({
-      spacing: { after: 360 },
+      spacing: { line: 276, after: 200 },
+      children: [new TextRun({ text: subtitle, italics: true, font: "Calibri", size: 24 })],
+    }),
+    new Paragraph({
+      spacing: { line: 276, after: 200 },
+      children: [new TextRun({ text: `Date generated: ${dateStr}`, font: "Calibri", size: 24 })],
+    }),
+    new Paragraph({
+      spacing: { line: 276, after: 400 },
+      border: {
+        bottom: {
+          color: "666666",
+          space: 1,
+          style: BorderStyle.SINGLE,
+          size: 6,
+        },
+      },
       children: [
         new TextRun({
           text: DISCLAIMER,
           italics: true,
           size: 20,
+          color: "666666",
+          font: "Calibri",
         }),
       ],
     }),
@@ -272,7 +336,50 @@ function buildDocument(statement: {
   ]
 
   return new Document({
-    sections: [{ children }],
+    styles: {
+      default: {
+        document: {
+          run: {
+            font: "Calibri",
+            size: 24,
+          },
+          paragraph: {
+            spacing: {
+              line: 276,
+              after: 200,
+            },
+          },
+        },
+      },
+    },
+    sections: [
+      {
+        properties: {
+          page: {
+            margin: {
+              top: 1440,
+              bottom: 1440,
+              left: 1440,
+              right: 1440,
+            },
+          },
+        },
+        footers: {
+          default: new Footer({
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({ text: "Page ", font: "Calibri", size: 20, color: "666666" }),
+                  new TextRun({ children: [PageNumber.CURRENT], font: "Calibri", size: 20, color: "666666" }),
+                ],
+              }),
+            ],
+          }),
+        },
+        children,
+      },
+    ],
   })
 }
 

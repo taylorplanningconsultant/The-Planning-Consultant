@@ -860,7 +860,7 @@ export function LandingTemplate() {
                     />
                   </svg>
                 </div>
-                Team seats and white-label report branding (Agency plan)
+                Priority support and white-label report branding (Agency plan)
               </li>
               <li className="pfi">
                 <div className="pfi-check">
@@ -874,7 +874,7 @@ export function LandingTemplate() {
                     />
                   </svg>
                 </div>
-                API access for integration into your own workflow
+                Top-up credits available for busy months
               </li>
               <li className="pfi">
                 <div className="pfi-check">
@@ -1668,24 +1668,7 @@ export function LandingTemplate() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    5 team seats
-                  </li>
-                  <li className="b2b-feat">
-                    <svg
-                      width="13"
-                      height="13"
-                      viewBox="0 0 13 13"
-                      fill="none"
-                    >
-                      <path
-                        d="M2 6.5l3 3 6-6"
-                        stroke="#126B3A"
-                        strokeWidth="1.4"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    API access
+                    Priority support
                   </li>
                   <li className="b2b-feat">
                     <svg
