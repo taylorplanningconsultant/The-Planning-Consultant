@@ -162,7 +162,7 @@ function StatementPageInner() {
 
         const canStream =
           sessionId != null &&
-          data.status === "pending" &&
+          (data.status === "pending" || data.status === "paid") &&
           !existingContent
         setAllowStream(canStream)
 

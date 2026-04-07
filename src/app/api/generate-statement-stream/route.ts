@@ -105,7 +105,7 @@ export async function POST(request: Request) {
     })
   }
 
-  if (statement.status !== "pending") {
+  if (statement.status !== "pending" && statement.status !== "paid") {
     return NextResponse.json(
       { error: "Statement is not ready for generation" },
       { status: 400 },

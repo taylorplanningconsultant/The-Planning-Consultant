@@ -41,7 +41,6 @@ export async function POST(request: Request) {
       successPath: successPathBody,
       statementId,
     } = parsed.data
-    const successPath = successPathBody ?? "/report"
     const authClient = await createClient()
     const {
       data: { user },
@@ -88,30 +87,39 @@ export async function POST(request: Request) {
         .select("share_token")
         .eq("id", reportId)
         .single()
-
       if (reportError || !report) {
-        return NextResponse.json({ error: "Report not found" }, { status: 404 })
+        return NextResponse.json(
+          { error: "Report not found" },
+          { status: 404 },
+        )
       }
-
       const shareToken = report.share_token
       const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? ""
-      if (statementId && successPath === "/statement") {
+
+      if (statementId) {
+        // Bundle or statement purchase with report context
         successUrl = `${appUrl}/statement/${statementId}?session_id={CHECKOUT_SESSION_ID}`
         cancelUrl = `${appUrl}/statement`
       } else {
+        // Report purchase
         successUrl = `${appUrl}/report/${shareToken}?session_id={CHECKOUT_SESSION_ID}`
         cancelUrl = `${appUrl}/report/${shareToken}`
       }
     } else if (statementId) {
+      // Standalone statement purchase (no report)
       const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? ""
       successUrl = `${appUrl}/statement/${statementId}?session_id={CHECKOUT_SESSION_ID}`
       cancelUrl = `${appUrl}/statement`
-    } else {
+    } else if (successPathBody === "/dashboard/billing") {
+      // Subscription purchase
       const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? ""
-      const pathRaw = successPathBody ?? "/check"
-      const path = pathRaw.startsWith("/") ? pathRaw : `/${pathRaw}`
-      successUrl = `${appUrl}${path}?session_id={CHECKOUT_SESSION_ID}`
-      cancelUrl = `${appUrl}${path}`
+      successUrl = `${appUrl}/dashboard/billing?session_id={CHECKOUT_SESSION_ID}`
+      cancelUrl = `${appUrl}/dashboard/billing`
+    } else {
+      // Fallback
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? ""
+      successUrl = `${appUrl}/check?session_id={CHECKOUT_SESSION_ID}`
+      cancelUrl = `${appUrl}/check`
     }
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {

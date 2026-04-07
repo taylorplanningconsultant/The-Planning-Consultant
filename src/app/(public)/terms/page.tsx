@@ -48,25 +48,6 @@ export default function TermsPage() {
             </ul>
           </section>
 
-          <section className="space-y-3">
-            <h2 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
-              Important disclaimer
-            </h2>
-            <div className="rounded-lg border border-border bg-secondary p-4">
-              <p className="text-xs font-normal leading-relaxed text-muted-foreground sm:text-sm">
-                The Planning Consultant is a guidance tool only. Our reports and
-                statements are AI-generated drafts based on publicly available
-                planning data. They do not constitute professional planning
-                advice, legal advice, or architectural advice. Planning decisions
-                are made by Local Planning Authorities and we have no influence
-                over outcomes. Always consult an RTPI-accredited planning
-                consultant before submitting any planning application. My
-                Planning consultant accepts no liability for any planning
-                decisions, costs, or losses arising from use of this service.
-              </p>
-            </div>
-          </section>
-
           <section className="space-y-4">
             <h2 className="text-2xl font-bold tracking-tight text-foreground">
               Credit system

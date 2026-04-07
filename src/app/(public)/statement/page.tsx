@@ -208,9 +208,9 @@ function StatementPageContent() {
         body: JSON.stringify({
           priceId: STRIPE_PRODUCTS.oneOff.statement,
           reportId: result?.reportId,
-          email: leadEmail.trim() || undefined,
           statementId,
-          successPath: `/statement/${statementId}`,
+          email: leadEmail.trim() || undefined,
+          successPath: "/statement",
         }),
       })
       const data = (await res.json()) as { url?: string; error?: string }
