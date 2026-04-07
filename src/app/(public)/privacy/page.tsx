@@ -25,7 +25,7 @@ export default function PrivacyPage() {
             </h2>
             <p className="text-base leading-relaxed text-muted-foreground">
               <span className="font-medium text-foreground">
-                Eden Technologies Ltd
+                My Planning consultant
               </span>
               , trading as{" "}
               <span className="font-medium text-foreground">
@@ -280,7 +280,7 @@ export default function PrivacyPage() {
               </a>
             </p>
             <p className="text-base leading-relaxed text-muted-foreground">
-              Eden Technologies Ltd, Golborne, UK
+              My Planning consultant, Golborne, UK
             </p>
           </section>
         </div>

@@ -48,20 +48,20 @@ export default function TermsPage() {
             </ul>
           </section>
 
-          <section className="space-y-4">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground">
+          <section className="space-y-3">
+            <h2 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
               Important disclaimer
             </h2>
-            <div className="rounded-2xl border-2 border-primary bg-brand-light p-6 shadow-sm md:p-8">
-              <p className="text-base font-semibold leading-relaxed text-brand-dark">
-                THE PLANNING CONSULTANT IS A GUIDANCE TOOL ONLY. Our reports and
+            <div className="rounded-lg border border-border bg-secondary p-4">
+              <p className="text-xs font-normal leading-relaxed text-muted-foreground sm:text-sm">
+                The Planning Consultant is a guidance tool only. Our reports and
                 statements are AI-generated drafts based on publicly available
                 planning data. They do not constitute professional planning
                 advice, legal advice, or architectural advice. Planning decisions
                 are made by Local Planning Authorities and we have no influence
                 over outcomes. Always consult an RTPI-accredited planning
-                consultant before submitting any planning application. Eden
-                Technologies Ltd accepts no liability for any planning
+                consultant before submitting any planning application. My
+                Planning consultant accepts no liability for any planning
                 decisions, costs, or losses arising from use of this service.
               </p>
             </div>
@@ -155,8 +155,8 @@ export default function TermsPage() {
                 Report content is licensed to you for personal and commercial use
               </li>
               <li>
-                The Planning Consultant brand and platform belongs to Eden
-                Technologies Ltd
+                The Planning Consultant brand and platform belongs to My
+                Planning consultant
               </li>
               <li>You retain ownership of information you provide</li>
             </ul>
@@ -210,7 +210,7 @@ export default function TermsPage() {
               </a>
             </p>
             <p className="text-base leading-relaxed text-muted-foreground">
-              Eden Technologies Ltd, Golborne, UK
+              My Planning consultant, Golborne, UK
             </p>
           </section>
         </div>

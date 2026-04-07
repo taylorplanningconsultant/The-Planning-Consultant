@@ -42,12 +42,17 @@ export async function POST(request: Request) {
       statementId,
     } = parsed.data
     const successPath = successPathBody ?? "/report"
+    const authClient = await createClient()
+    const {
+      data: { user },
+    } = await authClient.auth.getUser()
+    const userEmail = user?.email ?? email ?? undefined
 
     const topUpPriceIds = Object.values(STRIPE_PRODUCTS.topUp) as string[]
     const isTopUp = topUpPriceIds.includes(priceId)
 
     if (isTopUp) {
-      if (!email) {
+      if (!userEmail) {
         return NextResponse.json(
           { error: "Email is required for top-up purchases" },
           { status: 400 },
@@ -58,7 +63,7 @@ export async function POST(request: Request) {
       const { data: profile } = await supabase
         .from("profiles")
         .select("id, subscription_tier")
-        .eq("email", email)
+        .eq("email", userEmail)
         .maybeSingle()
 
       const tier = profile
@@ -89,14 +94,14 @@ export async function POST(request: Request) {
       }
 
       const shareToken = report.share_token
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL
-      const redirectId =
-        successPath === "/statement" ? (statementId ?? shareToken) : shareToken
-      successUrl = `${appUrl}${successPath}/${redirectId}?session_id={CHECKOUT_SESSION_ID}`
-      cancelUrl =
-        successPath === "/statement"
-          ? `${appUrl}/statement`
-          : `${appUrl}/report/${shareToken}`
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? ""
+      if (statementId && successPath === "/statement") {
+        successUrl = `${appUrl}/statement/${statementId}?session_id={CHECKOUT_SESSION_ID}`
+        cancelUrl = `${appUrl}/statement`
+      } else {
+        successUrl = `${appUrl}/report/${shareToken}?session_id={CHECKOUT_SESSION_ID}`
+        cancelUrl = `${appUrl}/report/${shareToken}`
+      }
     } else if (statementId) {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? ""
       successUrl = `${appUrl}/statement/${statementId}?session_id={CHECKOUT_SESSION_ID}`
@@ -121,9 +126,9 @@ export async function POST(request: Request) {
       },
     }
 
-    if (email) {
+    if (userEmail) {
       const existing = await stripe.customers.list({
-        email: email,
+        email: userEmail,
         limit: 1,
       })
 
@@ -132,7 +137,7 @@ export async function POST(request: Request) {
       if (existingCustomerId) {
         sessionParams.customer = existingCustomerId
       } else {
-        sessionParams.customer_email = email
+        sessionParams.customer_email = userEmail
       }
     }
 
