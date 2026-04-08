@@ -15,7 +15,7 @@ const navLinks = [
 ] as const;
 
 const signInButtonClassName =
-  "whitespace-nowrap rounded-md px-3.5 py-1.5 text-sm font-normal text-muted-foreground transition-colors hover:bg-muted hover:text-foreground";
+  "inline-flex min-h-11 items-center whitespace-nowrap rounded-md px-3.5 py-1.5 text-sm font-normal text-muted-foreground transition-colors hover:bg-muted hover:text-foreground";
 
 type NavClientProps = {
   user: User | null;
@@ -56,7 +56,7 @@ export function NavClient({ user }: NavClientProps) {
           : "bg-background/85 backdrop-blur-md",
       )}
     >
-      <div className="mx-auto flex h-full min-w-0 w-full max-w-[1180px] items-center justify-between gap-3 px-4 sm:px-6 md:px-7">
+      <div className="mx-auto flex h-full min-w-0 w-full max-w-[1180px] items-center justify-between gap-2 px-4 sm:gap-3 sm:px-6 md:px-7">
         <Link
           href="/"
           className="flex min-w-0 shrink items-center gap-2 sm:gap-2.5 no-underline"
@@ -86,17 +86,17 @@ export function NavClient({ user }: NavClientProps) {
               />
             </svg>
           </div>
-          <span className="truncate text-sm font-bold tracking-tight text-foreground sm:text-base">
+          <span className="truncate whitespace-nowrap text-sm font-bold tracking-tight text-foreground sm:text-base">
             The Planning Consultant
           </span>
         </Link>
 
-        <ul className="hidden list-none items-center gap-6 lg:gap-7 md:flex">
+        <ul className="hidden list-none items-center gap-6 lg:gap-7 lg:flex">
           {navLinks.map(({ href, label }) => (
             <li key={href}>
               <Link
                 href={href}
-                className="text-sm font-normal text-muted-foreground transition-colors hover:text-foreground no-underline"
+                className="whitespace-nowrap text-sm font-normal text-muted-foreground transition-colors hover:text-foreground no-underline"
               >
                 {label}
               </Link>
@@ -104,7 +104,7 @@ export function NavClient({ user }: NavClientProps) {
           ))}
         </ul>
 
-        <div className="hidden items-center gap-2 sm:gap-2.5 md:flex">
+        <div className="hidden items-center gap-2 sm:gap-2.5 lg:flex">
           {user ? (
             <Link href="/dashboard" className={signInButtonClassName}>
               Dashboard
@@ -116,7 +116,7 @@ export function NavClient({ user }: NavClientProps) {
           )}
           <Link
             href="/check"
-            className="inline-flex items-center gap-1.5 rounded-md bg-gradient-to-br from-primary to-accent px-5 py-2 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-md bg-gradient-to-br from-primary to-accent px-5 py-2 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
           >
             Check my postcode
             <svg
@@ -137,10 +137,10 @@ export function NavClient({ user }: NavClientProps) {
           </Link>
         </div>
 
-        <div className="flex items-center gap-1.5 md:hidden">
+        <div className="flex items-center gap-1.5 lg:hidden">
           <Link
             href="/check"
-            className="inline-flex shrink-0 items-center gap-1 rounded-md bg-gradient-to-br from-primary to-accent px-3 py-2 text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
+            className="inline-flex h-11 shrink-0 items-center gap-1 rounded-md bg-gradient-to-br from-primary to-accent px-3 text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-90 max-[389px]:hidden"
           >
             Check
             <svg
@@ -194,20 +194,20 @@ export function NavClient({ user }: NavClientProps) {
         <>
           <button
             type="button"
-            className="fixed inset-0 top-[58px] z-40 bg-foreground/20 backdrop-blur-[2px] md:hidden"
+            className="fixed inset-0 top-[58px] z-40 bg-foreground/20 backdrop-blur-[2px] lg:hidden"
             aria-label="Close menu"
             onClick={() => setMenuOpen(false)}
           />
           <div
             id={menuId}
-            className="absolute left-0 right-0 top-full z-50 max-h-[min(70vh,calc(100dvh-58px))] overflow-y-auto border-b border-border bg-background shadow-lg md:hidden"
+            className="absolute left-0 right-0 top-full z-50 max-h-[min(70vh,calc(100dvh-58px))] overflow-y-auto border-b border-border bg-background shadow-lg lg:hidden"
           >
             <ul className="flex list-none flex-col gap-0 px-4 py-3">
               {navLinks.map(({ href, label }) => (
                 <li key={href}>
                   <Link
                     href={href}
-                    className="block rounded-lg px-3 py-3 text-base font-medium text-foreground no-underline transition-colors hover:bg-secondary"
+                    className="flex min-h-11 items-center rounded-lg px-3 py-3 text-base font-medium text-foreground no-underline transition-colors hover:bg-secondary"
                     onClick={() => setMenuOpen(false)}
                   >
                     {label}

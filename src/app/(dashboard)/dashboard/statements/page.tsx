@@ -64,7 +64,7 @@ export default async function DashboardStatementsPage() {
                 <p className="text-[#18A056] mb-2 text-xs font-bold uppercase tracking-widest">
                   Statement generator
                 </p>
-                <h2 className="text-3xl font-extrabold tracking-tight text-[#0A0F0C] md:text-4xl md:max-w-xl">
+                <h2 className="text-2xl font-extrabold tracking-tight text-[#0A0F0C] sm:text-3xl md:max-w-xl md:text-4xl">
                   Turn site constraints into persuasive narrative
                 </h2>
                 <p className="text-muted-foreground mt-4 max-w-2xl text-base leading-relaxed">
@@ -116,7 +116,7 @@ export default async function DashboardStatementsPage() {
                 <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
                   <Link
                     href="/statement"
-                    className="inline-flex items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent px-6 py-3 font-semibold text-white shadow-md transition-opacity hover:opacity-90"
+                    className="inline-flex min-h-[44px] w-full items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent px-6 py-3 font-semibold text-white shadow-md transition-opacity hover:opacity-90 sm:w-auto"
                   >
                     Open statement generator
                   </Link>

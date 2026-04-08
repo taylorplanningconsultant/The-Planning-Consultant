@@ -149,7 +149,7 @@ export function DashboardReportsList({ reports }: DashboardReportsListProps) {
           </p>
           <Link
             href="/check"
-            className="inline-flex items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent px-6 py-3 font-semibold text-white shadow-md transition-opacity hover:opacity-90"
+            className="inline-flex min-h-[44px] w-full items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent px-6 py-3 font-semibold text-white shadow-md transition-opacity hover:opacity-90 sm:w-auto"
           >
             Start a check
           </Link>
@@ -204,7 +204,7 @@ export function DashboardReportsList({ reports }: DashboardReportsListProps) {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}
-            className="w-full min-w-[10rem] rounded-lg border border-border bg-background px-4 py-3 text-foreground focus:border-transparent focus:outline-none focus:ring-2 focus:ring-accent md:w-auto"
+            className="w-full min-w-0 rounded-lg border border-border bg-background px-4 py-3 text-foreground focus:border-transparent focus:outline-none focus:ring-2 focus:ring-accent md:min-w-[10rem] md:w-auto"
             aria-label="Filter by report type"
           >
             {TYPE_FILTERS.map(({ value, label }) => (
@@ -248,7 +248,7 @@ export function DashboardReportsList({ reports }: DashboardReportsListProps) {
               setPostcodeQuery("")
               setTypeFilter("all")
             }}
-            className="rounded-lg border border-[#C8D4CA] px-4 py-2 text-sm font-medium text-[#4A5C50] transition-colors hover:bg-[#F0F4F1]"
+            className="min-h-[44px] w-full rounded-lg border border-[#C8D4CA] px-4 py-2 text-sm font-medium text-[#4A5C50] transition-colors hover:bg-[#F0F4F1] sm:w-auto"
           >
             Clear filters
           </button>
@@ -349,16 +349,16 @@ export function DashboardReportsList({ reports }: DashboardReportsListProps) {
               Showing {(currentPage - 1) * PAGE_SIZE + 1}–
               {Math.min(currentPage * PAGE_SIZE, totalFiltered)} of {totalFiltered}
             </p>
-            <div className="flex items-center gap-2">
+            <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:justify-end">
               {currentPage <= 1 ? (
-                <span className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-brand opacity-50">
+                <span className="min-h-[44px] rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-brand opacity-50">
                   Previous
                 </span>
               ) : (
                 <button
                   type="button"
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                  className="min-h-[44px] rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
                 >
                   Previous
                 </button>
@@ -367,14 +367,14 @@ export function DashboardReportsList({ reports }: DashboardReportsListProps) {
                 Page {currentPage} of {totalPages}
               </span>
               {currentPage >= totalPages ? (
-                <span className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-brand opacity-50">
+                <span className="min-h-[44px] rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-brand opacity-50">
                   Next
                 </span>
               ) : (
                 <button
                   type="button"
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                  className="min-h-[44px] rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
                 >
                   Next
                 </button>

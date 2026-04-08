@@ -49,7 +49,7 @@ export function DownloadPDFButton({
       title="Download PDF report"
       className={cn(
         isIcon
-          ? 'inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition-colors hover:bg-muted disabled:opacity-60'
+          ? 'inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition-colors hover:bg-muted disabled:opacity-60'
           : 'rounded-lg bg-white px-4 py-2 text-sm font-semibold text-brand-dark transition-opacity hover:opacity-90 disabled:opacity-60',
         className,
       )}

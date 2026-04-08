@@ -445,16 +445,16 @@ export default async function BillingPage({ searchParams }: PageProps) {
                 <div className="divide-y divide-border">
                   <form action={startTopUpCheckout} className="block">
                     <input type="hidden" name="size" value="small" />
-                    <div className="flex items-center justify-between py-3 first:pt-0">
+                    <div className="flex flex-col gap-3 py-3 first:pt-0 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <p className="text-sm font-semibold text-foreground">5 credits</p>
                         <p className="text-xs text-muted-brand">£7.00/credit</p>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-between gap-3 sm:justify-start">
                         <p className="font-semibold text-foreground">£35</p>
                         <button
                           type="submit"
-                          className="text-sm font-medium text-accent hover:underline"
+                          className="min-h-[44px] w-full rounded-lg border border-border px-4 py-2 text-sm font-medium text-accent hover:bg-secondary sm:w-auto sm:border-0 sm:px-0 sm:py-0 sm:hover:bg-transparent sm:hover:underline"
                         >
                           Buy →
                         </button>
@@ -463,16 +463,16 @@ export default async function BillingPage({ searchParams }: PageProps) {
                   </form>
                   <form action={startTopUpCheckout} className="block">
                     <input type="hidden" name="size" value="medium" />
-                    <div className="flex items-center justify-between py-3">
+                    <div className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <p className="text-sm font-semibold text-foreground">15 credits</p>
                         <p className="text-xs text-muted-brand">£6.33/credit</p>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-between gap-3 sm:justify-start">
                         <p className="font-semibold text-foreground">£95</p>
                         <button
                           type="submit"
-                          className="text-sm font-medium text-accent hover:underline"
+                          className="min-h-[44px] w-full rounded-lg border border-border px-4 py-2 text-sm font-medium text-accent hover:bg-secondary sm:w-auto sm:border-0 sm:px-0 sm:py-0 sm:hover:bg-transparent sm:hover:underline"
                         >
                           Buy →
                         </button>
@@ -481,16 +481,16 @@ export default async function BillingPage({ searchParams }: PageProps) {
                   </form>
                   <form action={startTopUpCheckout} className="block">
                     <input type="hidden" name="size" value="large" />
-                    <div className="flex items-center justify-between py-3 last:pb-0">
+                    <div className="flex flex-col gap-3 py-3 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <p className="text-sm font-semibold text-foreground">40 credits</p>
                         <p className="text-xs text-muted-brand">£5.48/credit</p>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-between gap-3 sm:justify-start">
                         <p className="font-semibold text-foreground">£219</p>
                         <button
                           type="submit"
-                          className="text-sm font-medium text-accent hover:underline"
+                          className="min-h-[44px] w-full rounded-lg border border-border px-4 py-2 text-sm font-medium text-accent hover:bg-secondary sm:w-auto sm:border-0 sm:px-0 sm:py-0 sm:hover:bg-transparent sm:hover:underline"
                         >
                           Buy →
                         </button>
@@ -516,12 +516,12 @@ export default async function BillingPage({ searchParams }: PageProps) {
                       Switch billing monthly or annually anytime from checkout.
                     </p>
                   </div>
-                  <div className="inline-flex shrink-0 items-center rounded-lg border border-border bg-background p-1">
+                  <div className="flex w-full shrink-0 items-center rounded-lg border border-border bg-background p-1 sm:inline-flex sm:w-auto">
                     <Link
                       href="/dashboard/billing?period=monthly"
                       scroll={false}
                       className={cn(
-                        "rounded-md px-4 py-2 text-sm font-medium transition-colors",
+                        "flex min-h-[44px] flex-1 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors",
                         !annual
                           ? "bg-primary text-white shadow-sm"
                           : "text-muted-foreground hover:bg-secondary",
@@ -533,7 +533,7 @@ export default async function BillingPage({ searchParams }: PageProps) {
                       href="/dashboard/billing?period=annual"
                       scroll={false}
                       className={cn(
-                        "inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors sm:px-4",
+                        "inline-flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors sm:px-4",
                         annual
                           ? "bg-primary text-white shadow-sm"
                           : "text-muted-foreground hover:bg-secondary",
@@ -583,10 +583,10 @@ export default async function BillingPage({ searchParams }: PageProps) {
                       </p>
                     </div>
                   </div>
-                  <form action={manageSubscriptionAction}>
+                  <form action={manageSubscriptionAction} className="w-full md:w-auto">
                     <button
                       type="submit"
-                      className="border-border hover:bg-secondary rounded-lg border px-4 py-2 text-sm font-medium"
+                      className="border-border hover:bg-secondary min-h-[44px] w-full rounded-lg border px-4 py-2 text-sm font-medium md:w-auto"
                     >
                       Manage subscription
                     </button>
@@ -710,15 +710,15 @@ export default async function BillingPage({ searchParams }: PageProps) {
                       {Math.min(currentChargePage * TRANSACTIONS_PAGE_SIZE, totalCharges)} of{" "}
                       {totalCharges}
                     </p>
-                    <div className="flex items-center gap-2">
+                    <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:justify-end">
                       {currentChargePage <= 1 ? (
-                        <span className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-brand opacity-50">
+                        <span className="min-h-[44px] rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-brand opacity-50">
                           Previous
                         </span>
                       ) : (
                         <Link
                           href={billingPageHref(annual, currentChargePage - 1)}
-                          className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                          className="min-h-[44px] rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
                         >
                           Previous
                         </Link>
@@ -727,13 +727,13 @@ export default async function BillingPage({ searchParams }: PageProps) {
                         Page {currentChargePage} of {totalChargePages}
                       </span>
                       {currentChargePage >= totalChargePages ? (
-                        <span className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-brand opacity-50">
+                        <span className="min-h-[44px] rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-brand opacity-50">
                           Next
                         </span>
                       ) : (
                         <Link
                           href={billingPageHref(annual, currentChargePage + 1)}
-                          className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                          className="min-h-[44px] rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
                         >
                           Next
                         </Link>

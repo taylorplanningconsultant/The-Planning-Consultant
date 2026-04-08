@@ -234,7 +234,7 @@ export default function AccountPage() {
                   <button
                     type="button"
                     onClick={() => void handleSignOut()}
-                    className="border border-[#C8D4CA] text-[#4A5C50] hover:bg-[#F0F4F1] inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors sm:w-auto"
+                    className="border border-[#C8D4CA] text-[#4A5C50] hover:bg-[#F0F4F1] inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors md:w-auto"
                   >
                     <LogOut className="h-4 w-4 shrink-0" aria-hidden />
                     Sign out
@@ -320,7 +320,7 @@ export default function AccountPage() {
                   <button
                     type="submit"
                     disabled={saving}
-                    className="rounded-lg bg-gradient-to-br from-primary to-accent px-6 py-3 font-semibold text-white shadow-md transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="min-h-[44px] w-full rounded-lg bg-gradient-to-br from-primary to-accent px-6 py-3 font-semibold text-white shadow-md transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 md:w-auto"
                   >
                     {saving ? "Saving…" : "Save changes"}
                   </button>
@@ -357,7 +357,7 @@ export default function AccountPage() {
               <div className="mt-6">
                 <button
                   type="button"
-                  className="rounded-lg border border-[#E8B4B4] bg-background px-4 py-2.5 text-sm font-semibold text-[#991818] opacity-60 shadow-sm"
+                  className="min-h-[44px] w-full rounded-lg border border-[#E8B4B4] bg-background px-4 py-2.5 text-sm font-semibold text-[#991818] opacity-60 shadow-sm md:w-auto"
                   disabled
                   aria-disabled
                 >

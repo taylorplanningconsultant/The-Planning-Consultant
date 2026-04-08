@@ -3,8 +3,8 @@ import Link from "next/link";
 export function Footer() {
   return (
     <footer className="bg-foreground px-7 pb-9 pt-[60px]">
-      <div className="mx-auto max-w-[1180px]">
-        <div className="mb-7 grid grid-cols-1 gap-12 border-b border-white/[0.08] pb-11 md:grid-cols-[2fr_1fr_1fr_1fr]">
+      <div className="mx-auto max-w-[1180px] min-w-0">
+        <div className="mb-7 grid grid-cols-1 gap-10 border-b border-white/[0.08] pb-11 md:grid-cols-[2fr_1fr_1fr_1fr]">
           <div>
             <p className="mb-2.5 text-[17px] font-bold tracking-tight text-white">
               The Planning Consultant
@@ -13,16 +13,16 @@ export function Footer() {
               AI-powered planning guidance for homeowners, architects, and
               developers across the UK.
             </p>
-            <div className="flex gap-3.5">
+            <div className="flex flex-wrap gap-2.5">
               <a
                 href="#"
-                className="text-[12.5px] text-white/[0.3] transition-colors hover:text-white/70"
+                className="inline-flex min-h-11 items-center py-1 text-[12.5px] text-white/[0.3] transition-colors hover:text-white/70"
               >
                 Twitter / X
               </a>
               <a
                 href="#"
-                className="text-[12.5px] text-white/[0.3] transition-colors hover:text-white/70"
+                className="inline-flex min-h-11 items-center py-1 text-[12.5px] text-white/[0.3] transition-colors hover:text-white/70"
               >
                 LinkedIn
               </a>
@@ -37,7 +37,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/check"
-                  className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
+                  className="inline-flex min-h-11 items-center text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
                 >
                   Constraint checker
                 </Link>
@@ -45,7 +45,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/statement"
-                  className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
+                  className="inline-flex min-h-11 items-center text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
                 >
                   Statement generator
                 </Link>
@@ -53,7 +53,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/#professional-pricing"
-                  className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
+                  className="inline-flex min-h-11 items-center text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
                 >
                   Pricing
                 </Link>
@@ -61,7 +61,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/dashboard"
-                  className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
+                  className="inline-flex min-h-11 items-center text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
                 >
                   Dashboard
                 </Link>
@@ -77,7 +77,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/check"
-                  className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
+                  className="inline-flex min-h-11 items-center text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
                 >
                   Constraint checker
                 </Link>
@@ -85,7 +85,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/statement"
-                  className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
+                  className="inline-flex min-h-11 items-center text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
                 >
                   Statement generator
                 </Link>
@@ -93,7 +93,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/pricing"
-                  className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
+                  className="inline-flex min-h-11 items-center text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
                 >
                   Pricing
                 </Link>
@@ -118,28 +118,28 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-col items-start gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <span className="text-[12px] text-white/25">
             © 2026 The Planning Consultant.
             <br />
             All rights reserved.
           </span>
-          <div className="flex gap-[22px]">
+          <div className="flex flex-wrap gap-2 sm:gap-[22px]">
             <Link
               href="/privacy"
-              className="text-[12px] text-white/25 no-underline transition-colors hover:text-white/60"
+              className="inline-flex min-h-11 items-center text-[12px] text-white/25 no-underline transition-colors hover:text-white/60"
             >
               Privacy
             </Link>
             <Link
               href="/terms"
-              className="text-[12px] text-white/25 no-underline transition-colors hover:text-white/60"
+              className="inline-flex min-h-11 items-center text-[12px] text-white/25 no-underline transition-colors hover:text-white/60"
             >
               Terms
             </Link>
             <Link
               href="/cookies"
-              className="text-[12px] text-white/25 no-underline transition-colors hover:text-white/60"
+              className="inline-flex min-h-11 items-center text-[12px] text-white/25 no-underline transition-colors hover:text-white/60"
             >
               Cookies
             </Link>

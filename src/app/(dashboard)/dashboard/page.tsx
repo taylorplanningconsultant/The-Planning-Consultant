@@ -177,7 +177,7 @@ export default async function DashboardPage() {
               <p className="text-[#18A056] mb-3 text-xs font-bold uppercase tracking-widest">
                 At a glance
               </p>
-              <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
                 <Link
                   href="/dashboard/reports"
                   className="group rounded-2xl border border-border bg-background p-5 shadow-sm transition-colors hover:border-ring hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
@@ -218,7 +218,7 @@ export default async function DashboardPage() {
                 </Link>
                 <Link
                   href={latestLpaHref}
-                  className="group col-span-2 rounded-2xl border border-border bg-background p-5 shadow-sm transition-colors hover:border-ring hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 lg:col-span-1"
+                  className="group rounded-2xl border border-border bg-background p-5 shadow-sm transition-colors hover:border-ring hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 sm:col-span-2 lg:col-span-1"
                   aria-label={
                     recentReports.length > 0
                       ? `Latest LPA: ${latestLpa}. ${latestLpaCta}.`
@@ -246,7 +246,7 @@ export default async function DashboardPage() {
                 </Link>
                 <Link
                   href="/dashboard/account"
-                  className="group col-span-2 rounded-2xl border border-border bg-background p-5 shadow-sm transition-colors hover:border-ring hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 lg:col-span-1"
+                  className="group rounded-2xl border border-border bg-background p-5 shadow-sm transition-colors hover:border-ring hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 sm:col-span-2 lg:col-span-1"
                   aria-label={`Member since ${memberSince}. Open account settings.`}
                 >
                   <p className="text-muted-brand mb-2 text-[10px] font-semibold uppercase tracking-wider">
@@ -265,7 +265,7 @@ export default async function DashboardPage() {
                 </Link>
                 <Link
                   href="/dashboard/billing"
-                  className="group col-span-2 rounded-2xl border border-border bg-background p-5 shadow-sm transition-colors hover:border-ring hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 lg:col-span-1"
+                  className="group rounded-2xl border border-border bg-background p-5 shadow-sm transition-colors hover:border-ring hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 sm:col-span-2 lg:col-span-1"
                   aria-label={`Credits remaining: ${creditsBalance}. Open billing.`}
                 >
                   <p className="text-muted-brand mb-2 text-[10px] font-semibold uppercase tracking-wider">
@@ -280,13 +280,13 @@ export default async function DashboardPage() {
                 </Link>
               </div>
               {tier === "free" ? (
-                <div className="mt-4 flex items-center justify-between rounded-xl border border-border bg-secondary p-4">
+                <div className="mt-4 flex flex-col gap-3 rounded-xl border border-border bg-secondary p-4 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-sm text-foreground">
                     Subscribe for monthly credits and save
                   </p>
                   <Link
                     href="/#professional-pricing"
-                    className="text-sm font-semibold text-accent hover:underline"
+                    className="min-h-[44px] w-full rounded-lg px-2 py-2 text-center text-sm font-semibold text-accent hover:underline sm:w-auto"
                   >
                     View plans →
                   </Link>
@@ -395,7 +395,7 @@ export default async function DashboardPage() {
                   <p className="text-[#18A056] mb-2 text-xs font-bold uppercase tracking-widest">
                     No reports yet
                   </p>
-                  <h3 className="text-foreground mb-3 text-xl font-extrabold tracking-tight md:text-2xl">
+                  <h3 className="text-foreground mb-3 text-lg font-extrabold tracking-tight sm:text-xl md:text-2xl">
                     Run your first planning check
                   </h3>
                   <p className="text-muted-foreground mx-auto mb-8 max-w-md text-base leading-relaxed">
@@ -404,7 +404,7 @@ export default async function DashboardPage() {
                   </p>
                   <Link
                     href="/check"
-                    className="inline-flex items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent px-6 py-3 font-semibold text-white shadow-md transition-opacity hover:opacity-90"
+                    className="inline-flex min-h-[44px] w-full items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent px-6 py-3 font-semibold text-white shadow-md transition-opacity hover:opacity-90 sm:w-auto"
                   >
                     Start a check
                   </Link>
@@ -455,7 +455,7 @@ export default async function DashboardPage() {
                             <span className="text-muted-foreground mt-2 hidden text-sm tabular-nums md:mt-0 md:block">
                               {formatDate(report.created_at)}
                             </span>
-                            <div className="mt-2 flex flex-wrap items-center gap-2 md:mt-0">
+                            <div className="mt-3 flex flex-wrap items-center gap-2 md:mt-0">
                               <span
                                 className={cn(
                                   "inline-flex rounded-md px-2 py-0.5 text-xs font-semibold tabular-nums",
@@ -464,8 +464,21 @@ export default async function DashboardPage() {
                               >
                                 {scoreBadge.label}
                               </span>
+                              <span
+                                className={cn(
+                                  "inline-flex rounded-md px-2 py-0.5 text-xs font-semibold md:hidden",
+                                  full
+                                    ? "bg-[#EDFAF3] text-[#0F7040]"
+                                    : "bg-secondary text-muted-foreground",
+                                )}
+                              >
+                                {full ? "Full" : "Basic"}
+                              </span>
+                              <span className="text-accent ml-auto text-sm font-medium group-hover:underline md:hidden">
+                                View report
+                              </span>
                             </div>
-                            <div className="mt-2 md:mt-0">
+                            <div className="mt-2 hidden md:mt-0 md:block">
                               <span
                                 className={cn(
                                   "inline-flex rounded-md px-2 py-0.5 text-xs font-semibold",
@@ -477,10 +490,7 @@ export default async function DashboardPage() {
                                 {full ? "Full" : "Basic"}
                               </span>
                             </div>
-                            <div className="mt-3 flex items-center justify-between md:mt-0 md:justify-end">
-                              <span className="text-accent text-sm font-medium group-hover:underline md:hidden">
-                                View report
-                              </span>
+                            <div className="mt-3 hidden items-center justify-between md:mt-0 md:flex md:justify-end">
                               <span className="text-muted-brand hidden text-sm font-medium transition-colors group-hover:text-accent md:inline">
                                 View
                               </span>

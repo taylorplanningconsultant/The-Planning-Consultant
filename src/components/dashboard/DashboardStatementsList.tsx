@@ -141,7 +141,7 @@ export function DashboardStatementsList({ statements }: DashboardStatementsListP
         </div>
         <Link
           href="/statement"
-          className="inline-flex items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent px-5 py-2.5 text-center text-sm font-semibold text-white shadow-md transition-opacity hover:opacity-90"
+          className="inline-flex min-h-[44px] w-full items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent px-5 py-2.5 text-center text-sm font-semibold text-white shadow-md transition-opacity hover:opacity-90 sm:w-auto"
         >
           New statement
         </Link>
@@ -176,7 +176,7 @@ export function DashboardStatementsList({ statements }: DashboardStatementsListP
             id="statements-status-filter"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-            className="w-full min-w-[10rem] rounded-lg border border-border bg-background px-4 py-3 text-foreground focus:border-transparent focus:outline-none focus:ring-2 focus:ring-accent md:w-auto"
+            className="w-full min-w-0 rounded-lg border border-border bg-background px-4 py-3 text-foreground focus:border-transparent focus:outline-none focus:ring-2 focus:ring-accent md:min-w-[10rem] md:w-auto"
           >
             <option value="all">All</option>
             <option value="complete">Complete</option>
@@ -193,7 +193,7 @@ export function DashboardStatementsList({ statements }: DashboardStatementsListP
           <button
             type="button"
             onClick={() => setSearchTerm("")}
-            className="text-primary mt-4 inline-block text-sm font-medium hover:underline"
+            className="text-primary mt-4 inline-block min-h-[44px] w-full rounded-lg px-3 py-2 text-sm font-medium hover:underline sm:w-auto"
           >
             Clear search
           </button>
@@ -206,7 +206,7 @@ export function DashboardStatementsList({ statements }: DashboardStatementsListP
           <button
             type="button"
             onClick={() => setStatusFilter("all")}
-            className="text-primary mt-4 inline-block text-sm font-medium hover:underline"
+            className="text-primary mt-4 inline-block min-h-[44px] w-full rounded-lg px-3 py-2 text-sm font-medium hover:underline sm:w-auto"
           >
             Clear filters
           </button>
@@ -287,7 +287,7 @@ export function DashboardStatementsList({ statements }: DashboardStatementsListP
                         </Link>
                         <a
                           href={docxHref}
-                          className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition-colors hover:bg-muted"
+                          className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition-colors hover:bg-muted"
                           aria-label="Download Word document"
                           title="Download Word document"
                         >
@@ -306,16 +306,16 @@ export function DashboardStatementsList({ statements }: DashboardStatementsListP
               Showing {(currentPage - 1) * PAGE_SIZE + 1}–
               {Math.min(currentPage * PAGE_SIZE, totalFiltered)} of {totalFiltered}
             </p>
-            <div className="flex items-center gap-2">
+            <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:justify-end">
               {currentPage <= 1 ? (
-                <span className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-brand opacity-50">
+                <span className="min-h-[44px] rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-brand opacity-50">
                   Previous
                 </span>
               ) : (
                 <button
                   type="button"
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                  className="min-h-[44px] rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
                 >
                   Previous
                 </button>
@@ -324,14 +324,14 @@ export function DashboardStatementsList({ statements }: DashboardStatementsListP
                 Page {currentPage} of {totalPages}
               </span>
               {currentPage >= totalPages ? (
-                <span className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-brand opacity-50">
+                <span className="min-h-[44px] rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-brand opacity-50">
                   Next
                 </span>
               ) : (
                 <button
                   type="button"
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                  className="min-h-[44px] rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
                 >
                   Next
                 </button>

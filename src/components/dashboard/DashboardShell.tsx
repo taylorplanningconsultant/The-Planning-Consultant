@@ -105,15 +105,15 @@ export function DashboardShell({
     );
 
   return (
-    <div>
+    <div className="overflow-x-clip">
       <header className="bg-brand-dark dot-bg dot-bg-on-dark pt-20 pb-10">
-        <div className="mx-auto max-w-7xl px-6 md:px-8">
+        <div className="mx-auto max-w-7xl px-4 md:px-8">
           <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-2">
             <div>
               <p className="mb-2 text-xs font-bold uppercase tracking-widest text-white/50">
                 Dashboard
               </p>
-              <h1 className="text-2xl font-bold text-white md:text-3xl">{title}</h1>
+              <h1 className="text-xl font-bold text-white sm:text-2xl md:text-3xl">{title}</h1>
               {subtitle ? (
                 <p className="mt-1 text-sm text-white/60">{subtitle}</p>
               ) : null}
@@ -133,7 +133,7 @@ export function DashboardShell({
         </div>
       </header>
 
-      <div className="mx-auto max-w-7xl px-6 py-8 pb-28 md:pb-8 md:py-8">
+      <div className="mx-auto max-w-7xl px-4 py-6 pb-24 md:px-8 md:py-8 md:pb-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <aside className="hidden md:col-span-1 md:block">
             <div className="md:sticky md:top-24">
@@ -230,7 +230,7 @@ export function DashboardShell({
             </div>
           </aside>
 
-          <div className="md:col-span-3">{children}</div>
+          <div className="min-w-0 md:col-span-3">{children}</div>
         </div>
       </div>
 
@@ -247,7 +247,7 @@ export function DashboardShell({
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-lg py-2 transition-colors",
+                  "flex min-h-[44px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg py-2.5 transition-colors",
                   active ? "text-accent" : "text-muted-foreground",
                 )}
               >
@@ -259,7 +259,7 @@ export function DashboardShell({
           <Link
             href={accountNav.href}
             className={cn(
-              "flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-lg py-2 transition-colors",
+              "flex min-h-[44px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg py-2.5 transition-colors",
               isActive(pathname, accountNav.href) ? "text-accent" : "text-muted-foreground",
             )}
           >

@@ -25,6 +25,12 @@
   --dot-color:rgba(11,77,44,0.07);
 }
 
+*,
+*::before,
+*::after{
+  box-sizing:border-box;
+}
+
 /* DOT PATTERN */
 .dot-bg{background-image:radial-gradient(var(--dot-color) 1px,transparent 1px);background-size:24px 24px}
 .dot-bg-lg{background-image:radial-gradient(var(--dot-color) 1.5px,transparent 1.5px);background-size:32px 32px}
@@ -57,7 +63,7 @@
 
 /* ── HERO ── */
 .hero-wrap{
-  position:relative;overflow-x:hidden;
+  position:relative;overflow-x:clip;
   background:var(--bg);padding-top:58px;
 }
 .hero-gradient{
@@ -115,7 +121,7 @@
   background:linear-gradient(135deg,var(--accent-mid),var(--accent-bright));
   border:none;padding:0 16px;cursor:pointer;white-space:nowrap;
   transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:6px;
-  letter-spacing:-0.01em;flex-shrink:0;
+  letter-spacing:-0.01em;flex-shrink:0;min-height:44px;
 }
 @media(min-width:480px){
   .hero-input-wrap button{font-size:14px;padding:0 22px;gap:7px}
@@ -412,6 +418,15 @@
 .btn-ghost-lg{font-family:var(--font);font-size:15px;font-weight:500;color:var(--text-secondary);background:none;border:1.5px solid var(--border-mid);cursor:pointer;padding:13px 28px;border-radius:var(--r);transition:background .15s;text-decoration:none;display:inline-flex;align-items:center;gap:7px}
 .btn-ghost-lg:hover{background:var(--bg-alt)}
 
+.btn-white,
+.btn-price-main,
+.btn-price-outline,
+.btn-price-white,
+.btn-cta-lg,
+.btn-ghost-lg{
+  min-height:44px;
+}
+
 /* ── FOOTER ── */
 .footer-inner{max-width:1180px;margin:0 auto}
 .footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;padding-bottom:44px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:28px}
@@ -433,7 +448,7 @@
 .d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.25s}.d4{animation-delay:.35s}
 
 /* ── responsive ── */
-@media(max-width:920px){
+@media(max-width:1023px){
   .hero{grid-template-columns:1fr;gap:40px;padding:72px 20px 56px;min-height:auto}
   .hero > div:first-child{text-align:center}
   .hero-badge{margin-left:auto;margin-right:auto;display:flex;width:fit-content;max-width:100%}
@@ -512,18 +527,81 @@
   .sec-head .sec-label{display:block}
   .sec-head .sec-sub{margin-left:auto;margin-right:auto}
 }
-@media(max-width:640px){
-  .hero-input-wrap{flex-direction:column;align-items:stretch;border-radius:var(--r-md)}
-  .hero-input-wrap button{width:100%;padding:14px 18px;white-space:normal}
+@media(max-width:767px){
+  .hero-headline{font-size:clamp(26px,10vw,42px)}
+  .hero-sub{font-size:15px;line-height:1.5}
+  .sec-h{font-size:clamp(24px,9vw,34px)}
+  .pro-h{font-size:clamp(24px,9vw,34px)}
+  .cta-h{font-size:clamp(23px,8.5vw,32px)}
+  .hero-input-wrap,
+  .hero-sub,
+  .hero-note{
+    max-width:100%;
+  }
+  .hero-input-wrap{
+    flex-direction:column;
+    align-items:stretch;
+    gap:10px;
+    border:none;
+    border-radius:0;
+    background:transparent;
+    box-shadow:none;
+    overflow:visible;
+  }
+  .hero-input-wrap input{
+    border:1.5px solid var(--border-mid);
+    border-radius:var(--r-md);
+    background:var(--surface);
+    box-shadow:var(--shadow-md);
+  }
+  .hero-input-wrap button{
+    width:100%;
+    padding:14px 18px;
+    white-space:normal;
+    border-radius:var(--r-md);
+    box-shadow:0 2px 8px rgba(18,107,58,0.35);
+  }
+  .hero-stats > div{min-width:0}
+  .logos{padding-left:20px;padding-right:20px}
+  .logos-lbl{
+    white-space:normal;
+    text-wrap:balance;
+  }
   .feat-visual{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .ct-table{min-width:min(100%,520px)}
+  .ct-table{min-width:520px}
   .ct-head,.ct-row{font-size:12px}
   .ct-val{font-size:10.5px}
+  .b2b-tag{white-space:normal;text-align:center}
+  .btn-white,
+  .btn-price-main,
+  .btn-price-outline,
+  .btn-price-white,
+  .btn-cta-lg,
+  .btn-ghost-lg{
+    width:100%;
+    justify-content:center;
+  }
+}
+@media(min-width:768px){
+  .btn-white,
+  .btn-price-main,
+  .btn-price-outline,
+  .btn-price-white,
+  .btn-cta-lg,
+  .btn-ghost-lg{
+    width:auto;
+  }
+}
+@media(max-width:639px){
+  .hero-note{
+    font-size:12px;
+    line-height:1.4;
+  }
 }
 @media(max-width:520px){
   .stat-val{font-size:22px}
 }
-@media(max-width:480px){
+@media(max-width:639px){
   .footer-top{grid-template-columns:1fr}
 }
 

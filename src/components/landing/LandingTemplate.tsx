@@ -1300,12 +1300,12 @@ export function LandingTemplate() {
               </span>
             </div>
             <div className="flex justify-center mb-8">
-              <div className="inline-flex items-center rounded-lg border border-border p-1 gap-1 bg-secondary">
+              <div className="inline-flex w-full max-w-md items-center rounded-lg border border-border bg-secondary p-1 gap-1 md:w-auto">
                 <button
                   type="button"
                   onClick={() => setAnnual(false)}
                   className={cn(
-                    "rounded-md px-4 py-2 text-sm font-medium transition-colors",
+                    "min-h-11 flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors md:flex-none",
                     !annual ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:bg-background/80",
                   )}
                 >
@@ -1315,7 +1315,7 @@ export function LandingTemplate() {
                   type="button"
                   onClick={() => setAnnual(true)}
                   className={cn(
-                    "inline-flex items-center gap-2 rounded-md px-3 py-2 sm:pl-4 sm:pr-3 text-sm font-medium transition-colors",
+                    "inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-md px-3 py-2 sm:pl-4 sm:pr-3 text-sm font-medium transition-colors md:flex-none",
                     annual ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:bg-background/80",
                   )}
                 >
@@ -1727,16 +1727,16 @@ export function LandingTemplate() {
             development, planning applications, and everything in between. Sign
             up to be notified when they launch.
           </p>
-          <div className="flex gap-3 justify-center">
+          <div className="flex w-full flex-col gap-3 justify-center sm:flex-row sm:items-stretch">
             <input
               type="email"
               placeholder="your@email.com"
               autoComplete="email"
-              className={cn(inputClassName, "max-w-xs")}
+              className={cn(inputClassName, "w-full sm:max-w-xs")}
             />
             <button
               type="button"
-              className="bg-gradient-to-br from-primary to-accent text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:opacity-90 transition-opacity whitespace-nowrap"
+              className="min-h-11 w-full rounded-lg bg-gradient-to-br from-primary to-accent px-6 py-3 text-white font-semibold shadow-md transition-opacity hover:opacity-90 sm:w-auto"
             >
               Notify me
             </button>
