@@ -17,7 +17,9 @@ export const metadata: Metadata = {
     template: "%s | The Planning Consultant — Instant UK Planning Reports",
   },
   icons: {
-    icon: "/favicon.png",
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.png",
   },
   description: "Instant planning constraint reports for any UK address. Check conservation areas, permitted development rights, flood zones and more in under 60 seconds.",
   metadataBase: new URL("https://theplanningconsultant.com"),
