@@ -13,19 +13,18 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   title: {
-    default: "The Planning Consultant",
-    template: "%s | The Planning Consultant",
+    default: "The Planning Consultant — Instant UK Planning Reports",
+    template: "%s | The Planning Consultant — Instant UK Planning Reports",
   },
   icons: {
     icon: "/favicon.png",
-    apple: "/favicon.png",
   },
   description: "Instant planning constraint reports for any UK address. Check conservation areas, permitted development rights, flood zones and more in under 60 seconds.",
   metadataBase: new URL("https://theplanningconsultant.com"),
   openGraph: {
     type: "website",
     siteName: "The Planning Consultant",
-    title: "The Planning Consultant",
+    title: "The Planning Consultant — Instant UK Planning Reports",
     description: "Instant planning constraint reports for any UK address. Check conservation areas, permitted development rights, flood zones and more in under 60 seconds.",
     url: "https://theplanningconsultant.com",
     images: [
@@ -39,7 +38,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "The Planning Consultant",
+    title: "The Planning Consultant — Instant UK Planning Reports",
     description: "Instant planning constraint reports for any UK address.",
     images: ["/og-image.png"],
   },
