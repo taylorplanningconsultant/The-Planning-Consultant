@@ -1,9 +1,0 @@
-# *
-User-agent: *
-Allow: /
-
-# Host
-Host: https://theplanningconsultant.com
-
-# Sitemaps
-Sitemap: https://theplanningconsultant.com/sitemap.xml
