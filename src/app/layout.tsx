@@ -16,8 +16,33 @@ export const metadata: Metadata = {
     default: "The Planning Consultant",
     template: "%s | The Planning Consultant",
   },
-  description:
-    "Instant planning constraint reports for any UK address. Check conservation areas, permitted development rights, flood zones and more in under 60 seconds.",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/favicon.png",
+  },
+  description: "Instant planning constraint reports for any UK address. Check conservation areas, permitted development rights, flood zones and more in under 60 seconds.",
+  metadataBase: new URL("https://theplanningconsultant.com"),
+  openGraph: {
+    type: "website",
+    siteName: "The Planning Consultant",
+    title: "The Planning Consultant",
+    description: "Instant planning constraint reports for any UK address. Check conservation areas, permitted development rights, flood zones and more in under 60 seconds.",
+    url: "https://theplanningconsultant.com",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "The Planning Consultant",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "The Planning Consultant",
+    description: "Instant planning constraint reports for any UK address.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({

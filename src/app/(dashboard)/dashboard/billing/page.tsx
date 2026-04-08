@@ -10,7 +10,12 @@ import { createClient } from "@/lib/supabase/server"
 import type { Tables } from "@/types/database"
 import { cn } from "@/utils/cn"
 import Link from "next/link"
+import type { Metadata } from "next"
 import { redirect } from "next/navigation"
+
+export const metadata: Metadata = {
+  title: "Billing",
+}
 
 async function manageSubscriptionAction() {
   "use server"

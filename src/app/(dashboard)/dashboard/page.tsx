@@ -6,8 +6,13 @@ import { createClient } from "@/lib/supabase/server"
 import type { Tables } from "@/types/database"
 import { cn } from "@/utils/cn"
 import { ArrowRight, CreditCard, FileSearch, ScrollText } from "lucide-react"
+import type { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+}
 
 function formatDate(dateString: string | null): string {
   if (!dateString) return "—"

@@ -10,8 +10,15 @@ import type { ConstraintResult } from "@/types/planning"
 import Image from "next/image"
 import Link from "next/link"
 import { Sparkles } from "lucide-react"
+import type { Metadata } from "next"
 import ReactMarkdown from "react-markdown"
 import { z } from "zod"
+
+export const metadata: Metadata = {
+  title: "Planning Report",
+  description:
+    "Your AI-generated planning constraint report for your UK property.",
+}
 
 const constraintResultSchema = z.object({
   category: z.enum([
