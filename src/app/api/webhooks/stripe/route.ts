@@ -1,4 +1,4 @@
-import { addCredits, getSubscriptionTier } from "@/lib/credits";
+import { addCredits } from "@/lib/credits";
 import { stripe } from "@/lib/stripe/client";
 import {
   planFromStripePriceId,
@@ -403,20 +403,19 @@ export async function POST(request: Request) {
       | Record<string, unknown>
       | undefined;
 
-    const shouldGrantSubscriptionCredits =
-      prevAttrs !== undefined &&
-      prevAttrs !== null &&
-      prevAttrs.current_period_end !== undefined;
+    const isRenewal =
+      prevAttrs?.current_period_end !== undefined && prevAttrs?.items === undefined;
+
+    const isPlanUpgrade =
+      prevAttrs?.items !== undefined &&
+      planName !== null &&
+      isStripeSubscriptionActive;
 
     if (
       userIdForSubscription &&
       planName &&
       isStripeSubscriptionActive
     ) {
-      const oldTier = shouldGrantSubscriptionCredits
-        ? await getSubscriptionTier(userIdForSubscription)
-        : undefined;
-
       const { error: tierUpdateError } = await supabase
         .from("profiles")
         .update({ subscription_tier: planName })
@@ -427,23 +426,19 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Database error" }, { status: 500 });
       }
 
-      if (shouldGrantSubscriptionCredits) {
-        try {
-          await addCredits(
-            userIdForSubscription,
-            SUBSCRIPTION_CREDITS[planName],
-            "subscription",
-          );
-        } catch (err) {
-          console.error("subscription.updated addCredits:", err);
-          return NextResponse.json({ error: "Credits error" }, { status: 500 });
-        }
+      if (isRenewal) {
+        await addCredits(userIdForSubscription, SUBSCRIPTION_CREDITS[planName], "subscription");
+      }
 
-        console.log("subscription.updated credits", {
-          userId: userIdForSubscription,
-          oldTier,
-          newTier: planName,
-        });
+      if (isPlanUpgrade) {
+        const oldPriceId = (prevAttrs?.items as any)?.data?.[0]?.price?.id;
+        const oldPlan = oldPriceId ? planFromStripePriceId(oldPriceId) : null;
+        const oldCredits = oldPlan ? SUBSCRIPTION_CREDITS[oldPlan] : 0;
+        const newCredits = SUBSCRIPTION_CREDITS[planName];
+        const diff = newCredits - oldCredits;
+        if (diff > 0) {
+          await addCredits(userIdForSubscription, diff, "subscription");
+        }
       }
     }
   }

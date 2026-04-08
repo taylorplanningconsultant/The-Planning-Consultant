@@ -275,7 +275,7 @@ export default async function BillingPage({ searchParams }: PageProps) {
   const showRenewal =
     subStatus === "active" && subscription?.current_period_end != null
 
-  const showUpgrade = isFreePlan
+  const showUpgrade = isFreePlan || subStatus === "cancelled"
 
   const showCancelButton =
     Boolean(profile?.stripe_customer_id?.trim()) &&
