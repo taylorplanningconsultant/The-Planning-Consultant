@@ -1,10 +1,85 @@
+"use client"
+
+import { createClient } from "@/lib/supabase/client"
 import { ArrowLeft, Check } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter, useSearchParams } from "next/navigation"
+import { FormEvent, Suspense, useEffect, useState } from "react"
 
-import { ResetPasswordForm } from "./ResetPasswordForm"
+const inputClassName =
+  "w-full rounded-lg border border-border bg-background px-4 py-2.5 text-foreground placeholder:text-muted-brand focus:border-transparent focus:outline-none focus:ring-2 focus:ring-accent"
 
-export default function ResetPasswordPage() {
+const primaryCtaClassName =
+  "inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+
+function ResetPasswordPageContent() {
+  const supabase = createClient()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const code = searchParams.get("code")
+
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isExchangingCode, setIsExchangingCode] = useState(true)
+  const [errorMessage, setErrorMessage] = useState("")
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function exchangeCode() {
+      if (!code) {
+        if (isMounted) {
+          setErrorMessage("Invalid or missing reset code. Request a new reset link and try again.")
+          setIsExchangingCode(false)
+        }
+        return
+      }
+
+      const { error } = await supabase.auth.exchangeCodeForSession(code)
+
+      if (!isMounted) {
+        return
+      }
+
+      if (error) {
+        setErrorMessage(error.message || "Unable to verify reset link. Request a new one and try again.")
+      }
+
+      setIsExchangingCode(false)
+    }
+
+    void exchangeCode()
+
+    return () => {
+      isMounted = false
+    }
+  }, [code, supabase.auth])
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setErrorMessage("")
+
+    if (password !== confirmPassword) {
+      setErrorMessage("Passwords do not match")
+      return
+    }
+
+    setIsSubmitting(true)
+
+    const { error } = await supabase.auth.updateUser({ password })
+
+    setIsSubmitting(false)
+
+    if (error) {
+      setErrorMessage(error.message || "Unable to update your password. Please try again.")
+      return
+    }
+
+    router.push("/dashboard")
+  }
+
   return (
     <main className="min-h-screen bg-background">
       <div className="grid min-h-screen grid-cols-1 md:grid-cols-2">
@@ -70,10 +145,63 @@ export default function ResetPasswordPage() {
                     />
                   </svg>
                 </div>
-                <span className="text-lg font-bold text-foreground">MyPlanningGuide</span>
+                <span className="text-lg font-bold text-foreground">The Planning Consultant</span>
               </div>
 
-              <ResetPasswordForm />
+              <h1 className="mb-2 text-2xl font-bold tracking-tight text-foreground">Set a new password</h1>
+              <p className="mb-6 text-sm text-muted-foreground">Enter and confirm your new password.</p>
+
+              <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="new-password" className="text-sm font-medium text-foreground">
+                    New password
+                  </label>
+                  <input
+                    id="new-password"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    minLength={8}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    className={inputClassName}
+                    placeholder="At least 8 characters"
+                    disabled={isExchangingCode || isSubmitting}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="confirm-password" className="text-sm font-medium text-foreground">
+                    Confirm password
+                  </label>
+                  <input
+                    id="confirm-password"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    minLength={8}
+                    value={confirmPassword}
+                    onChange={(event) => setConfirmPassword(event.target.value)}
+                    className={inputClassName}
+                    placeholder="Re-enter your new password"
+                    disabled={isExchangingCode || isSubmitting}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className={`${primaryCtaClassName} mt-2`}
+                  disabled={isExchangingCode || isSubmitting}
+                >
+                  {isExchangingCode ? "Verifying link..." : isSubmitting ? "Updating..." : "Update password"}
+                </button>
+              </form>
+
+              {errorMessage ? (
+                <p className="mt-2 text-xs font-medium text-danger" role="alert">
+                  {errorMessage}
+                </p>
+              ) : null}
 
               <p className="mt-4 text-center text-sm text-muted-foreground">
                 Remembered your password?{" "}
@@ -86,5 +214,19 @@ export default function ResetPasswordPage() {
         </section>
       </div>
     </main>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-background">
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        </main>
+      }
+    >
+      <ResetPasswordPageContent />
+    </Suspense>
   )
 }
