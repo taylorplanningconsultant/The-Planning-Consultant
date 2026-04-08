@@ -78,7 +78,7 @@ export async function deductCredits(
   };
 
   const { error: usageError } = await supabase
-    .from("credit_usage")
+    .from("usage")
     .insert(usage);
 
   if (usageError) throw usageError;
