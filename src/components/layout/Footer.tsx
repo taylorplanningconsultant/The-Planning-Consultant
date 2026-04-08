@@ -76,34 +76,26 @@ export function Footer() {
             <ul className="flex list-none flex-col gap-2.5">
               <li>
                 <Link
-                  href="/guides"
+                  href="/check"
                   className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
                 >
-                  Planning guides
+                  Constraint checker
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/blog/planning-constraints-explained"
+                  href="/statement"
                   className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
                 >
-                  Constraints explained
+                  Statement generator
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/blog/what-is-a-planning-statement"
+                  href="/pricing"
                   className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
                 >
-                  Planning statements
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/newsletter"
-                  className="text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
-                >
-                  Newsletter
+                  Pricing
                 </Link>
               </li>
             </ul>
