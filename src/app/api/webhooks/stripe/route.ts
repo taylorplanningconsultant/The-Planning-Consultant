@@ -406,9 +406,7 @@ export async function POST(request: Request) {
     const shouldGrantSubscriptionCredits =
       prevAttrs !== undefined &&
       prevAttrs !== null &&
-      (prevAttrs.status !== undefined ||
-        prevAttrs.items !== undefined ||
-        prevAttrs.current_period_end !== undefined);
+      prevAttrs.current_period_end !== undefined;
 
     if (
       userIdForSubscription &&
