@@ -130,6 +130,11 @@ function LoginPageContent() {
     }
 
     redirectAfterLogin(next, router)
+    void fetch("/api/email/welcome", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email.trim(), name: fullName.trim() }),
+    })
   }
 
   async function handleMagicLinkSignIn() {
@@ -164,7 +169,7 @@ function LoginPageContent() {
     setSuccessMessage("")
     setIsSubmitting(true)
     const { error } = await supabase.auth.resetPasswordForEmail(resetEmail.trim(), {
-      redirectTo: window.location.origin + "/auth/callback?next=/dashboard",
+      redirectTo: window.location.origin + "/auth/reset-password",
     })
     if (error) {
       setErrorMessage(error.message)
@@ -268,7 +273,7 @@ function LoginPageContent() {
                     />
                   </svg>
                 </div>
-                <span className="text-lg font-bold text-foreground">MyPlanningGuide</span>
+                <span className="text-lg font-bold text-foreground">The Planning Consultant</span>
               </div>
 
               {view === "forgot" ? (

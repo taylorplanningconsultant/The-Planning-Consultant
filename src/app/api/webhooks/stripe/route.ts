@@ -1,4 +1,6 @@
 import { addCredits } from "@/lib/credits";
+import { sendEmail } from "@/lib/email";
+import { reportReadyEmail } from "@/lib/email/templates/reportReady";
 import { stripe } from "@/lib/stripe/client";
 import {
   planFromStripePriceId,
@@ -108,6 +110,23 @@ export async function POST(request: Request) {
             .update({ user_id: profile.id })
             .eq("id", reportId)
             .is("user_id", null);
+        }
+
+        if (reportId && customerEmail && !profile) {
+          const { data: report } = await supabase
+            .from("reports")
+            .select("share_token")
+            .eq("id", reportId)
+            .maybeSingle();
+
+          if (report?.share_token) {
+            const reportUrl = `${process.env.NEXT_PUBLIC_APP_URL}/report/${report.share_token}`;
+            await sendEmail(
+              customerEmail,
+              "Your planning report is ready",
+              reportReadyEmail(reportUrl).html,
+            );
+          }
         }
       }
     } else {
