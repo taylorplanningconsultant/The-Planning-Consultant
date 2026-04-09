@@ -129,12 +129,12 @@ function LoginPageContent() {
         .eq("id", data.user.id)
     }
 
+    if (data.session === null) {
+      setSuccessMessage("Check your email to confirm your account before signing in.")
+      return
+    }
+
     redirectAfterLogin(next, router)
-    void fetch("/api/email/welcome", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email.trim(), name: fullName.trim() }),
-    })
   }
 
   async function handleMagicLinkSignIn() {
