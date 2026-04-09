@@ -100,7 +100,7 @@ function LoginPageContent() {
       email: email.trim(),
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: `https://theplanningconsultant.com/auth/callback`,
         data: {
           full_name: fullName,
           phone: phone || null,
