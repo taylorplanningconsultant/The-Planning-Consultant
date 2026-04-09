@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
         Math.abs(lastSignInAt - createdAt) <= 10_000;
 
       if (isNewSignUp && user.email) {
-        void fetch(new URL("/api/email/welcome", requestUrl.origin), {
+        void fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/email/welcome`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
