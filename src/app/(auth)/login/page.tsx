@@ -56,6 +56,7 @@ function LoginPageContent() {
   const [resetSent, setResetSent] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
   const [successMessage, setSuccessMessage] = useState("")
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   async function handleSignIn(event: FormEvent<HTMLFormElement>) {
@@ -69,14 +70,16 @@ function LoginPageContent() {
       password,
     })
 
-    setIsSubmitting(false)
-
     if (error) {
+      setIsSubmitting(false)
       setErrorMessage(error.message || "Unable to sign in. Please try again.")
       return
     }
 
+    setEmail("")
+    setPassword("")
     redirectAfterLogin(next, router)
+    setIsSubmitting(false)
   }
 
   async function handleSignUp(event: FormEvent<HTMLFormElement>) {
@@ -136,7 +139,12 @@ function LoginPageContent() {
     }
 
     if (data.session === null) {
-      setSuccessMessage("Check your email to confirm your account before signing in.")
+      setShowConfirmModal(true)
+      setFullName("")
+      setEmail("")
+      setPassword("")
+      setConfirmPassword("")
+      setPhone("")
       return
     }
 
@@ -645,6 +653,38 @@ function LoginPageContent() {
           </div>
         </section>
       </div>
+      {showConfirmModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-sm rounded-2xl bg-background p-8 text-center shadow-xl">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-light">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  stroke="#126B3A"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+            <h2 className="mb-2 text-xl font-bold text-foreground">Check your email</h2>
+            <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
+              We sent a confirmation link to your email address. Click it to activate your account
+              and get started.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setShowConfirmModal(false)
+                setView("signin")
+              }}
+              className="inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-opacity hover:opacity-90"
+            >
+              Back to sign in
+            </button>
+          </div>
+        </div>
+      ) : null}
     </main>
   )
 }

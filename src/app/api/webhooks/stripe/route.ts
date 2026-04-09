@@ -112,7 +112,10 @@ export async function POST(request: Request) {
             .is("user_id", null);
         }
 
-        if (reportId && customerEmail) {
+        const isReportPurchase =
+          priceId === STRIPE_PRODUCTS.oneOff.fullReport ||
+          priceId === STRIPE_PRODUCTS.oneOff.bundle;
+        if (reportId && customerEmail && isReportPurchase) {
           const { data: report } = await supabase
             .from("reports")
             .select("share_token")

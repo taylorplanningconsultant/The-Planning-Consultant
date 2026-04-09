@@ -104,11 +104,13 @@ function AssessmentPreviewBlock({
   paymentLoading,
   onUnlock,
   onBundleUnlock,
+  isGuest,
 }: {
   assessment: string
   paymentLoading: boolean
   onUnlock: () => void
   onBundleUnlock: () => void
+  isGuest: boolean
 }) {
   const { first, rest } = splitFirstParagraph(assessment)
   return (
@@ -161,6 +163,14 @@ function AssessmentPreviewBlock({
                 ? "Redirecting to secure payment…"
                 : "Report + Statement — £99"}
             </button>
+            {isGuest ? (
+              <p className="mt-2 text-center text-xs text-muted-foreground">
+                <a href="/login" className="font-medium text-primary hover:underline">
+                  Sign in or create an account
+                </a>{" "}
+                to purchase the bundle
+              </p>
+            ) : null}
             <p className="mt-2 text-center text-xs font-medium text-primary">
               Save £9 vs buying separately (£29 + £79)
             </p>
@@ -1013,9 +1023,14 @@ function CheckPageContent() {
                           onUnlock={() =>
                             handlePayment(STRIPE_PRODUCTS.oneOff.fullReport)
                           }
-                          onBundleUnlock={() =>
+                          onBundleUnlock={() => {
+                            if (!authUser) {
+                              window.location.href = "/login"
+                              return
+                            }
                             handlePayment(STRIPE_PRODUCTS.oneOff.bundle)
-                          }
+                          }}
+                          isGuest={!authUser}
                         />
                       </div>
                     </div>
