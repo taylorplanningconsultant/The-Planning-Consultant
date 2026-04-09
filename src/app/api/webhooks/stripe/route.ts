@@ -112,7 +112,7 @@ export async function POST(request: Request) {
             .is("user_id", null);
         }
 
-        if (reportId && customerEmail && !profile) {
+        if (reportId && customerEmail) {
           const { data: report } = await supabase
             .from("reports")
             .select("share_token")
