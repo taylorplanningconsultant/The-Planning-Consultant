@@ -446,10 +446,11 @@ export function StructuredProjectForm({
         ? 2
         : 3
 
+  const totalSteps = purpose === "statement" ? 4 : 3
   const stepLabel =
     reviewQuestions.length > 0 && uiStep === 3 && !reviewLoading
-      ? "Step 3 of 3"
-      : `Step ${progressStep} of 3`
+      ? `Step ${totalSteps} of ${totalSteps}`
+      : `Step ${progressStep} of ${totalSteps}`
 
   const showFollowUp =
     uiStep === 3 && !reviewLoading && reviewQuestions.length > 0
@@ -474,7 +475,7 @@ export function StructuredProjectForm({
           {stepLabel}
         </p>
         <div className="flex gap-2" aria-hidden>
-          {[1, 2, 3].map((n) => (
+          {Array.from({ length: totalSteps }, (_, i) => i + 1).map((n) => (
             <div
               key={n}
               className={cn(

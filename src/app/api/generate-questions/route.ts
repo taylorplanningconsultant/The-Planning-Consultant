@@ -86,24 +86,40 @@ export async function POST(request: Request) {
   const safeDescription = sanitiseText(description)
 
   try {
+    const promptByPurpose =
+      purpose === "report"
+        ? `Generate up to 4 questions to understand the physical project for a planning constraint report.
+Collect: approximate scale, materials, roof type, property type, neighbour impact.
+Prefer button choices. No need for exact dimensions.
+Project type: ${projectType}
+Description: ${safeDescription}
+Location: ${lpaName}
+Constraints found: ${JSON.stringify(constraints)}`
+        : `Generate up to 8 questions to collect detailed technical information for a formal planning statement.
+A good planning statement needs: approximate or exact dimensions (width, depth, eaves height, ridge height in metres), external wall materials, roof materials and design, property type, number of existing parking spaces and whether any will be lost, approximate distance to nearest boundary, whether any neighbouring windows face the extension, and access arrangements.
+Only ask about what is NOT already clear from the description.
+Use number type for dimensions, buttons for finite choices, text for open answers.
+Project type: ${projectType}
+Description: ${safeDescription}
+Location: ${lpaName}
+Constraints found: ${JSON.stringify(constraints)}`
+
     const client = new Anthropic()
     const message = await client.messages.create({
       model: "claude-sonnet-4-5",
       max_tokens: 2048,
       temperature: 0,
-      system: `You are helping a homeowner fill in a planning form. 
-Generate simple questions they can answer without planning knowledge.
-Rules: no technical terms, max 4 questions, prefer button choices.
+      system: `You are a UK planning consultant collecting project information from a homeowner.
+Ask only about the physical characteristics of the proposed works.
+NEVER ask whether planning permission is needed.
+NEVER ask about planning policies, conservation areas, listed buildings, Article 4, or any planning constraints — these are checked separately.
+NEVER ask about planning history unless it directly affects the physical design.
+Only ask about what is genuinely missing from the description provided.
 Respond with JSON only.`,
       messages: [{
         role: "user",
-        content: `Project: ${projectType}
-Description: ${safeDescription}
-Location: ${lpaName}
-Constraints: ${JSON.stringify(constraints)}
-Purpose: ${purpose}
+        content: `${promptByPurpose}
 
-Generate 4 simple questions. Use type "single_choice" for button options.
 Return this exact JSON format:
 {
   "questions": [

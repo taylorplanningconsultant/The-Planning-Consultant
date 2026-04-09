@@ -48,7 +48,10 @@ function extractJsonText(raw: string): string {
   return trimmed
 }
 
-function parseAiResponse(text: string): {
+function parseAiResponse(
+  text: string,
+  purpose: "report" | "statement",
+): {
   status: "ready" | "questions"
   questions: string[]
 } | null {
@@ -69,7 +72,8 @@ function parseAiResponse(text: string): {
     return { status: "ready", questions: [] }
   }
 
-  const capped = questions.slice(0, 2)
+  const maxFollowUp = purpose === "statement" ? 4 : 2
+  const capped = questions.slice(0, maxFollowUp)
   if (capped.length === 0) {
     return { status: "ready", questions: [] }
   }
@@ -91,29 +95,44 @@ export async function POST(request: Request) {
 
   const { projectType, answers, constraints, lpaName, purpose } = parsed.data
 
-  const userPrompt = `Already answered questions (DO NOT ask about these again):
+  const statementChecklist = `
+For a planning statement, check specifically whether these are covered in the answers:
+- Approximate dimensions (width, depth, height) — if missing, ask
+- External materials (walls and roof) — if missing, ask
+- Property type (detached, semi, terraced, flat) — if missing, ask
+- Parking — existing spaces and whether any will be lost — if missing, ask
+- Neighbour impact — will any neighbouring windows be directly affected — if missing, ask
+- Boundary distance — approximate distance to nearest boundary — if missing, ask
+`
+
+  const reportChecklist = `
+For a planning report, check whether these basics are covered:
+- Approximate scale of the project
+- Materials and design
+- Impact on neighbours
+`
+
+  const userPrompt = `You are reviewing answers before generating a ${purpose}.
+
+Already answered (DO NOT ask about these again):
 ${JSON.stringify(answers)}
 
-Only ask follow-up questions about information that is genuinely missing and was NOT already covered in the answers above.
-
-Review these answers for a ${purpose} for 
-a ${projectType} in ${lpaName}.
-
+Project: ${projectType} in ${lpaName}
 Constraints found: ${JSON.stringify(constraints)}
 
-Client answers: ${JSON.stringify(answers)}
+${purpose === "statement" ? statementChecklist : reportChecklist}
 
-If answers are sufficient to generate a 
-professional ${purpose}, respond with:
+If the answers above are sufficient, respond with:
 {"status":"ready","questions":[]}
 
-If 1-2 critical pieces of information are 
-missing, respond with:
+If critical information is missing, ask up to ${purpose === "statement" ? 4 : 2} short questions.
+Questions must be answerable in one sentence.
+Do not repeat anything already answered.
+
+Respond with JSON only:
 {"status":"questions","questions":["question1","question2"]}
 
-Maximum 2 questions. Only ask if truly critical.
-Questions should be answerable in one sentence.
-Respond with JSON only, no other text.`
+`
 
   try {
     const client = new Anthropic()
@@ -137,7 +156,7 @@ Respond with JSON only, no other text.`
       )
     }
 
-    const review = parseAiResponse(text)
+    const review = parseAiResponse(text, purpose)
     if (!review) {
       return NextResponse.json({ status: "ready", questions: [] })
     }
