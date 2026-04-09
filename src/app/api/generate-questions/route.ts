@@ -143,7 +143,6 @@ Return this exact JSON format:
       .map(q => normaliseQuestion(q as Record<string, unknown>))
       .filter(q => q.label.length > 0)
 
-    console.log("Final questions:", JSON.stringify(questions, null, 2))
     return NextResponse.json({ questions })
 
   } catch (err) {

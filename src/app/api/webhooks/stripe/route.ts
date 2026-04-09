@@ -71,13 +71,6 @@ export async function POST(request: Request) {
       session.metadata?.priceId ??
       null;
 
-    console.log("Webhook received:", {
-      sessionId: session.id,
-      reportId,
-      customerEmail,
-      priceId,
-      metadata: session.metadata,
-    });
 
     if (reportId) {
       const update: TablesUpdate<"reports"> = {
@@ -90,7 +83,6 @@ export async function POST(request: Request) {
         .update(update)
         .eq("id", reportId);
 
-      console.log("Update result:", { error, reportId });
 
       if (error) {
         console.error("checkout.session.completed reports update:", error);
@@ -133,7 +125,6 @@ export async function POST(request: Request) {
         }
       }
     } else {
-      console.log("No reportId in metadata - skipping report update");
     }
 
     if (priceId === STRIPE_PRODUCTS.oneOff.bundle && reportId) {
@@ -227,17 +218,7 @@ export async function POST(request: Request) {
         : subscription.customer.id;
     const priceId = subscription.items.data[0]?.price.id;
     const plan = planFromStripePriceId(priceId ?? "");
-    console.log("Price ID from Stripe:", priceId);
-    console.log(
-      "Known price IDs:",
-      Object.values(STRIPE_PRODUCTS.subscriptions),
-    );
 
-    console.log("subscription.created event:", {
-      customerId,
-      priceId,
-      plan,
-    });
 
     if (plan) {
       const credits = SUBSCRIPTION_CREDITS[plan];
@@ -248,7 +229,6 @@ export async function POST(request: Request) {
 
       const customerEmail = customer.email;
 
-      console.log("customer email:", customerEmail);
 
       const { data: profile } = customerEmail
         ? await supabase
@@ -260,7 +240,6 @@ export async function POST(request: Request) {
 
       const userId = profile?.id;
 
-      console.log("found userId:", userId);
 
       if (userId) {
         const { error: profileUpdateError } = await supabase

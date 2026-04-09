@@ -276,7 +276,6 @@ export function StructuredProjectForm({
         Array.isArray((data as { questions: unknown }).questions)
       ) {
         const rawQuestions = (data as { questions: unknown[] }).questions
-        console.log("Raw questions from API:", rawQuestions)
         qs = rawQuestions
           .filter((q) => Boolean(q) && typeof q === "object" && q !== null)
           .map((q) => {
@@ -307,9 +306,6 @@ export function StructuredProjectForm({
 
       setGeneratedQuestions(qs)
       setLastDescription(base.size.trim())
-      console.log("Setting generated questions:", qs)
-      console.log("Questions length:", qs.length)
-      console.log("Moving to step 2")
       setGeneratedAnswers({})
       setUiStep(2)
     } catch {
@@ -340,8 +336,6 @@ export function StructuredProjectForm({
       })
 
       const data: unknown = await res.json().catch(() => null)
-      console.log('Review response:', data)
-      console.log('Response status:', res.status)
 
       if (!res.ok) {
         const err =
@@ -362,7 +356,6 @@ export function StructuredProjectForm({
         "status" in data &&
         (data as { status: string }).status === "ready"
       ) {
-        console.log('Status is ready - calling onComplete')
         setExitedAfterComplete(true)
         onComplete({
           ...base,
@@ -379,7 +372,6 @@ export function StructuredProjectForm({
         "questions" in data &&
         Array.isArray((data as { questions: unknown }).questions)
       ) {
-        console.log('Status is questions:', (data as any).questions)
         const qs = (data as { questions: string[] }).questions.filter(
           (q) => typeof q === "string" && q.trim().length > 0,
         )
@@ -404,7 +396,6 @@ export function StructuredProjectForm({
         followUpAnswers: { ...generatedAnswers },
       })
     } catch (err) {
-      console.log('Error in handleStep2Continue:', err)
       setReviewError("Something went wrong. Please try again.")
       setUiStep(2)
     } finally {

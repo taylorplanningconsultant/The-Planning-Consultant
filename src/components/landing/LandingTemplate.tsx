@@ -55,7 +55,6 @@ export function LandingTemplate() {
   }
 
   async function handleSubscribe(priceId: string, isAnnual: boolean) {
-    console.log('handleSubscribe called', priceId);
     void isAnnual;
     const supabase = createClient();
     const {
@@ -77,7 +76,6 @@ export function LandingTemplate() {
       }),
     });
     const data = await res.json();
-    console.log('checkout response', data);
     if (data.url) window.location.href = data.url;
   }
 

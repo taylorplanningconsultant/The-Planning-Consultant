@@ -9,7 +9,6 @@ export async function GET(request: NextRequest) {
   if (code) {
     const supabase = await createClient();
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-    console.log("callback: code exchange", { error: error?.message, hasSession: !!data.session });
 
     if (!error && data.session?.user) {
       const { user } = data.session;
@@ -19,12 +18,6 @@ export async function GET(request: NextRequest) {
         Number.isFinite(createdAt) &&
         Number.isFinite(lastSignInAt) &&
         Math.abs(lastSignInAt - createdAt) <= 3_600_000;
-      console.log("callback: signup check", {
-        isNewSignUp,
-        createdAt,
-        lastSignInAt,
-        diff: Math.abs(lastSignInAt - createdAt),
-      });
 
       if (isNewSignUp && user.email) {
         void fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/email/welcome`, {
