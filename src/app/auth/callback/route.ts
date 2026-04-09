@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
       const isNewSignUp =
         Number.isFinite(createdAt) &&
         Number.isFinite(lastSignInAt) &&
-        Math.abs(lastSignInAt - createdAt) <= 10_000;
+        Math.abs(lastSignInAt - createdAt) <= 3_600_000;
 
       if (isNewSignUp && user.email) {
         void fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/email/welcome`, {
