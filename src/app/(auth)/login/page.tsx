@@ -108,6 +108,11 @@ function LoginPageContent() {
     })
 
     setIsSubmitting(false)
+    console.log("signup result", {
+      session: data.session,
+      user: data.user?.email,
+      confirmed: data.user?.email_confirmed_at,
+    })
 
     if (data.user && data.user.identities?.length === 0) {
       setErrorMessage("An account with this email already exists. Please sign in instead.")
