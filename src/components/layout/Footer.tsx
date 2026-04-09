@@ -92,7 +92,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/pricing"
+                  href="/#pricing"
                   className="inline-flex min-h-11 items-center text-[13.5px] font-normal text-white/50 no-underline transition-colors hover:text-white/90"
                 >
                   Pricing
