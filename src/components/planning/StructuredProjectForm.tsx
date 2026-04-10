@@ -608,7 +608,7 @@ export function StructuredProjectForm({
                 <p className="mb-3 text-xs text-muted-brand">{q.helpText}</p>
 
                 {q.type === "buttons" ? (
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     {q.options.map((opt) => {
                       const selected = generatedAnswers[q.id] === opt
                       return (
