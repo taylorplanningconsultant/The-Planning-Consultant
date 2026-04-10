@@ -234,7 +234,8 @@ export default async function SharedReportPage({
             </div>
 
             <div className="md:col-span-3">
-              {report.ai_assessment ? (
+              {report.ai_assessment &&
+              report.report_type?.toLowerCase() === "full" ? (
                 <div>
                   <div className="mb-6 flex items-center gap-2">
                     <Sparkles className="h-5 w-5 text-accent" aria-hidden />
@@ -398,7 +399,7 @@ export default async function SharedReportPage({
                 href="/statement"
                 className="mt-4 inline-block rounded-lg bg-white px-4 py-2 text-sm font-semibold text-brand-dark"
               >
-                Get statement — £59
+                Get statement — £79
               </a>
             </div>
 
