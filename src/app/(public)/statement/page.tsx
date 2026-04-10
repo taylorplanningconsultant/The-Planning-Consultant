@@ -23,6 +23,7 @@ function projectAnswersToRecord(answers: ProjectAnswers): Record<string, string>
 }
 import { SparkleLoader } from "@/components/ui/SparkleLoader"
 import { Footer } from "@/components/layout/Footer"
+import { trackPurchase } from "@/lib/analytics"
 import { createClient } from "@/lib/supabase/client"
 import { STRIPE_PRODUCTS } from "@/lib/stripe/products"
 import type { ConstraintCheckResponse } from "@/types/planning"
@@ -48,6 +49,12 @@ function StatementPageContent() {
   const searchParams = useSearchParams()
   const postcodeFromQuery =
     searchParams.get("postcode") ?? searchParams.get("address") ?? ""
+
+  useEffect(() => {
+    const sessionId = searchParams.get("session_id")
+    if (!sessionId) return
+    trackPurchase(79)
+  }, [searchParams])
 
   const [postcode, setPostcode] = useState("")
   const [suggestions, setSuggestions] = useState<string[]>([])

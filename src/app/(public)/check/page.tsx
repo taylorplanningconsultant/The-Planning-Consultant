@@ -8,6 +8,7 @@ import { ConstraintTable } from "@/components/report/ConstraintTable"
 import { ScoreGauge } from "@/components/report/ScoreGauge"
 import { SparkleLoader } from "@/components/ui/SparkleLoader"
 import { Footer } from "@/components/layout/Footer"
+import { trackPurchase } from "@/lib/analytics"
 import { createClient } from "@/lib/supabase/client"
 import { STRIPE_PRODUCTS } from "@/lib/stripe/products"
 import type {
@@ -188,6 +189,12 @@ function CheckPageContent() {
   const searchParams = useSearchParams()
   const postcodeFromQuery =
     searchParams.get("postcode") ?? searchParams.get("address") ?? ""
+
+  useEffect(() => {
+    const sessionId = searchParams.get("session_id")
+    if (!sessionId) return
+    trackPurchase(29)
+  }, [searchParams])
 
   const [postcode, setPostcode] = useState("")
   const [suggestions, setSuggestions] = useState<string[]>([])
