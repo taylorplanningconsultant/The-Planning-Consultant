@@ -140,6 +140,10 @@ function AssessmentPreviewBlock({
         </div>
         <div className="relative z-10 -mt-10 w-full px-2 pb-1 pt-3">
           <div className="mx-auto flex w-full max-w-md flex-col">
+            <p className="mb-3 text-center text-xs leading-relaxed text-muted-foreground">
+              Built from live data at planning.data.gov.uk and OS Data Hub —
+              the same sources your local council uses.
+            </p>
             <button
               type="button"
               onClick={onUnlock}
@@ -153,6 +157,12 @@ function AssessmentPreviewBlock({
                 ? "Redirecting to secure payment…"
                 : "Unlock full report — £29 one-off"}
             </button>
+            <p className="mt-2 text-center text-xs text-muted-brand">
+              vs. £200–£500 for a consultant assessment
+            </p>
+            <p className="mt-1 text-center text-xs text-muted-foreground">
+              One-off payment. Instant delivery. No subscription.
+            </p>
             <p className="my-2 text-center text-xs text-muted-brand">or</p>
             <button
               type="button"
@@ -472,31 +482,32 @@ function CheckPageContent() {
     formStepLoading.reviewLoading
 
   const trustItems = [
-    "Eight statutory constraint categories reviewed",
-    "Drawn from live government planning data",
-    "Initial screen at no charge",
-    "Full written report available from £29 one-off",
+    "8 constraint categories checked",
+    "337 local authorities covered",
+    "Results in under 60 seconds",
+    "Planning consultants charge £200–£500 for this — yours is free",
   ] as const
 
   const showStateAIdle = !isLoading && !result
 
   return (
     <>
-      <main className="min-h-screen bg-background font-sans">
-        <section className="bg-brand-dark dot-bg dot-bg-on-dark py-20 md:py-24">
+      <main className="min-h-screen bg-background pt-[58px] font-sans">
+        <section className="bg-brand-dark dot-bg dot-bg-on-dark py-10 md:py-24">
           <div className="mx-auto max-w-5xl px-6 md:px-8">
             <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2 md:gap-16">
               <div>
-                <span className="mb-8 inline-flex items-center rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/85">
+                <span className="mb-4 inline-flex items-center rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/85 md:mb-8">
                   Planning constraint analysis
                 </span>
-                <h1 className="mb-6 text-4xl font-extrabold leading-tight tracking-tight text-white md:text-5xl">
-                  Check planning constraints for your postcode
+                <h1 className="mb-4 text-3xl font-extrabold leading-tight tracking-tight text-white md:mb-6 md:text-5xl">
+                  Find out if your project has planning problems — before you
+                  spend anything
                 </h1>
-                <p className="max-w-xl text-lg font-normal leading-relaxed text-white/75 md:text-xl">
-                  A structured, area-level review of planning constraints from
-                  authoritative sources — with an optional full PDF report from
-                  £29 one-off when you need detail.
+                <p className="max-w-xl text-base font-normal leading-relaxed text-white/75 md:text-xl">
+                  Enter your postcode. In 60 seconds we&apos;ll flag conservation
+                  areas, flood risk, permitted development restrictions, and more
+                  — completely free.
                 </p>
               </div>
               <div className="hidden text-center md:block">
@@ -513,7 +524,7 @@ function CheckPageContent() {
         </section>
 
         <form onSubmit={handleSubmit} className="border-b border-border bg-secondary">
-          <div className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 py-12 md:flex-row md:items-end md:gap-10 md:px-8 md:py-14">
+          <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-8 md:flex-row md:items-end md:gap-10 md:px-8 md:py-14">
             <div className="min-w-0 flex-1">
               <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-accent">
                 Site location
@@ -539,7 +550,7 @@ function CheckPageContent() {
                     setPostcode(val)
                     await fetchSuggestions(val)
                   }}
-                  autoComplete="off"
+                  autoComplete="postal-code"
                   disabled={postcodeFieldsDisabled}
                   className={inputClassName}
                   placeholder="Enter postcode"
@@ -581,7 +592,7 @@ function CheckPageContent() {
                 disabled={postcodeFieldsDisabled}
                 className={cn(
                   primaryCtaClassName,
-                  "min-w-[200px] flex-shrink-0 whitespace-nowrap px-10",
+                  "min-h-12 min-w-[200px] w-full flex-shrink-0 whitespace-nowrap px-10 md:w-auto",
                 )}
               >
                 {isLoading ? (
@@ -657,12 +668,13 @@ function CheckPageContent() {
                 The service
               </p>
               <h2 className="mx-auto mb-6 max-w-2xl text-center text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">
-                Evidence-led screening before you instruct consultants
+                What you&apos;ll see in your free check
               </h2>
               <p className="mx-auto mb-16 max-w-2xl text-center text-base leading-relaxed text-muted-foreground">
-                Use the free check to understand material constraints; upgrade
-                when you require a scored assessment and downloadable report for
-                your records or advisers.
+                Enter your postcode and we&apos;ll check all 8 constraint
+                categories for your area instantly — free, no account needed.
+                Upgrade to a full PDF report for £29 if you want the complete
+                written analysis.
               </p>
               <div className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
                 <div className="flex flex-col items-start gap-5 rounded-2xl border border-border bg-secondary p-8">
@@ -816,21 +828,20 @@ function CheckPageContent() {
                   <ConstraintTable
                     constraints={result.constraints}
                     showAll={true}
+                    freeDetailCount={3}
+                    detailsUnlocked={emailUnlocked}
                   />
 
                   {!emailUnlocked ? (
                     <div className="mt-10 grid grid-cols-1 items-center gap-10 rounded-2xl border border-border bg-secondary p-8 md:grid-cols-2 md:gap-12 md:p-10">
                       <div>
-                        <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-accent">
-                          Complimentary summary
-                        </p>
                         <h3 className="mb-4 text-2xl font-bold text-foreground">
-                          Unlock full results and your score
+                          Your results are ready — unlock them free
                         </h3>
                         <p className="text-sm leading-relaxed text-muted-foreground">
-                          Provide a correspondence address to reveal all
-                          constraint categories, the approval likelihood score,
-                          and tailored next steps — at no charge.
+                          See the full explanation for all 8 constraints, your
+                          approval likelihood score, and recommended next steps.
+                          Free — no payment required.
                         </p>
                         <Image
                           src="/illustrations/report.svg"
@@ -853,7 +864,7 @@ function CheckPageContent() {
                             type="email"
                             value={leadEmail}
                             onChange={(e) => setLeadEmail(e.target.value)}
-                            placeholder="name@example.com"
+                            placeholder="Your email address"
                             required
                             className={cn(inputClassName, "mb-4 w-full py-3.5")}
                             autoComplete="email"
@@ -868,7 +879,7 @@ function CheckPageContent() {
                           >
                             {leadSubmitting
                               ? "Saving…"
-                              : "Unlock free report"}
+                              : "Unlock my free results"}
                           </button>
                           <p className="mt-4 text-center text-xs text-muted-brand">
                             We will not send unsolicited marketing. You may
@@ -1056,24 +1067,25 @@ function CheckPageContent() {
 function CheckLoadingFallback() {
   return (
     <>
-      <main className="min-h-screen bg-background font-sans">
-        <section className="bg-brand-dark dot-bg dot-bg-on-dark py-20 md:py-24">
+      <main className="min-h-screen bg-background pt-[58px] font-sans">
+        <section className="bg-brand-dark dot-bg dot-bg-on-dark py-10 md:py-24">
           <div className="mx-auto max-w-5xl px-6 md:px-8">
-            <span className="mb-8 inline-flex items-center rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/85">
+            <span className="mb-4 inline-flex items-center rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/85 md:mb-8">
               Planning constraint analysis
             </span>
-            <h1 className="mb-6 text-4xl font-extrabold leading-tight tracking-tight text-white md:text-5xl">
-              Check planning constraints for your postcode
+            <h1 className="mb-4 text-3xl font-extrabold leading-tight tracking-tight text-white md:mb-6 md:text-5xl">
+              Find out if your project has planning problems — before you spend
+              anything
             </h1>
-            <p className="max-w-xl text-lg font-normal leading-relaxed text-white/75 md:text-xl">
-              A structured, area-level review of planning constraints from
-              authoritative sources — with an optional full PDF report from £29
-              one-off when you need detail.
+            <p className="max-w-xl text-base font-normal leading-relaxed text-white/75 md:text-xl">
+              Enter your postcode. In 60 seconds we&apos;ll flag conservation
+              areas, flood risk, permitted development restrictions, and more
+              — completely free.
             </p>
           </div>
         </section>
         <div className="border-b border-border bg-secondary">
-          <div className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 py-12 md:flex-row md:items-end md:gap-10 md:px-8 md:py-14">
+          <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-8 md:flex-row md:items-end md:gap-10 md:px-8 md:py-14">
             <div className="min-w-0 flex-1">
               <div className="mb-4 h-3 w-28 animate-pulse rounded bg-border" />
               <div className="mb-4 h-12 max-w-lg animate-pulse rounded bg-white/60" />

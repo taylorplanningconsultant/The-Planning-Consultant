@@ -128,19 +128,19 @@ export function LandingTemplate() {
               AI-powered planning guidance
             </div>
             <h1 className="hero-headline fi-anim d1 text-white">
-              Know your planning
+              Find out if your project has
               <br />
-              chances{" "}
+              planning problems{" "}
               <span className="hl text-white bg-none [-webkit-text-fill-color:white] [background-clip:unset] [-webkit-background-clip:unset]">
-                before you
+                - free, in
                 <br />
-                spend a penny
+                60 seconds
               </span>
             </h1>
             <p className="hero-sub fi-anim d2 text-white">
-              Instant planning constraint reports for any UK postcode. Check
-              conservation areas, permitted development rights, flood zones, and
-              more — in under 60 seconds.
+              Enter your postcode and we&apos;ll instantly flag conservation
+              areas, flood risk, permitted development restrictions, and more.
+              No account. No payment. Just answers.
             </p>
             <div
               ref={heroInputWrapRef}
@@ -159,7 +159,7 @@ export function LandingTemplate() {
                 }}
               />
               <button type="button" onClick={handleCheck}>
-                Check now
+                Check my postcode free
                 <svg
                   width="13"
                   height="13"
@@ -190,7 +190,8 @@ export function LandingTemplate() {
                   strokeLinecap="round"
                 />
               </svg>
-              Free basic check. No account required. Full report from £29.
+              Free in 60 seconds. No account required. See all 8 constraint
+              categories instantly.
             </p>
           </div>
 
@@ -304,8 +305,8 @@ export function LandingTemplate() {
         <div className="max-w-[1180px] mx-auto px-7 pb-8 md:pb-10 w-full">
           <div className="hero-stats flex-wrap justify-center gap-x-9 gap-y-8 !mt-6 !pt-5 max-[920px]:!mt-5 max-[920px]:!pt-4">
             <div className="text-center min-w-[min(100%,160px)]">
-              <div className="stat-val">45 min</div>
-              <div className="stat-lbl">Saved per site assessment</div>
+              <div className="stat-val">60 sec</div>
+              <div className="stat-lbl">Free instant results</div>
             </div>
             <div className="text-center min-w-[min(100%,160px)]">
               <div className="stat-val">8</div>
@@ -465,9 +466,9 @@ export function LandingTemplate() {
               </div>
               <div className="step-title">Get your full report</div>
               <p className="step-desc">
-                Receive a structured PDF with your approval likelihood score,
-                constraint breakdown, next steps, and policy references — ready
-                to share with your architect.
+                See your free constraint summary instantly. Upgrade to a full
+                PDF report with approval likelihood score, next steps, and
+                policy references when you need the detail.
               </p>
             </div>
           </div>
@@ -782,13 +783,6 @@ export function LandingTemplate() {
                   </div>
                 </li>
               </ul>
-              <div className="mb-6 flex flex-wrap items-baseline justify-center gap-3 lg:justify-start">
-                <div className="text-5xl font-extrabold leading-none tracking-tight text-foreground">
-                  <span className="align-super text-2xl font-semibold">£</span>
-                  79
-                </div>
-                <div className="text-[13px] text-muted-brand">One-off</div>
-              </div>
               <Link
                 href="/statement"
                 className="inline-block w-full rounded-lg bg-gradient-to-br from-primary to-accent px-6 py-3 text-center text-sm font-semibold text-white shadow-md transition-opacity hover:opacity-90 sm:w-auto"

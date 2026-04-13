@@ -4,6 +4,7 @@ import {
   Droplets,
   FileWarning,
   Home,
+  Lock,
   Mountain,
   TreePine,
   Trees,
@@ -39,6 +40,10 @@ export type ConstraintTableProps = {
    * `true` or omitted shows all constraints (up to 8).
    */
   showAll?: boolean
+  /** Number of top rows that keep detail visible when `detailsUnlocked` is false. */
+  freeDetailCount?: number
+  /** Controls whether locked detail placeholders are shown after `freeDetailCount`. */
+  detailsUnlocked?: boolean
 }
 
 function statusLabel(status: ConstraintResult["status"]): string {
@@ -57,14 +62,16 @@ function statusLabel(status: ConstraintResult["status"]): string {
 function ConstraintRow({
   constraint,
   neutralStatusDot,
+  detailLocked,
 }: {
   constraint: ConstraintResult
   /** Use on blurred “locked” rows so pass/flag/fail colours do not show through the blur. */
   neutralStatusDot?: boolean
+  detailLocked?: boolean
 }) {
   const { status } = constraint
   return (
-    <div className="grid grid-cols-[20px_20px_1fr_auto] items-start gap-4 py-4">
+    <div className="grid grid-cols-[20px_20px_1fr] items-start gap-3 py-4 md:grid-cols-[20px_20px_1fr_auto] md:gap-4">
       {neutralStatusDot ? (
         <div className="w-2.5 h-2.5 rounded-full bg-border flex-shrink-0 mt-1.5" />
       ) : (
@@ -80,17 +87,24 @@ function ConstraintRow({
       <div className="ct-emoji mt-1.5 flex flex-shrink-0 justify-center">
         <ConstraintCategoryIcon category={constraint.category} />
       </div>
-      <div>
+      <div className="min-w-0">
         <p className="text-sm font-semibold text-foreground">
           {constraint.label}
         </p>
-        <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
-          {constraint.detail}
-        </p>
+        {detailLocked ? (
+          <p className="mt-0.5 flex items-center gap-1.5 text-sm leading-relaxed text-muted-brand">
+            <Lock className="h-3.5 w-3.5 flex-shrink-0" aria-hidden />
+            <span>Unlock to see full detail</span>
+          </p>
+        ) : (
+          <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
+            {constraint.detail}
+          </p>
+        )}
       </div>
       <span
         className={cn(
-          "whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold",
+          "col-start-3 mt-2 w-fit whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold md:col-auto md:mt-0",
           status === "pass" && "bg-[#EDFAF3] text-[#0F7040]",
           status === "flag" && "bg-[#FEF7E6] text-[#8A6010]",
           status === "fail" && "bg-[#FDECEA] text-[#991818]",
@@ -115,6 +129,8 @@ export function ConstraintTable({
   constraints,
   visibleCount: visibleCountProp,
   showAll,
+  freeDetailCount = 8,
+  detailsUnlocked = true,
 }: ConstraintTableProps) {
   const visibleCount = resolveVisibleCount(visibleCountProp, showAll)
   const shown = constraints.slice(0, visibleCount)
@@ -130,7 +146,10 @@ export function ConstraintTable({
             hiddenConstraints.length === 0 && i === shown.length - 1 && "border-b-0",
           )}
         >
-          <ConstraintRow constraint={constraint} />
+          <ConstraintRow
+            constraint={constraint}
+            detailLocked={!detailsUnlocked && i >= freeDetailCount}
+          />
         </div>
       ))}
       {hiddenConstraints.map((constraint, i) => (

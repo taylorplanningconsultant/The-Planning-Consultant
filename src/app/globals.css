@@ -186,3 +186,9 @@
   100% { transform: translateX(400%); }
 }
 
+.check-logo-only-nav nav ul,
+.check-logo-only-nav nav .lg\:flex.hidden,
+.check-logo-only-nav nav .lg\:hidden {
+  display: none !important;
+}
+

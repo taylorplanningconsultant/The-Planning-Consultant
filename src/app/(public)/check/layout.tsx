@@ -11,5 +11,7 @@ export default function CheckLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <div className="check-logo-only-nav">{children}</div>
+  );
 }
