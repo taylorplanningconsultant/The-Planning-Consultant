@@ -10,7 +10,6 @@ const navLinks = [
   { href: "/check", label: "Constraint checker" },
   { href: "/statement", label: "Planning statement" },
   { href: "/#pricing", label: "Pricing" },
-  { href: "/#guides", label: "Guides" },
   { href: "/#professionals", label: "For professionals" },
 ] as const;
 
