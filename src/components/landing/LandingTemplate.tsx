@@ -1703,7 +1703,7 @@ export function LandingTemplate() {
       </div>
 
       {/* PLANNING GUIDES — COMING SOON */}
-      <div
+      {/* <div
         className="bg-secondary border-t border-border py-12"
         id="guides"
       >
@@ -1734,7 +1734,7 @@ export function LandingTemplate() {
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* CTA */}
       <div className="cta-wrap">
